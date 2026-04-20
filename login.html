@@ -3,351 +3,1246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar sesión · PeopleFlow</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<title>RRHH.BIO · El HRMS de nueva generación para Colombia</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <style>
 :root {
-  --teal: #0891b2; --teal-light: #22d3ee; --teal-dark: #0e7490;
-  --orange: #f97316;
-  --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
-  --gray-400: #94a3b8; --gray-500: #64748b; --gray-700: #334155;
-  --gray-800: #1e293b; --gray-900: #0f172a;
-  --error: #ef4444;
+  --p50: #faf5ff;
+  --p100: #f3e8ff;
+  --p200: #e9d5ff;
+  --p300: #d8b4fe;
+  --p400: #c084fc;
+  --p500: #a855f7;
+  --p600: #9333ea;
+  --p700: #7c3aed;
+  --p800: #6d28d9;
+  --p900: #4c1d95;
+  --p950: #2e1065;
+  --white: #ffffff;
+  --off: #fefcff;
+  --ink: #1a0533;
+  --ink2: #3d1f5e;
+  --muted: #9b7db5;
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(168,85,247,0.2);
+  --r: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
 }
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
 body{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  min-height:100vh;display:flex;
-  background:var(--gray-900);
-  color:var(--gray-800);
+  font-family:'Geist',sans-serif;
+  background:var(--ink);
+  color:var(--white);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor{
+  position:fixed;width:12px;height:12px;
+  background:var(--p400);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform .1s,width .3s,height .3s,background .3s;
+  mix-blend-mode:screen;
+}
+.cursor-ring{
+  position:fixed;width:40px;height:40px;
+  border:1.5px solid rgba(168,85,247,0.5);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform .15s ease,width .3s,height .3s;
+}
+.cursor-ring.hover{width:60px;height:60px;border-color:var(--p400);}
+
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity:0.025;
+  pointer-events:none;z-index:1000;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:20px 60px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all .4s;
+}
+nav.scrolled{
+  background:rgba(26,5,51,0.92);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--glass-border);
+  padding:14px 60px;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;color:inherit;
+}
+.logo-mark{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--p500),var(--p700));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;font-family:'Geist',sans-serif;
+  box-shadow:0 0 20px rgba(168,85,247,0.4);
+  letter-spacing:-1px;
+}
+.logo-name{
+  font-family:'Geist',sans-serif;font-size:1.15rem;
+  font-weight:800;letter-spacing:-.03em;color:white;
+}
+.logo-name span{color:var(--p400);}
+nav ul{display:flex;gap:36px;list-style:none;}
+nav ul a{
+  color:var(--muted);font-size:.85rem;font-weight:500;
+  text-decoration:none;transition:color .2s;letter-spacing:-.01em;
+}
+nav ul a:hover{color:white;}
+.nav-actions{display:flex;align-items:center;gap:12px;}
+.btn-nav-ghost{
+  background:transparent;border:1px solid rgba(168,85,247,0.3);
+  color:var(--p300);padding:8px 20px;border-radius:99px;
+  font-size:.82rem;font-weight:600;cursor:pointer;
+  text-decoration:none;transition:all .25s;
+  font-family:'Geist',sans-serif;
+}
+.btn-nav-ghost:hover{border-color:var(--p400);color:white;background:rgba(168,85,247,0.1);}
+.btn-nav-cta{
+  background:linear-gradient(135deg,var(--p500),var(--p700));
+  border:none;color:white;padding:9px 22px;border-radius:99px;
+  font-size:.82rem;font-weight:700;cursor:pointer;
+  text-decoration:none;transition:all .25s;
+  font-family:'Geist',sans-serif;
+  box-shadow:0 4px 24px rgba(168,85,247,0.4);
+}
+.btn-nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(168,85,247,0.6);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:140px 60px 80px;
+  position:relative;overflow:hidden;text-align:center;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 900px 700px at 50% -100px, rgba(139,92,246,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 80% 80%, rgba(168,85,247,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 400px 300px at 10% 60%, rgba(109,40,217,0.07) 0%, transparent 60%),
+    var(--ink);
+}
+/* Aurora bands */
+.aurora{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+}
+.aurora-band{
+  position:absolute;border-radius:50%;filter:blur(80px);
+  animation:drift linear infinite;
+  opacity:0.12;
+}
+@keyframes drift{
+  0%{transform:translate(0,0) rotate(0deg);}
+  50%{transform:translate(30px,-20px) rotate(180deg);}
+  100%{transform:translate(0,0) rotate(360deg);}
+}
+
+/* Floating orbs */
+.orbs{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.orb{
+  position:absolute;border-radius:50%;
+  animation:orbFloat ease-in-out infinite;
+}
+@keyframes orbFloat{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-30px) scale(1.05);}
+}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(139,92,246,0.08));
+  border:1px solid rgba(168,85,247,0.25);
+  color:var(--p300);
+  padding:6px 18px 6px 6px;border-radius:99px;
+  font-size:.73rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:32px;position:relative;z-index:2;
+  animation:fadeUp .8s .1s both;
+}
+.eyebrow-dot{
+  width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p500),var(--p600));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;
+}
+
+.hero h1{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(3rem,7vw,6rem);
+  font-weight:400;line-height:1.05;
+  letter-spacing:-.02em;
+  margin-bottom:28px;
+  position:relative;z-index:2;
+  animation:fadeUp .8s .2s both;
+}
+.hero h1 em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--p300),var(--p500),var(--p400));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero h1 strong{
+  font-family:'Geist',sans-serif;font-weight:900;font-style:normal;
+  letter-spacing:-.04em;
+  -webkit-text-fill-color:white;
+}
+
+.hero-sub{
+  font-size:1.1rem;color:var(--muted);
+  max-width:560px;line-height:1.75;margin:0 auto 48px;
+  font-weight:400;letter-spacing:-.01em;
+  position:relative;z-index:2;
+  animation:fadeUp .8s .3s both;
+}
+
+.hero-cta{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  position:relative;z-index:2;
+  animation:fadeUp .8s .4s both;
+}
+.btn-hero{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:15px 32px;border-radius:99px;
+  font-size:.92rem;font-weight:700;
+  text-decoration:none;cursor:pointer;
+  transition:all .3s;font-family:'Geist',sans-serif;
+}
+.btn-cta-main{
+  background:linear-gradient(135deg,var(--p500),var(--p700));
+  color:white;border:none;
+  box-shadow:0 8px 40px rgba(168,85,247,0.45),inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.btn-cta-main:hover{transform:translateY(-2px);box-shadow:0 16px 60px rgba(168,85,247,0.6);}
+.btn-cta-sec{
+  background:rgba(255,255,255,0.06);
+  color:white;border:1px solid rgba(255,255,255,0.12);
+}
+.btn-cta-sec:hover{background:rgba(255,255,255,0.1);}
+
+/* Sparkle arrow */
+.hero-arrow{
+  position:relative;z-index:2;
+  margin-top:60px;
+  animation:fadeUp .8s .6s both, bounce 2s 1.5s ease-in-out infinite;
+  color:var(--muted);font-size:.75rem;display:flex;flex-direction:column;align-items:center;gap:8px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+@keyframes bounce{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(8px);}
+}
+
+/* ── SOCIAL PROOF ── */
+.proof{
+  padding:60px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.proof-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;gap:60px;
+  flex-wrap:wrap;justify-content:center;
+}
+.proof-label{font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:500;white-space:nowrap;}
+.proof-divider{width:1px;height:40px;background:rgba(255,255,255,0.08);}
+.proof-logos{display:flex;gap:40px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.proof-logo{
+  font-size:.85rem;font-weight:700;color:rgba(255,255,255,0.2);
+  letter-spacing:-.01em;transition:color .3s;cursor:default;
+}
+.proof-logo:hover{color:rgba(255,255,255,0.5);}
+.proof-stats{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
+.proof-stat{}
+.proof-stat-num{
+  font-family:'Geist',sans-serif;font-size:1.6rem;font-weight:800;
+  background:linear-gradient(135deg,white,var(--p300));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.proof-stat-label{font-size:.72rem;color:var(--muted);margin-top:2px;letter-spacing:.04em;}
+
+/* ── DASHBOARD PREVIEW ── */
+.preview{
+  padding:100px 60px;
+  position:relative;
+}
+.preview-label{
+  text-align:center;font-size:.72rem;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  margin-bottom:32px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.preview-label::before,.preview-label::after{
+  content:'';flex:1;max-width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(168,85,247,0.3),transparent);
+}
+.preview-shell{
+  max-width:1100px;margin:0 auto;
+  border-radius:var(--r-xl);
   overflow:hidden;
+  border:1px solid rgba(168,85,247,0.2);
+  box-shadow:
+    0 80px 160px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(168,85,247,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  animation:previewFloat 8s ease-in-out infinite;
 }
-
-/* ── LEFT PANEL ── */
-.left-panel{
-  flex:1;display:flex;align-items:center;justify-content:center;
-  padding:60px;position:relative;overflow:hidden;
+@keyframes previewFloat{
+  0%,100%{transform:perspective(1200px) rotateX(2deg) rotateY(-1deg);}
+  50%{transform:perspective(1200px) rotateX(1deg) rotateY(1deg);}
 }
-.left-bg{
-  position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 70% at 30% 40%,rgba(8,145,178,.2),transparent),
-             radial-gradient(ellipse 50% 60% at 80% 70%,rgba(249,115,22,.12),transparent),
-             var(--gray-900);
+.preview-chrome{
+  background:rgba(46,16,101,0.8);
+  backdrop-filter:blur(12px);
+  padding:14px 20px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(168,85,247,0.15);
 }
-.left-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
-  background-size:40px 40px;
-}
-.left-content{position:relative;z-index:2;max-width:420px;color:white;}
-.left-logo{display:flex;align-items:center;gap:10px;margin-bottom:48px;}
-.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
-.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;}
-.left-title{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:16px;}
-.left-sub{color:rgba(255,255,255,.5);font-size:.9rem;line-height:1.7;margin-bottom:40px;}
-
-.testimonial{
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-  border-radius:14px;padding:20px 22px;
-}
-.testimonial-text{font-size:.85rem;color:rgba(255,255,255,.8);line-height:1.6;margin-bottom:14px;}
-.testimonial-author{display:flex;align-items:center;gap:10px;}
-.author-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--orange));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;}
-.author-name{font-size:.8rem;font-weight:600;}
-.author-role{font-size:.72rem;color:rgba(255,255,255,.4);}
-
-.decorative-dots{
-  position:absolute;bottom:40px;left:60px;
-  display:grid;grid-template-columns:repeat(6,1fr);gap:8px;opacity:.2;
-}
-.dot{width:4px;height:4px;border-radius:50%;background:var(--teal-light);}
-
-/* ── RIGHT PANEL ── */
-.right-panel{
-  width:480px;flex-shrink:0;
-  background:white;display:flex;align-items:center;justify-content:center;
-  padding:60px 52px;
-  box-shadow:-20px 0 60px rgba(0,0,0,.3);
-}
-.form-wrap{width:100%;}
-.form-title{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;color:var(--gray-900);margin-bottom:6px;}
-.form-sub{font-size:.85rem;color:var(--gray-500);margin-bottom:32px;}
-
-.form-group{margin-bottom:18px;}
-label{display:block;font-size:.78rem;font-weight:700;color:var(--gray-700);margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase;}
-.input-wrap{position:relative;}
-.input-wrap i{
-  position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  color:var(--gray-400);font-size:.85rem;pointer-events:none;
-}
-input[type=email],input[type=password]{
-  width:100%;padding:11px 14px 11px 40px;
-  border:1.5px solid var(--gray-200);border-radius:10px;
-  font-family:inherit;font-size:.88rem;color:var(--gray-800);
-  background:var(--gray-50);transition:all .2s;outline:none;
-}
-input:focus{border-color:var(--teal);background:white;box-shadow:0 0 0 3px rgba(8,145,178,.1);}
-input.error-input{border-color:var(--error);}
-
-.password-toggle{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  cursor:pointer;color:var(--gray-400);font-size:.85rem;
-  background:none;border:none;padding:0;
-}
-.password-toggle:hover{color:var(--gray-700);}
-
-.forgot-link{
-  display:block;text-align:right;font-size:.78rem;color:var(--teal);
-  text-decoration:none;font-weight:600;margin-top:6px;
-}
-.forgot-link:hover{color:var(--teal-dark);}
-
-/* Error message */
-.error-msg{
-  display:none;align-items:center;gap:8px;
-  background:#fef2f2;border:1px solid #fecaca;border-radius:8px;
-  padding:10px 14px;margin-bottom:18px;
-  font-size:.8rem;color:var(--error);font-weight:500;
-}
-.error-msg.show{display:flex;}
-.error-msg i{flex-shrink:0;}
-
-/* Submit button */
-.btn-login{
-  width:100%;padding:13px;
-  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
-  color:white;border:none;border-radius:10px;
-  font-family:inherit;font-size:.9rem;font-weight:700;
-  cursor:pointer;transition:all .25s;
-  box-shadow:0 4px 20px rgba(8,145,178,.3);
-  margin-top:8px;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(8,145,178,.45);}
-.btn-login:active{transform:translateY(0);}
-.btn-login:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-
-/* Spinner */
-.spinner{
-  width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
-  border-top-color:white;border-radius:50%;
-  animation:spin .6s linear infinite;display:none;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-.divider{
-  display:flex;align-items:center;gap:12px;
-  margin:24px 0;font-size:.75rem;color:var(--gray-400);
-}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--gray-200);}
-
-.demo-btn{
-  width:100%;padding:11px;
-  background:var(--gray-50);border:1.5px solid var(--gray-200);
-  color:var(--gray-700);border-radius:10px;
-  font-family:inherit;font-size:.85rem;font-weight:600;
-  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.demo-btn:hover{background:var(--gray-100);}
-
-.back-link{
+.chrome-dots{display:flex;gap:6px;}
+.chrome-dot{width:11px;height:11px;border-radius:50%;}
+.chrome-url{
+  flex:1;margin-left:8px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:5px 14px;
+  font-size:.72rem;color:rgba(255,255,255,0.35);
   display:flex;align-items:center;gap:6px;
-  margin-top:28px;font-size:.8rem;color:var(--gray-400);
-  text-decoration:none;justify-content:center;
 }
-.back-link:hover{color:var(--teal);}
+.chrome-url i{color:var(--p400);font-size:.65rem;}
+.preview-body{
+  display:grid;grid-template-columns:230px 1fr;
+  min-height:440px;
+  background:rgba(20,5,42,0.95);
+}
+.mock-sidebar{
+  background:rgba(46,16,101,0.4);
+  border-right:1px solid rgba(168,85,247,0.1);
+  padding:20px 14px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.mock-logo-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:20px;
+}
+.mock-logo-dot{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--p500),var(--p700));}
+.mock-logo-text{height:10px;width:70px;border-radius:4px;background:rgba(255,255,255,0.2);}
+.mock-company{
+  background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);
+  border-radius:9px;padding:10px;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.mock-company-dot{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--p500),var(--p400));}
+.mock-company-lines{display:flex;flex-direction:column;gap:4px;flex:1;}
+.mock-line{height:7px;border-radius:3px;background:rgba(255,255,255,0.15);}
+.mock-nav{
+  height:28px;border-radius:7px;
+  display:flex;align-items:center;padding:0 10px;gap:7px;
+  transition:background .15s;
+}
+.mock-nav.active{background:rgba(168,85,247,0.2);}
+.mock-nav-dot{width:14px;height:14px;border-radius:4px;background:rgba(255,255,255,0.1);flex-shrink:0;}
+.mock-nav.active .mock-nav-dot{background:var(--p400);}
+.mock-nav-label{height:7px;flex:1;border-radius:3px;background:rgba(255,255,255,0.1);}
+.mock-nav.active .mock-nav-label{background:rgba(168,85,247,0.5);}
+.mock-main{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.mock-header{display:flex;justify-content:space-between;align-items:center;}
+.mock-title{height:16px;width:180px;border-radius:5px;background:rgba(255,255,255,0.2);}
+.mock-btn{height:28px;width:100px;border-radius:99px;background:linear-gradient(135deg,var(--p500),var(--p700));}
+.mock-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.mock-stat{
+  background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.12);
+  border-radius:12px;padding:14px;
+}
+.mock-stat::before{
+  content:'';display:block;height:4px;border-radius:2px;margin-bottom:10px;
+}
+.mock-stat:nth-child(1)::before{background:linear-gradient(90deg,var(--p500),var(--p400));}
+.mock-stat:nth-child(2)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.mock-stat:nth-child(3)::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.mock-stat:nth-child(4)::before{background:linear-gradient(90deg,#e879f9,#d946ef);}
+.mock-stat-num{height:18px;width:50px;border-radius:4px;margin-bottom:6px;background:rgba(255,255,255,0.25);}
+.mock-stat-lbl{height:7px;width:70px;border-radius:3px;background:rgba(255,255,255,0.1);}
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;}
+.mock-card{
+  background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.1);
+  border-radius:12px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.mock-card-hdr{height:9px;width:100px;border-radius:3px;background:rgba(255,255,255,0.15);}
+.mock-row{height:28px;border-radius:7px;background:rgba(255,255,255,0.04);display:flex;align-items:center;padding:0 8px;gap:7px;}
+.mock-avatar-sm{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--p500),#e879f9);}
+.mock-row-text{flex:1;height:6px;border-radius:2px;background:rgba(255,255,255,0.1);}
+.mock-badge-sm{height:16px;width:40px;border-radius:99px;background:rgba(168,85,247,0.3);}
 
+/* ── FEATURES ── */
+.features{padding:100px 60px;max-width:1200px;margin:0 auto;}
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--p400);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;
+}
+.section-eyebrow i{font-size:.65rem;}
+.section-h{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(2.2rem,4.5vw,3.8rem);
+  font-weight:400;line-height:1.1;letter-spacing:-.02em;
+  margin-bottom:18px;
+}
+.section-h em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--p300),var(--p500));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.section-sub{color:var(--muted);font-size:.98rem;line-height:1.75;max-width:520px;}
+
+.feat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;margin-top:64px;
+  border:1px solid rgba(168,85,247,0.12);
+  border-radius:var(--r-xl);overflow:hidden;
+}
+.feat-card{
+  background:rgba(168,85,247,0.03);
+  padding:36px 32px;
+  transition:background .3s;
+  position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(168,85,247,0.08),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.feat-card:hover{background:rgba(168,85,247,0.07);}
+.feat-card:hover::before{opacity:1;}
+.feat-card:not(:last-child){border-right:1px solid rgba(168,85,247,0.08);}
+.feat-card:nth-child(n+4){border-top:1px solid rgba(168,85,247,0.08);}
+.feat-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(139,92,246,0.08));
+  border:1px solid rgba(168,85,247,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;margin-bottom:20px;
+  transition:all .3s;
+}
+.feat-card:hover .feat-icon{
+  background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(139,92,246,0.15));
+  box-shadow:0 0 24px rgba(168,85,247,0.3);
+}
+.feat-title{font-size:1rem;font-weight:700;margin-bottom:10px;letter-spacing:-.02em;}
+.feat-desc{font-size:.85rem;color:var(--muted);line-height:1.65;}
+.feat-tag{
+  display:inline-block;margin-top:16px;
+  background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.2);
+  color:var(--p300);font-size:.68rem;font-weight:600;
+  padding:3px 10px;border-radius:99px;letter-spacing:.04em;
+}
+
+/* ── BENTO GRID ── */
+.bento{
+  padding:0 60px 100px;
+  max-width:1200px;margin:0 auto;
+}
+.bento-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:auto;
+  gap:16px;
+}
+.bento-card{
+  background:rgba(168,85,247,0.04);
+  border:1px solid rgba(168,85,247,0.12);
+  border-radius:var(--r-lg);
+  padding:32px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s;
+}
+.bento-card:hover{border-color:rgba(168,85,247,0.3);transform:translateY(-3px);}
+.bento-card::after{
+  content:'';
+  position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(168,85,247,0.06) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.bento-card:hover::after{opacity:1;}
+.bento-wide{grid-column:span 2;}
+.bento-tall{grid-row:span 2;}
+.bento-label{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--p400);margin-bottom:12px;
+}
+.bento-title{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;}
+.bento-sub{font-size:.84rem;color:var(--muted);line-height:1.6;}
+
+/* Animated counter */
+.big-number{
+  font-family:'Instrument Serif',serif;
+  font-size:4rem;font-weight:400;
+  background:linear-gradient(135deg,white,var(--p300));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin:16px 0 4px;
+}
+.big-number-label{font-size:.8rem;color:var(--muted);}
+
+/* Mini chart */
+.mini-chart{
+  display:flex;align-items:flex-end;gap:5px;height:60px;margin-top:20px;
+}
+.mini-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  background:rgba(168,85,247,0.2);
+  transition:background .3s;position:relative;overflow:hidden;
+}
+.mini-bar::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,var(--p600),var(--p400));
+  transform:scaleY(0);transform-origin:bottom;
+  transition:transform .6s ease;
+  border-radius:inherit;
+}
+.bento-card:hover .mini-bar::after{transform:scaleY(1);}
+
+/* Mini kanban */
+.mini-kanban{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;
+}
+.mini-col{display:flex;flex-direction:column;gap:5px;}
+.mini-col-hdr{
+  font-size:.6rem;font-weight:700;text-transform:uppercase;
+  color:var(--muted);margin-bottom:4px;letter-spacing:.06em;
+}
+.mini-ticket{
+  height:28px;border-radius:6px;
+  background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.15);
+  display:flex;align-items:center;padding:0 6px;gap:5px;
+}
+.mini-ticket-dot{width:6px;height:6px;border-radius:50%;background:var(--p400);}
+.mini-ticket-line{flex:1;height:5px;border-radius:2px;background:rgba(255,255,255,0.1);}
+.mini-ticket:nth-child(2) .mini-ticket-dot{background:#10b981;}
+.mini-ticket:nth-child(3) .mini-ticket-dot{background:#f59e0b;}
+
+/* Progress ring */
+.ring-wrap{
+  display:flex;align-items:center;gap:20px;margin-top:16px;
+}
+.ring-legend{display:flex;flex-direction:column;gap:8px;}
+.ring-item{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted);}
+.ring-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.ring-val{margin-left:auto;font-weight:700;color:white;}
+
+/* ── TESTIMONIALS ── */
+.testi{
+  padding:100px 60px;
+  background:linear-gradient(180deg,transparent,rgba(168,85,247,0.04),transparent);
+}
+.testi-inner{max-width:1100px;margin:0 auto;}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:64px;}
+.testi-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(168,85,247,0.12);
+  border-radius:var(--r-lg);
+  padding:32px;
+  position:relative;transition:all .3s;
+}
+.testi-card:hover{border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.05);}
+.testi-card::before{
+  content:'\201C';
+  position:absolute;top:20px;right:24px;
+  font-family:'Instrument Serif',serif;font-size:4rem;
+  color:rgba(168,85,247,0.15);line-height:1;
+}
+.testi-stars{display:flex;gap:3px;margin-bottom:16px;}
+.testi-star{color:var(--p400);font-size:.75rem;}
+.testi-text{font-size:.9rem;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:20px;}
+.testi-author{display:flex;align-items:center;gap:12px;}
+.testi-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p600),var(--p400));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:800;flex-shrink:0;
+}
+.testi-name{font-size:.85rem;font-weight:700;letter-spacing:-.01em;}
+.testi-role{font-size:.75rem;color:var(--muted);}
+
+/* ── PRICING ── */
+.pricing{
+  padding:100px 60px;
+  max-width:1100px;margin:0 auto;
+}
+.pricing-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:20px;margin-top:64px;
+}
+.price-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(168,85,247,0.15);
+  border-radius:var(--r-xl);
+  padding:36px;
+  position:relative;transition:all .3s;
+}
+.price-card:hover{transform:translateY(-4px);}
+.price-card.featured{
+  background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(139,92,246,0.06));
+  border-color:rgba(168,85,247,0.4);
+  box-shadow:0 0 80px rgba(168,85,247,0.15),0 40px 80px rgba(0,0,0,0.3);
+}
+.price-popular{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--p500),var(--p700));
+  color:white;font-size:.65rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.1em;padding:5px 18px;border-radius:99px;
+  white-space:nowrap;
+  box-shadow:0 4px 20px rgba(168,85,247,0.5);
+}
+.price-tier{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:12px;
+}
+.price-amount{
+  font-family:'Geist',sans-serif;font-size:2.8rem;font-weight:800;
+  line-height:1;letter-spacing:-.04em;margin-bottom:4px;
+}
+.price-amount sup{font-size:1rem;font-weight:600;margin-right:2px;}
+.price-amount span{font-size:.9rem;font-weight:400;color:var(--muted);letter-spacing:0;}
+.price-desc{font-size:.82rem;color:var(--muted);margin-bottom:28px;line-height:1.5;}
+.price-divider{height:1px;background:rgba(168,85,247,0.12);margin-bottom:24px;}
+.price-list{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:32px;}
+.price-list li{
+  display:flex;align-items:center;gap:10px;
+  font-size:.84rem;color:rgba(255,255,255,0.75);
+}
+.price-list li i{
+  width:16px;text-align:center;
+  color:var(--p400);font-size:.7rem;flex-shrink:0;
+}
+.price-list li.dim{color:var(--muted);}
+.price-list li.dim i{color:rgba(255,255,255,0.15);}
+.btn-price{
+  display:block;width:100%;padding:13px;border-radius:12px;
+  text-align:center;font-size:.88rem;font-weight:700;
+  text-decoration:none;cursor:pointer;transition:all .3s;
+  font-family:'Geist',sans-serif;
+}
+.btn-price-ghost{
+  background:transparent;color:rgba(255,255,255,0.6);
+  border:1px solid rgba(168,85,247,0.2);
+}
+.btn-price-ghost:hover{border-color:rgba(168,85,247,0.5);color:white;}
+.btn-price-fill{
+  background:linear-gradient(135deg,var(--p500),var(--p700));
+  color:white;border:none;
+  box-shadow:0 8px 32px rgba(168,85,247,0.4);
+}
+.btn-price-fill:hover{box-shadow:0 12px 48px rgba(168,85,247,0.6);transform:translateY(-1px);}
+
+/* ── CTA FINAL ── */
+.final-cta{
+  padding:100px 60px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.final-cta::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 800px 600px at 50% 50%,rgba(168,85,247,0.12),transparent);
+  pointer-events:none;
+}
+.final-cta-content{position:relative;z-index:2;max-width:640px;margin:0 auto;}
+.final-cta h2{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(2.5rem,5vw,4rem);
+  font-weight:400;line-height:1.1;letter-spacing:-.02em;
+  margin-bottom:20px;
+}
+.final-cta h2 em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--p300),var(--p500));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.final-cta p{font-size:1rem;color:var(--muted);margin-bottom:40px;line-height:1.7;}
+.final-cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* ── FOOTER ── */
+footer{
+  padding:48px 60px;
+  border-top:1px solid rgba(168,85,247,0.1);
+  display:grid;grid-template-columns:1fr auto auto;
+  gap:40px;align-items:center;
+}
+.footer-brand{display:flex;flex-direction:column;gap:10px;}
+.footer-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.footer-tagline{font-size:.8rem;color:var(--muted);line-height:1.5;max-width:300px;}
+.footer-links{display:flex;gap:28px;flex-wrap:wrap;}
+.footer-links a{font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:white;}
+.footer-copy{font-size:.78rem;color:rgba(255,255,255,0.2);text-align:right;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+
+/* ── RESPONSIVE ── */
 @media(max-width:900px){
-  .left-panel{display:none;}
-  .right-panel{width:100%;box-shadow:none;background:var(--gray-900);}
-  .form-wrap{background:white;padding:40px 32px;border-radius:20px;}
-  .right-panel{padding:40px 20px;align-items:flex-start;padding-top:80px;}
+  nav{padding:16px 24px;}
+  nav ul{display:none;}
+  .hero{padding:120px 24px 60px;}
+  .proof{padding:40px 24px;}
+  .preview{padding:60px 24px;}
+  .features{padding:60px 24px;}
+  .feat-grid{grid-template-columns:1fr;gap:1px;}
+  .feat-card:not(:last-child){border-right:none;border-bottom:1px solid rgba(168,85,247,0.08);}
+  .feat-card:nth-child(n+4){border-top:none;}
+  .bento{padding:0 24px 60px;}
+  .bento-grid{grid-template-columns:1fr;}
+  .bento-wide,.bento-tall{grid-column:1;grid-row:auto;}
+  .testi{padding:60px 24px;}
+  .testi-grid{grid-template-columns:1fr;}
+  .pricing{padding:60px 24px;}
+  .pricing-cards{grid-template-columns:1fr;}
+  .final-cta{padding:60px 24px;}
+  footer{padding:40px 24px;grid-template-columns:1fr;gap:24px;}
+  .footer-copy{text-align:left;}
+  .preview-body{grid-template-columns:1fr;}
+  .mock-sidebar{display:none;}
+  .mock-stats{grid-template-columns:repeat(2,1fr);}
+  .mock-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- ── LEFT PANEL ── -->
-<div class="left-panel">
-  <div class="left-bg"></div>
-  <div class="left-grid"></div>
-  <div class="left-content">
-    <div class="left-logo">
-      <div class="logo-icon">🌊</div>
-      <div class="logo-text" style="color:white">PeopleFlow</div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo">
+    <div class="logo-mark">R</div>
+    <span class="logo-name">RRHH<span>.BIO</span></span>
+  </a>
+  <ul>
+    <li><a href="#features">Módulos</a></li>
+    <li><a href="#pricing">Precios</a></li>
+    <li><a href="mailto:hola@rrhh.bio">Contacto</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="dashboard.html" class="btn-nav-ghost">Iniciar sesión</a>
+    <a href="#pricing" class="btn-nav-cta">Ver planes →</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="aurora">
+    <div class="aurora-band" style="width:600px;height:600px;top:-200px;left:-100px;background:radial-gradient(circle,rgba(139,92,246,0.3),transparent 70%);animation-duration:20s;"></div>
+    <div class="aurora-band" style="width:400px;height:400px;top:30%;right:-100px;background:radial-gradient(circle,rgba(168,85,247,0.2),transparent 70%);animation-duration:15s;animation-direction:reverse;"></div>
+    <div class="aurora-band" style="width:300px;height:300px;bottom:-50px;left:40%;background:radial-gradient(circle,rgba(232,121,249,0.15),transparent 70%);animation-duration:12s;"></div>
+  </div>
+  <div class="orbs">
+    <div class="orb" style="width:200px;height:200px;top:15%;left:8%;background:radial-gradient(circle,rgba(168,85,247,0.06),transparent);animation-duration:7s;"></div>
+    <div class="orb" style="width:120px;height:120px;top:60%;right:10%;background:radial-gradient(circle,rgba(232,121,249,0.08),transparent);animation-duration:9s;animation-delay:-3s;"></div>
+  </div>
+
+  <div class="hero-content" style="position:relative;z-index:2;max-width:820px;">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot">✦</div>
+      HRMS de próxima generación para Colombia
     </div>
-    <h2 class="left-title">Tu equipo,<br>organizado.</h2>
-    <p class="left-sub">Gestiona nómina, asistencia, reclutamiento y más — desde una plataforma diseñada para empresas colombianas.</p>
-    <div class="testimonial">
-      <div class="testimonial-text">"Antes usábamos Excel para todo. PeopleFlow nos ahorró 12 horas semanales en gestión de RH."</div>
-      <div class="testimonial-author">
-        <div class="author-avatar">AS</div>
-        <div>
-          <div class="author-name">Ana Sofía Restrepo</div>
-          <div class="author-role">Directora RRHH · TechCorp S.A.S.</div>
+    <h1>
+      El sistema de personas<br>
+      que tu empresa <em>merece</em>
+    </h1>
+    <p class="hero-sub">
+      Gestiona nómina, empleados, asistencia y reclutamiento en una plataforma diseñada para la realidad colombiana. Sin complicaciones, sin hojas de cálculo.
+    </p>
+    <div class="hero-cta">
+      <a href="dashboard.html" class="btn-hero btn-cta-main">
+        <i class="fas fa-arrow-right-to-bracket"></i>
+        Comenzar gratis
+      </a>
+      <a href="#preview" class="btn-hero btn-cta-sec">
+        Ver demo <i class="fas fa-play" style="font-size:.75rem"></i>
+      </a>
+    </div>
+  </div>
+  <div class="hero-arrow">
+    <span>Descubrir</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ── SOCIAL PROOF ── -->
+<div class="proof">
+  <div class="proof-inner">
+    <span class="proof-label">Confiado por empresas en</span>
+    <div class="proof-divider"></div>
+    <div class="proof-logos">
+      <span class="proof-logo">BOGOTÁ</span>
+      <span class="proof-logo">MEDELLÍN</span>
+      <span class="proof-logo">CALI</span>
+      <span class="proof-logo">BARRANQUILLA</span>
+      <span class="proof-logo">BUCARAMANGA</span>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-stats">
+      <div class="proof-stat">
+        <div class="proof-stat-num">+1,200</div>
+        <div class="proof-stat-label">Empresas activas</div>
+      </div>
+      <div class="proof-stat">
+        <div class="proof-stat-num">98.7%</div>
+        <div class="proof-stat-label">Uptime garantizado</div>
+      </div>
+      <div class="proof-stat">
+        <div class="proof-stat-num">4.9★</div>
+        <div class="proof-stat-label">Calificación App</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PREVIEW ── -->
+<section class="preview" id="preview">
+  <div class="preview-label">Vista previa del dashboard</div>
+  <div class="preview-shell">
+    <div class="preview-chrome">
+      <div class="chrome-dots">
+        <div class="chrome-dot" style="background:#ff5f57"></div>
+        <div class="chrome-dot" style="background:#febc2e"></div>
+        <div class="chrome-dot" style="background:#28c840"></div>
+      </div>
+      <div class="chrome-url">
+        <i class="fas fa-lock"></i>
+        app.rrhh.bio/dashboard
+      </div>
+    </div>
+    <div class="preview-body">
+      <div class="mock-sidebar">
+        <div class="mock-logo-row">
+          <div class="mock-logo-dot"></div>
+          <div class="mock-logo-text"></div>
+        </div>
+        <div class="mock-company">
+          <div class="mock-company-dot"></div>
+          <div class="mock-company-lines">
+            <div class="mock-line" style="width:80%"></div>
+            <div class="mock-line" style="width:55%;opacity:.5"></div>
+          </div>
+        </div>
+        <div class="mock-nav active"><div class="mock-nav-dot"></div><div class="mock-nav-label"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:65%"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:75%"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:50%"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:80%"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:60%"></div></div>
+        <div class="mock-nav"><div class="mock-nav-dot"></div><div class="mock-nav-label" style="width:70%"></div></div>
+      </div>
+      <div class="mock-main">
+        <div class="mock-header">
+          <div class="mock-title"></div>
+          <div class="mock-btn"></div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat"><div class="mock-stat-num"></div><div class="mock-stat-lbl"></div></div>
+          <div class="mock-stat"><div class="mock-stat-num"></div><div class="mock-stat-lbl"></div></div>
+          <div class="mock-stat"><div class="mock-stat-num"></div><div class="mock-stat-lbl"></div></div>
+          <div class="mock-stat"><div class="mock-stat-num"></div><div class="mock-stat-lbl"></div></div>
+        </div>
+        <div class="mock-grid">
+          <div class="mock-card">
+            <div class="mock-card-hdr"></div>
+            <div class="mock-row"><div class="mock-avatar-sm"></div><div class="mock-row-text"></div><div class="mock-badge-sm"></div></div>
+            <div class="mock-row"><div class="mock-avatar-sm" style="background:linear-gradient(135deg,#10b981,#34d399)"></div><div class="mock-row-text"></div><div class="mock-badge-sm" style="background:rgba(16,185,129,0.3)"></div></div>
+            <div class="mock-row"><div class="mock-avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)"></div><div class="mock-row-text"></div><div class="mock-badge-sm" style="background:rgba(245,158,11,0.3)"></div></div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-hdr"></div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:8px;">
+              <div style="flex:1;background:rgba(168,85,247,0.3);border-radius:3px 3px 0 0;height:40%"></div>
+              <div style="flex:1;background:rgba(168,85,247,0.4);border-radius:3px 3px 0 0;height:65%"></div>
+              <div style="flex:1;background:rgba(168,85,247,0.5);border-radius:3px 3px 0 0;height:50%"></div>
+              <div style="flex:1;background:rgba(168,85,247,0.6);border-radius:3px 3px 0 0;height:80%"></div>
+              <div style="flex:1;background:rgba(168,85,247,0.7);border-radius:3px 3px 0 0;height:70%"></div>
+              <div style="flex:1;background:linear-gradient(to top,var(--p600),var(--p400));border-radius:3px 3px 0 0;height:90%"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="decorative-dots">
-    <script>for(let i=0;i<30;i++)document.write('<div class="dot"></div>')</script>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-eyebrow"><i class="fas fa-sparkles"></i> Módulos del sistema</div>
+    <h2 class="section-h">Todo lo que necesitas,<br><em>nada que no necesitas</em></h2>
+    <p class="section-sub">Una plataforma cohesiva que cubre cada aspecto de la gestión de personas en tu empresa.</p>
   </div>
-</div>
-
-<!-- ── RIGHT PANEL ── -->
-<div class="right-panel">
-  <div class="form-wrap">
-    <h1 class="form-title">Bienvenido de vuelta</h1>
-    <p class="form-sub">Ingresa con tu email y contraseña corporativa</p>
-
-    <div class="error-msg" id="errorMsg">
-      <i class="fas fa-circle-exclamation"></i>
-      <span id="errorText">Email o contraseña incorrectos. Inténtalo de nuevo.</span>
+  <div class="feat-grid reveal">
+    <div class="feat-card">
+      <div class="feat-icon" style="color:var(--p400)"><i class="fas fa-users"></i></div>
+      <div class="feat-title">Core HR & Empleados</div>
+      <div class="feat-desc">Expedientes digitales completos, contratos electrónicos, documentos y toda la vida laboral de cada colaborador en un solo lugar.</div>
+      <span class="feat-tag">Incluido en todos los planes</span>
     </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="color:#10b981"><i class="fas fa-money-bill-wave"></i></div>
+      <div class="feat-title">Nómina Electrónica</div>
+      <div class="feat-desc">Liquidación automática con todas las prestaciones, deducciones y exportación DIAN. Conforme a la legislación laboral colombiana.</div>
+      <span class="feat-tag">Certificado DIAN</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="color:#f59e0b"><i class="fas fa-clock"></i></div>
+      <div class="feat-title">Asistencia y Turnos</div>
+      <div class="feat-desc">Control de entradas y salidas en tiempo real, gestión de horas extras, permisos y ausentismos con reportes automáticos.</div>
+      <span class="feat-tag">Registro web y móvil</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="color:#e879f9"><i class="fas fa-funnel-dollar"></i></div>
+      <div class="feat-title">Reclutamiento ATS</div>
+      <div class="feat-desc">Kanban de candidatos, evaluaciones con IA, onboarding digital automatizado. Del anuncio a la firma del contrato en un flujo continuo.</div>
+      <span class="feat-tag">Pipeline inteligente</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="color:#38bdf8"><i class="fas fa-chart-line"></i></div>
+      <div class="feat-title">Desempeño & OKRs</div>
+      <div class="feat-desc">Evaluaciones 360°, seguimiento de metas individuales y de equipo, planes de desarrollo y matriz de talento 9-Box.</div>
+      <span class="feat-tag">IA predictiva incluida</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="color:var(--p300)"><i class="fas fa-building"></i></div>
+      <div class="feat-title">Multiempresa SaaS</div>
+      <div class="feat-desc">Administra múltiples empresas desde un solo panel como superadmin. Ideal para grupos empresariales y despachos de RRHH externos.</div>
+      <span class="feat-tag">Sin límite de empresas</span>
+    </div>
+  </div>
+</section>
 
-    <div class="form-group">
-      <label for="email">Correo electrónico</label>
-      <div class="input-wrap">
+<!-- ── BENTO ── -->
+<section class="bento">
+  <div class="section-eyebrow reveal" style="margin-bottom:16px"><i class="fas fa-bolt"></i> Capacidades únicas</div>
+  <h2 class="section-h reveal" style="margin-bottom:64px">Potencia real<br><em>bajo el capó</em></h2>
+  <div class="bento-grid">
+    <div class="bento-card bento-wide reveal">
+      <div class="bento-label">Headcount en tiempo real</div>
+      <div class="bento-title">Evolución de tu equipo, mes a mes</div>
+      <div class="bento-sub">Visualiza ingresos, salidas y la tendencia de tu fuerza laboral con actualizaciones automáticas.</div>
+      <div class="mini-chart">
+        <div class="mini-bar" style="height:35%"></div>
+        <div class="mini-bar" style="height:55%"></div>
+        <div class="mini-bar" style="height:45%"></div>
+        <div class="mini-bar" style="height:70%"></div>
+        <div class="mini-bar" style="height:60%"></div>
+        <div class="mini-bar" style="height:85%"></div>
+        <div class="mini-bar" style="height:75%"></div>
+        <div class="mini-bar" style="height:90%"></div>
+        <div class="mini-bar" style="height:80%"></div>
+        <div class="mini-bar" style="height:95%"></div>
+        <div class="mini-bar" style="height:88%"></div>
+        <div class="mini-bar" style="height:100%"></div>
+      </div>
+    </div>
+    <div class="bento-card reveal reveal-delay-1">
+      <div class="bento-label">Asistencia hoy</div>
+      <div class="big-number counter" data-target="94">0<span style="font-size:2rem">%</span></div>
+      <div class="big-number-label">Tasa de asistencia</div>
+      <div style="margin-top:12px;font-size:.78rem;color:#10b981;display:flex;align-items:center;gap:4px">
+        <i class="fas fa-arrow-up"></i> +1.3% vs ayer
+      </div>
+    </div>
+    <div class="bento-card reveal reveal-delay-2">
+      <div class="bento-label">ATS — Pipeline activo</div>
+      <div class="bento-title" style="font-size:1rem">Candidatos en proceso</div>
+      <div class="mini-kanban">
+        <div class="mini-col">
+          <div class="mini-col-hdr">Nuevos</div>
+          <div class="mini-ticket"><div class="mini-ticket-dot"></div><div class="mini-ticket-line"></div></div>
+          <div class="mini-ticket"><div class="mini-ticket-dot"></div><div class="mini-ticket-line"></div></div>
+        </div>
+        <div class="mini-col">
+          <div class="mini-col-hdr">Entrevista</div>
+          <div class="mini-ticket"><div class="mini-ticket-dot" style="background:#10b981"></div><div class="mini-ticket-line"></div></div>
+        </div>
+        <div class="mini-col">
+          <div class="mini-col-hdr">Oferta</div>
+          <div class="mini-ticket"><div class="mini-ticket-dot" style="background:#f59e0b"></div><div class="mini-ticket-line"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-label">Distribución por área</div>
+      <div class="bento-title" style="font-size:1.1rem">Tu equipo por departamento</div>
+      <div class="ring-wrap">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="35" fill="none" stroke="rgba(168,85,247,0.1)" stroke-width="12"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="var(--p500)" stroke-width="12" stroke-dasharray="88 132" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="53 167" stroke-dashoffset="-88" transform="rotate(-90 45 45)"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="39 181" transform="rotate(-90 45 45)" stroke-dashoffset="-141"/>
+        </svg>
+        <div class="ring-legend">
+          <div class="ring-item"><div class="ring-dot" style="background:var(--p500)"></div>Tecnología <span class="ring-val">40%</span></div>
+          <div class="ring-item"><div class="ring-dot" style="background:#10b981"></div>Comercial <span class="ring-val">24%</span></div>
+          <div class="ring-item"><div class="ring-dot" style="background:#f59e0b"></div>Operaciones <span class="ring-val">18%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bento-card bento-wide reveal reveal-delay-1">
+      <div class="bento-label">Alertas inteligentes</div>
+      <div class="bento-title">La IA trabaja para ti 24/7</div>
+      <div class="bento-sub">Predicción de rotación, contratos por vencer, bajo desempeño y mucho más. Intervén antes de que sea un problema.</div>
+      <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-triangle-exclamation" style="color:#f87171;font-size:.85rem"></i>
+          <span style="font-size:.78rem;color:rgba(255,255,255,0.7)">Alto riesgo rotación — Ventas</span>
+        </div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-file-circle-exclamation" style="color:#fbbf24;font-size:.85rem"></i>
+          <span style="font-size:.78rem;color:rgba(255,255,255,0.7)">3 contratos vencen esta semana</span>
+        </div>
+        <div style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-graduation-cap" style="color:var(--p400);font-size:.85rem"></i>
+          <span style="font-size:.78rem;color:rgba(255,255,255,0.7)">12 certificaciones por renovar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="testi">
+  <div class="testi-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-eyebrow" style="justify-content:center"><i class="fas fa-heart"></i> Testimonios</div>
+      <h2 class="section-h">Lo que dicen<br><em>nuestros clientes</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">
+          <i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i>
+        </div>
+        <p class="testi-text">"RRHH.BIO transformó completamente cómo gestionamos nuestra nómina. Lo que antes nos tomaba 3 días ahora lo hacemos en 2 horas. Increíble."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MR</div>
+          <div>
+            <div class="testi-name">María Restrepo</div>
+            <div class="testi-role">Gerente RRHH · TechCorp S.A.S.</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars">
+          <i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i>
+        </div>
+        <p class="testi-text">"La implementación fue rápida y el equipo de soporte estuvo presente en todo momento. Los reportes automáticos nos ahorran horas cada mes."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">JO</div>
+          <div>
+            <div class="testi-name">Jorge Ospina</div>
+            <div class="testi-role">CEO · Grupo Salud+</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars">
+          <i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star testi-star"></i><i class="fas fa-star-half-stroke testi-star"></i>
+        </div>
+        <p class="testi-text">"Como firma de RRHH externa, poder gestionar 8 empresas cliente desde un solo panel cambió nuestro negocio. El panel multiempresa es brillante."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">LV</div>
+          <div>
+            <div class="testi-name">Laura Vargas</div>
+            <div class="testi-role">Directora · HRConsulting Co.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="pricing" id="pricing">
+  <div class="reveal" style="text-align:center">
+    <div class="section-eyebrow" style="justify-content:center"><i class="fas fa-tag"></i> Planes y precios</div>
+    <h2 class="section-h">Transparente,<br><em>sin sorpresas</em></h2>
+    <p class="section-sub" style="margin:0 auto;text-align:center;">En COP. Sin contratos anuales obligatorios. Cancela cuando quieras.</p>
+  </div>
+  <div class="pricing-cards">
+    <div class="price-card reveal">
+      <div class="price-tier">Starter</div>
+      <div class="price-amount"><sup>$</sup>299K <span>/ mes</span></div>
+      <div class="price-desc">Para equipos de hasta 25 empleados que buscan digitalizarse.</div>
+      <div class="price-divider"></div>
+      <ul class="price-list">
+        <li><i class="fas fa-check"></i> Hasta 25 empleados</li>
+        <li><i class="fas fa-check"></i> Core HR y expedientes</li>
+        <li><i class="fas fa-check"></i> Nómina básica</li>
+        <li><i class="fas fa-check"></i> Control de asistencia</li>
+        <li><i class="fas fa-check"></i> 1 administrador</li>
+        <li><i class="fas fa-check"></i> Soporte por email</li>
+        <li class="dim"><i class="fas fa-xmark"></i> ATS y Onboarding</li>
+        <li class="dim"><i class="fas fa-xmark"></i> Evaluaciones 360°</li>
+      </ul>
+      <a href="dashboard.html" class="btn-price btn-price-ghost">Comenzar gratis</a>
+    </div>
+    <div class="price-card featured reveal reveal-delay-1">
+      <div class="price-popular">Más popular</div>
+      <div class="price-tier">Pro</div>
+      <div class="price-amount"><sup>$</sup>599K <span>/ mes</span></div>
+      <div class="price-desc">Para empresas de hasta 100 empleados que quieren todo el poder.</div>
+      <div class="price-divider"></div>
+      <ul class="price-list">
+        <li><i class="fas fa-check"></i> Hasta 100 empleados</li>
+        <li><i class="fas fa-check"></i> Todos los módulos</li>
+        <li><i class="fas fa-check"></i> Nómina electrónica DIAN</li>
+        <li><i class="fas fa-check"></i> ATS + Onboarding</li>
+        <li><i class="fas fa-check"></i> Evaluaciones 360°</li>
+        <li><i class="fas fa-check"></i> LMS Capacitación</li>
+        <li><i class="fas fa-check"></i> 5 administradores</li>
+        <li><i class="fas fa-check"></i> Soporte prioritario</li>
+      </ul>
+      <a href="dashboard.html" class="btn-price btn-price-fill">Comenzar gratis</a>
+    </div>
+    <div class="price-card reveal reveal-delay-2">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-amount" style="font-size:2rem">A medida</div>
+      <div class="price-desc">Para grupos empresariales y despachos de RRHH externos.</div>
+      <div class="price-divider"></div>
+      <ul class="price-list">
+        <li><i class="fas fa-check"></i> Empleados ilimitados</li>
+        <li><i class="fas fa-check"></i> Panel multiempresa</li>
+        <li><i class="fas fa-check"></i> Integración SIIGO/ERP</li>
+        <li><i class="fas fa-check"></i> SLA garantizado 99.9%</li>
+        <li><i class="fas fa-check"></i> Account manager dedicado</li>
+        <li><i class="fas fa-check"></i> Usuarios ilimitados</li>
+        <li><i class="fas fa-check"></i> Implementación asistida</li>
+        <li><i class="fas fa-check"></i> Capacitación presencial</li>
+      </ul>
+      <a href="mailto:hola@rrhh.bio" class="btn-price btn-price-ghost">Hablar con ventas</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="final-cta">
+  <div class="final-cta-content reveal">
+    <div class="section-eyebrow" style="justify-content:center;margin-bottom:20px"><i class="fas fa-rocket"></i> Empieza hoy</div>
+    <h2>¿Listo para <em>transformar</em> tu gestión de personas?</h2>
+    <p>Únete a más de 1,200 empresas colombianas que ya digitalizaron su RRHH con RRHH.BIO. Sin tarjeta de crédito para comenzar.</p>
+    <div class="final-cta-btns">
+      <a href="dashboard.html" class="btn-hero btn-cta-main">
+        <i class="fas fa-arrow-right-to-bracket"></i>
+        Crear cuenta gratis
+      </a>
+      <a href="mailto:hola@rrhh.bio" class="btn-hero btn-cta-sec">
         <i class="fas fa-envelope"></i>
-        <input type="email" id="email" placeholder="tucorreo@empresa.com" autocomplete="email">
-      </div>
+        Hablar con ventas
+      </a>
     </div>
-
-    <div class="form-group">
-      <label for="password">Contraseña</label>
-      <div class="input-wrap">
-        <i class="fas fa-lock"></i>
-        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-        <button class="password-toggle" onclick="togglePassword()" type="button">
-          <i class="fas fa-eye" id="eyeIcon"></i>
-        </button>
-      </div>
-      <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
-    </div>
-
-    <button class="btn-login" id="loginBtn" onclick="handleLogin()">
-      <div class="spinner" id="spinner"></div>
-      <span id="btnText"><i class="fas fa-arrow-right-to-bracket"></i> &nbsp;Iniciar sesión</span>
-    </button>
-
-    <div class="divider">o</div>
-
-    <button class="demo-btn" onclick="loginDemo()">
-      <i class="fas fa-flask"></i>
-      Entrar con cuenta demo
-    </button>
-
-    <a href="index.html" class="back-link">
-      <i class="fas fa-arrow-left"></i>
-      Volver al inicio
-    </a>
   </div>
-</div>
+</section>
 
-<!-- ── Supabase JS ── -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">
+    <a href="#" class="footer-logo">
+      <div class="logo-mark">R</div>
+      <span class="logo-name">RRHH<span>.BIO</span></span>
+    </a>
+    <p class="footer-tagline">La plataforma de recursos humanos diseñada para la realidad y legislación colombiana.</p>
+  </div>
+  <div class="footer-links">
+    <a href="#features">Módulos</a>
+    <a href="#pricing">Precios</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="mailto:hola@rrhh.bio">Contacto</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 RRHH.BIO<br>
+    Barranquilla, Colombia ❤️
+  </div>
+</footer>
+
 <script>
-// ═══════════════════════════════════════════════
-//  CONFIGURACIÓN — reemplaza con tus credenciales
-// ═══════════════════════════════════════════════
-const SUPABASE_URL      = 'https://tnhmthevtqoemhngnkmv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaG10aGV2dHFvZW1obmdua212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2Mzk2NjEsImV4cCI6MjA5MjIxNTY2MX0.5LPgzpn6SjI6kFRbgeQac1U8hhcITpNZENJnX_jEkqE';
+// ── CUSTOM CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+});
 
-// ── Comprobar si ya hay sesión activa ──
-(async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    window.location.href = 'app.html';
-  }
-})();
-
-// ── Toggle contraseña ──
-function togglePassword() {
-  const input = document.getElementById('password');
-  const icon  = document.getElementById('eyeIcon');
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.className = 'fas fa-eye-slash';
-  } else {
-    input.type = 'password';
-    icon.className = 'fas fa-eye';
-  }
+function animateRing(){
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animateRing);
 }
+animateRing();
 
-// ── Mostrar error ──
-function showError(msg) {
-  const box = document.getElementById('errorMsg');
-  document.getElementById('errorText').textContent = msg;
-  box.classList.add('show');
-}
+document.querySelectorAll('a,button,.feat-card,.testi-card,.price-card,.bento-card').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+});
 
-function hideError() {
-  document.getElementById('errorMsg').classList.remove('show');
-}
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+});
 
-// ── Loading state ──
-function setLoading(loading) {
-  const btn     = document.getElementById('loginBtn');
-  const spinner = document.getElementById('spinner');
-  const text    = document.getElementById('btnText');
-  btn.disabled  = loading;
-  spinner.style.display = loading ? 'block' : 'none';
-  text.style.display    = loading ? 'none'  : 'flex';
-}
+// ── SCROLL REVEAL ──
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
 
-// ── LOGIN PRINCIPAL ──
-async function handleLogin() {
-  hideError();
-  const email    = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-
-  if (!email) { showError('Ingresa tu correo electrónico.'); return; }
-  if (!password) { showError('Ingresa tu contraseña.'); return; }
-
-  setLoading(true);
-
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      const msg = error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos. Verifica e intenta de nuevo.'
-        : error.message;
-      showError(msg);
-      setLoading(false);
-      return;
+// ── COUNTER ANIMATION ──
+const counterEl = document.querySelector('.counter');
+if(counterEl){
+  const cio = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting){
+      const target = parseInt(counterEl.dataset.target);
+      let val = 0;
+      const step = () => {
+        val = Math.min(val + 1, target);
+        counterEl.innerHTML = val + '<span style="font-size:2rem">%</span>';
+        if(val < target) requestAnimationFrame(step);
+      };
+      step();
+      cio.disconnect();
     }
-
-    // Login exitoso → redirigir al dashboard
-    window.location.href = 'app.html';
-
-  } catch (err) {
-    showError('Error de conexión. Verifica tu internet.');
-    setLoading(false);
-  }
+  });
+  cio.observe(counterEl);
 }
 
-// ── LOGIN DEMO (sin backend) ──
-function loginDemo() {
-  // Simula una sesión demo guardada en localStorage
-  localStorage.setItem('pf_demo_mode', '1');
-  localStorage.setItem('pf_demo_user', JSON.stringify({
-    email: 'demo@techcorp.co',
-    company_name: 'TechCorp S.A.S.',
-    company_initials: 'TC',
-    role: 'admin',
-    user_name: 'Administrador Demo'
-  }));
-  window.location.href = 'app.html';
-}
-
-// ── Enter key ──
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleLogin();
+// ── CHART BAR HOVER SHIMMER ──
+document.querySelectorAll('.mini-bar').forEach((bar, i) => {
+  bar.style.transitionDelay = (i * 0.04) + 's';
 });
 </script>
 </body>
