@@ -1,0 +1,3285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PeopleFlow HRMS · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --teal: #0891b2;
+  --teal-light: #22d3ee;
+  --teal-dark: #0e7490;
+  --teal-50: #ecfeff;
+  --teal-100: #cffafe;
+  --orange: #f97316;
+  --orange-light: #fb923c;
+  --orange-dark: #ea580c;
+  --orange-50: #fff7ed;
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.10);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--gray-900);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px 22px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white;
+}
+
+.logo-text { font-family: 'Syne', sans-serif; font-size: 1.15rem; color: white; font-weight: 700; line-height: 1; }
+.logo-sub { font-size: .65rem; color: var(--gray-400); letter-spacing: .05em; text-transform: uppercase; }
+
+.company-switcher {
+  margin: 14px 14px 6px;
+  background: rgba(255,255,255,.06);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  transition: background .2s;
+}
+.company-switcher:hover { background: rgba(255,255,255,.10); }
+.company-avatar {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; color: white;
+}
+.company-info { flex: 1; }
+.company-name { font-size: .8rem; font-weight: 600; color: white; }
+.company-plan { font-size: .68rem; color: var(--gray-400); }
+
+.nav-section { padding: 10px 10px 4px; }
+.nav-label { font-size: .62rem; text-transform: uppercase; letter-spacing: .1em; color: var(--gray-500); padding: 0 12px 6px; font-weight: 600; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all .18s;
+  color: var(--gray-400);
+  font-size: .82rem; font-weight: 500;
+  position: relative;
+  margin-bottom: 1px;
+  text-decoration: none;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: white; }
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(8,145,178,.3), rgba(8,145,178,.15));
+  color: var(--teal-light);
+  border: 1px solid rgba(8,145,178,.25);
+}
+.nav-item.active .nav-icon { color: var(--teal-light); }
+.nav-icon { width: 18px; text-align: center; font-size: .9rem; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--orange);
+  color: white; font-size: .6rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 99px;
+}
+.nav-badge.teal { background: var(--teal); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.user-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.06);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; color: white;
+}
+.user-name { font-size: .8rem; font-weight: 600; color: white; }
+.user-role { font-size: .68rem; color: var(--gray-400); }
+
+/* ─── HEADER ─── */
+.header {
+  position: fixed; top: 0; right: 0;
+  left: var(--sidebar-w);
+  height: var(--header-h);
+  background: white;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  z-index: 90;
+  box-shadow: 0 1px 0 var(--gray-100);
+}
+
+.header-breadcrumb {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .82rem; color: var(--gray-500);
+}
+.breadcrumb-current { color: var(--gray-800); font-weight: 600; }
+
+.header-search {
+  flex: 1; max-width: 380px;
+  margin-left: 20px;
+}
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 7px 14px;
+  transition: border-color .2s;
+}
+.search-box:focus-within { border-color: var(--teal); background: white; }
+.search-box input {
+  border: none; background: none; outline: none;
+  font-size: .82rem; font-family: inherit;
+  color: var(--gray-700); width: 100%;
+}
+.search-box input::placeholder { color: var(--gray-400); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  cursor: pointer; transition: all .2s;
+  color: var(--gray-500); font-size: .9rem;
+  position: relative;
+}
+.icon-btn:hover { background: var(--teal-50); border-color: var(--teal); color: var(--teal); }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px;
+  background: var(--orange);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+/* ─── MAIN ─── */
+.main {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  padding: 28px 28px 40px;
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* ─── PAGE TITLES ─── */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--gray-900); line-height: 1.2; }
+.page-subtitle { font-size: .82rem; color: var(--gray-500); margin-top: 4px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-family: inherit; font-size: .82rem; font-weight: 600;
+  cursor: pointer; border: none; transition: all .2s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: white;
+  box-shadow: 0 2px 8px rgba(8,145,178,.35);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(8,145,178,.45); }
+.btn-orange {
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  color: white;
+  box-shadow: 0 2px 8px rgba(249,115,22,.35);
+}
+.btn-outline {
+  background: white; color: var(--gray-700);
+  border: 1.5px solid var(--gray-200);
+}
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
+
+/* ─── CARDS ─── */
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-100);
+  overflow: hidden;
+}
+.card-header {
+  padding: 18px 22px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--gray-100);
+}
+.card-title { font-size: .92rem; font-weight: 700; color: var(--gray-800); }
+.card-body { padding: 18px 22px; }
+
+/* ─── GRID LAYOUTS ─── */
+.grid { display: grid; gap: 20px; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-12 { grid-template-columns: 1fr 2fr; }
+.grid-21 { grid-template-columns: 2fr 1fr; }
+
+/* ─── STAT CARDS ─── */
+.stat-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  border: 1px solid var(--gray-100);
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+.stat-card.orange::before { background: linear-gradient(90deg, var(--orange), var(--orange-light)); }
+.stat-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+.stat-label { font-size: .75rem; color: var(--gray-500); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; color: var(--gray-900); margin: 6px 0 4px; line-height: 1; }
+.stat-change { font-size: .75rem; }
+.stat-change.up { color: #10b981; }
+.stat-change.down { color: #ef4444; }
+.stat-icon {
+  position: absolute; top: 18px; right: 18px;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.stat-icon.teal { background: var(--teal-50); color: var(--teal); }
+.stat-icon.orange { background: var(--orange-50); color: var(--orange); }
+.stat-icon.green { background: #f0fdf4; color: #10b981; }
+.stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
+
+/* ─── ALERTS ─── */
+.alerts-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+.alert-item.warning { background: #fffbeb; border-color: #fde68a; }
+.alert-item.danger { background: #fef2f2; border-color: #fecaca; }
+.alert-item.info { background: var(--teal-50); border-color: var(--teal-100); }
+.alert-item.success { background: #f0fdf4; border-color: #bbf7d0; }
+.alert-icon { font-size: .95rem; margin-top: 1px; flex-shrink: 0; }
+.alert-item.warning .alert-icon { color: #d97706; }
+.alert-item.danger .alert-icon { color: #dc2626; }
+.alert-item.info .alert-icon { color: var(--teal); }
+.alert-item.success .alert-icon { color: #059669; }
+.alert-title { font-size: .8rem; font-weight: 600; color: var(--gray-800); }
+.alert-desc { font-size: .75rem; color: var(--gray-500); margin-top: 2px; }
+
+/* ─── TABLE ─── */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; font-size: .72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--gray-500); padding: 10px 14px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+tbody td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: .82rem; color: var(--gray-700);
+  vertical-align: middle;
+}
+tbody tr { transition: background .15s; }
+tbody tr:hover { background: var(--gray-50); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: .7rem; font-weight: 600;
+}
+.badge-active { background: #dcfce7; color: #166534; }
+.badge-inactive { background: var(--gray-100); color: var(--gray-500); }
+.badge-pending { background: #fef9c3; color: #854d0e; }
+.badge-rejected { background: #fee2e2; color: #991b1b; }
+.badge-teal { background: var(--teal-100); color: var(--teal-dark); }
+.badge-orange { background: #ffedd5; color: #9a3412; }
+.badge-purple { background: #ede9fe; color: #5b21b6; }
+
+/* ─── AVATAR ─── */
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+
+/* ─── PROGRESS ─── */
+.progress-bar {
+  height: 6px; background: var(--gray-200);
+  border-radius: 99px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 99px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* ─── TABS ─── */
+.tabs { display: flex; gap: 4px; background: var(--gray-100); padding: 4px; border-radius: 10px; }
+.tab {
+  padding: 7px 16px;
+  border-radius: 7px;
+  font-size: .8rem; font-weight: 500;
+  cursor: pointer; border: none;
+  background: none; color: var(--gray-500);
+  transition: all .2s; font-family: inherit;
+}
+.tab.active { background: white; color: var(--teal); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+/* ─── KANBAN ─── */
+.kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; overflow-x: auto; }
+.kanban-col { min-width: 180px; }
+.kanban-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.kanban-label { font-size: .75rem; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: .04em; }
+.kanban-count {
+  background: var(--gray-200); color: var(--gray-600);
+  padding: 2px 7px; border-radius: 99px;
+  font-size: .68rem; font-weight: 700;
+}
+.kanban-card {
+  background: white; border: 1.5px solid var(--gray-200);
+  border-radius: 10px; padding: 12px 13px;
+  margin-bottom: 8px;
+  transition: all .2s; cursor: pointer;
+}
+.kanban-card:hover { border-color: var(--teal); box-shadow: 0 3px 12px rgba(8,145,178,.15); }
+.kanban-card-title { font-size: .8rem; font-weight: 600; color: var(--gray-800); margin-bottom: 6px; }
+.kanban-card-meta { font-size: .72rem; color: var(--gray-400); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* ─── CHART BARS ─── */
+.chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+.chart-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.chart-bar {
+  width: 100%; background: linear-gradient(to top, var(--teal), var(--teal-light));
+  border-radius: 6px 6px 2px 2px;
+  transition: height .6s cubic-bezier(.4,0,.2,1);
+  position: relative; cursor: pointer;
+}
+.chart-bar:hover { filter: brightness(1.1); }
+.chart-bar.orange { background: linear-gradient(to top, var(--orange), var(--orange-light)); }
+.chart-label { font-size: .65rem; color: var(--gray-400); font-weight: 500; }
+
+/* ─── DONUT CHART ─── */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend-label { font-size: .75rem; color: var(--gray-600); flex: 1; }
+.legend-val { font-size: .78rem; font-weight: 700; color: var(--gray-800); }
+
+/* ─── FORM CONTROLS ─── */
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: .78rem; font-weight: 600; color: var(--gray-700); }
+.form-control {
+  padding: 9px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 9px;
+  font-size: .82rem; font-family: inherit;
+  color: var(--gray-800); background: white;
+  outline: none; transition: border-color .2s;
+}
+.form-control:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8,145,178,.12); }
+.form-grid { display: grid; gap: 16px; }
+
+/* ─── CHECKLIST ─── */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 13px;
+  background: var(--gray-50);
+  border-radius: 9px;
+  border: 1.5px solid var(--gray-200);
+  transition: all .2s; cursor: pointer;
+}
+.check-item.done { background: #f0fdf4; border-color: #bbf7d0; }
+.check-item.done .check-text { text-decoration: line-through; color: var(--gray-400); }
+.check-circle {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all .2s;
+}
+.check-item.done .check-circle { background: #10b981; border-color: #10b981; color: white; font-size: .6rem; }
+.check-text { font-size: .8rem; font-weight: 500; color: var(--gray-700); }
+
+/* ─── RATING STARS ─── */
+.stars { display: flex; gap: 2px; }
+.star { color: var(--gray-300); font-size: .8rem; }
+.star.filled { color: #f59e0b; }
+
+/* ─── TOGGLE ─── */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  width: 38px; height: 22px;
+  background: var(--gray-300);
+  border-radius: 99px; position: relative;
+  cursor: pointer; transition: background .2s;
+}
+.toggle.on { background: var(--teal); }
+.toggle::after {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: white; border-radius: 50%;
+  transition: left .2s;
+}
+.toggle.on::after { left: 19px; }
+
+/* ─── TIMELINE ─── */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 14px; padding-bottom: 16px; position: relative; }
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute; left: 15px; top: 28px; bottom: 0;
+  width: 2px; background: var(--gray-200);
+}
+.timeline-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; flex-shrink: 0; z-index: 1;
+}
+.timeline-content { flex: 1; padding-top: 4px; }
+.timeline-title { font-size: .82rem; font-weight: 600; color: var(--gray-800); }
+.timeline-desc { font-size: .75rem; color: var(--gray-500); margin-top: 2px; }
+.timeline-time { font-size: .68rem; color: var(--gray-400); margin-top: 3px; }
+
+/* ─── SURVEY / RATING BARS ─── */
+.survey-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.survey-label { font-size: .78rem; color: var(--gray-600); width: 120px; flex-shrink: 0; }
+.survey-progress { flex: 1; }
+.survey-score { font-size: .8rem; font-weight: 700; color: var(--gray-800); width: 36px; text-align: right; }
+
+/* ─── PAGES ─── */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,.5);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
+.modal {
+  background: white; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 28px; width: 540px; max-width: 95vw;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--gray-900); }
+.modal-close { background: none; border: none; font-size: 1.2rem; color: var(--gray-400); cursor: pointer; }
+
+/* ─── NOTIFICATIONS PANEL ─── */
+.notif-panel {
+  position: fixed; top: 70px; right: 20px;
+  width: 340px; background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-200);
+  z-index: 150;
+  display: none;
+}
+.notif-panel.show { display: block; animation: fadeIn .2s ease; }
+.notif-panel-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.notif-panel-title { font-size: .88rem; font-weight: 700; color: var(--gray-800); }
+.notif-list { max-height: 380px; overflow-y: auto; }
+.notif-row {
+  display: flex; gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--gray-50);
+  cursor: pointer; transition: background .15s;
+}
+.notif-row:hover { background: var(--gray-50); }
+.notif-row.unread { background: var(--teal-50); }
+.notif-row-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; flex-shrink: 0;
+}
+.notif-row-text { font-size: .78rem; color: var(--gray-700); }
+.notif-row-time { font-size: .68rem; color: var(--gray-400); margin-top: 3px; }
+
+/* ─── EMPLOYEE PROFILE ─── */
+.emp-profile-hero {
+  background: linear-gradient(135deg, var(--gray-900), var(--teal-dark));
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex; align-items: center; gap: 24px;
+  margin-bottom: 20px; color: white;
+}
+.emp-avatar-lg {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; font-weight: 700; color: white;
+  flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,.25);
+}
+.emp-info h2 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; }
+.emp-info p { font-size: .82rem; opacity: .75; margin-top: 3px; }
+.emp-meta { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+.emp-meta-item { font-size: .78rem; opacity: .8; display: flex; align-items: center; gap: 6px; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1100px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .kanban { grid-template-columns: repeat(3, 220px); }
+}
+@media (max-width: 780px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-260px); width: 260px; }
+  .sidebar.open { transform: translateX(0); }
+  .header { left: 0; }
+  .main { margin-left: 0; padding: 20px 16px 40px; }
+  .grid-4, .grid-3, .grid-2, .grid-12, .grid-21 { grid-template-columns: 1fr; }
+}
+
+/* ─── PAYROLL ─── */
+.payroll-summary {
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  border-radius: var(--radius-lg); padding: 24px 28px; color: white; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.payroll-amount { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; }
+.payroll-label { font-size: .8rem; opacity: .75; margin-bottom: 4px; }
+
+/* ─── ATTENDANCE ─── */
+.calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 4px; margin-top: 12px;
+}
+.cal-day-label { font-size: .68rem; font-weight: 600; color: var(--gray-400); text-align: center; padding: 4px 0; text-transform: uppercase; }
+.cal-day {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; border-radius: 6px;
+  cursor: pointer; transition: all .15s;
+  position: relative;
+}
+.cal-day:hover { background: var(--gray-100); }
+.cal-day.present { background: var(--teal-100); color: var(--teal-dark); font-weight: 600; }
+.cal-day.absent { background: #fee2e2; color: #dc2626; }
+.cal-day.holiday { background: #fef9c3; color: #92400e; }
+.cal-day.today { background: var(--teal); color: white; font-weight: 700; }
+.cal-day.empty { opacity: 0; pointer-events: none; }
+
+/* ─── LMS ─── */
+.course-card {
+  background: white; border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius); padding: 18px;
+  transition: all .2s; cursor: pointer;
+}
+.course-card:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(8,145,178,.12); transform: translateY(-2px); }
+.course-thumb {
+  height: 100px; border-radius: 8px; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+}
+
+/* ─── PERFORMANCE ─── */
+.kpi-wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.kpi-item {
+  background: var(--gray-50); border-radius: 10px;
+  padding: 14px; border: 1.5px solid var(--gray-200); text-align: center;
+}
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; }
+.kpi-label { font-size: .72rem; color: var(--gray-500); margin-top: 4px; }
+
+/* Org chart */
+.org-chart { display: flex; flex-direction: column; align-items: center; gap: 0; overflow-x: auto; padding: 20px 0; }
+.org-level { display: flex; gap: 20px; justify-content: center; position: relative; }
+.org-node {
+  background: white; border: 2px solid var(--gray-200);
+  border-radius: 12px; padding: 12px 16px; text-align: center;
+  min-width: 120px; cursor: pointer; transition: all .2s;
+  position: relative;
+}
+.org-node:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(8,145,178,.15); }
+.org-node.ceo { border-color: var(--teal); background: var(--teal-50); }
+.org-connector { height: 30px; width: 2px; background: var(--gray-200); margin: 0 auto; }
+.org-connector-h {
+  display: flex; justify-content: space-between;
+  position: relative;
+}
+.org-connector-h::before {
+  content: '';
+  position: absolute; top: 0; left: calc(50% - 50px); right: calc(50% - 50px);
+  height: 2px; background: var(--gray-200);
+}
+
+</style>
+
+/* ─── AUTH LOADING ─── */
+#authLoader {
+  position:fixed;inset:0;background:var(--gray-900);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;transition:opacity .5s;
+}
+#authLoader.hidden{opacity:0;pointer-events:none;}
+.auth-spinner{width:40px;height:40px;border:3px solid rgba(8,145,178,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:9998;
+  background:var(--gray-900);color:white;
+  padding:12px 18px;border-radius:10px;
+  font-size:.82rem;font-weight:500;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  transform:translateY(20px);opacity:0;transition:all .3s;
+  display:flex;align-items:center;gap:8px;
+}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{border-left:4px solid #10b981;}
+#toast.error{border-left:4px solid #ef4444;}
+
+/* ─── DATA LOADING SKELETON ─── */
+.skeleton{background:linear-gradient(90deg,var(--gray-100) 25%,var(--gray-200) 50%,var(--gray-100) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ─── EMPTY STATE ─── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--gray-400);}
+.empty-state i{font-size:2.5rem;margin-bottom:12px;display:block;opacity:.4;}
+.empty-state p{font-size:.85rem;}
+</style>
+</head>
+<body>
+
+<!-- ─── AUTH LOADER ─── -->
+<div id="authLoader">
+  <div style="text-align:center">
+    <div class="auth-spinner" style="margin:0 auto 16px"></div>
+    <div style="font-family:'Syne',sans-serif;color:white;font-size:1rem;font-weight:700">PeopleFlow</div>
+    <div style="color:rgba(255,255,255,.4);font-size:.78rem;margin-top:4px">Verificando sesión...</div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast"></div>
+
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fas fa-people-group"></i></div>
+    <div>
+      <div class="logo-text">PeopleFlow</div>
+      <div class="logo-sub">HRMS Platform</div>
+    </div>
+  </div>
+
+  <div class="company-switcher" onclick="toggleModal('companyModal')">
+    <div class="company-avatar">TC</div>
+    <div class="company-info">
+      <div class="company-name">TechCorp S.A.S.</div>
+      <div class="company-plan">Plan Enterprise</div>
+    </div>
+    <i class="fas fa-chevron-down" style="color:var(--gray-500);font-size:.7rem"></i>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <i class="fas fa-chart-line nav-icon"></i> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('employees')">
+      <i class="fas fa-users nav-icon"></i> Empleados
+      <span class="nav-badge teal">247</span>
+    </div>
+    <div class="nav-item" onclick="showPage('org')">
+      <i class="fas fa-sitemap nav-icon"></i> Organigrama
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Adquisición</div>
+    <div class="nav-item" onclick="showPage('ats')">
+      <i class="fas fa-magnifying-glass nav-icon"></i> Reclutamiento ATS
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item" onclick="showPage('onboarding')">
+      <i class="fas fa-rocket nav-icon"></i> Onboarding
+      <span class="nav-badge">5</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Operaciones</div>
+    <div class="nav-item" onclick="showPage('payroll')">
+      <i class="fas fa-money-bill-wave nav-icon"></i> Nómina
+    </div>
+    <div class="nav-item" onclick="showPage('attendance')">
+      <i class="fas fa-clock nav-icon"></i> Asistencia
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('vacations')">
+      <i class="fas fa-umbrella-beach nav-icon"></i> Vacaciones y Permisos
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Desarrollo</div>
+    <div class="nav-item" onclick="showPage('performance')">
+      <i class="fas fa-bullseye nav-icon"></i> Desempeño
+    </div>
+    <div class="nav-item" onclick="showPage('lms')">
+      <i class="fas fa-graduation-cap nav-icon"></i> Capacitación LMS
+    </div>
+    <div class="nav-item" onclick="showPage('talent')">
+      <i class="fas fa-star nav-icon"></i> Gestión del Talento
+    </div>
+    <div class="nav-item" onclick="showPage('climate')">
+      <i class="fas fa-heart-pulse nav-icon"></i> Clima Organizacional
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Portal</div>
+    <div class="nav-item" onclick="showPage('portal')">
+      <i class="fas fa-user-circle nav-icon"></i> Portal del Empleado
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <i class="fas fa-gear nav-icon"></i> Configuración
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">AS</div>
+      <div>
+        <div class="user-name">Ana Sofía Restrepo</div>
+        <div class="user-role">Gerente RRHH</div>
+      </div>
+      <i class="fas fa-ellipsis-vertical" style="margin-left:auto;color:var(--gray-500);font-size:.8rem;cursor:pointer"></i>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="header">
+  <button class="icon-btn" id="menuBtn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="header-breadcrumb">
+    <i class="fas fa-house" style="font-size:.75rem"></i>
+    <i class="fas fa-chevron-right" style="font-size:.55rem;color:var(--gray-300)"></i>
+    <span class="breadcrumb-current" id="breadcrumb">Dashboard</span>
+  </div>
+  <div class="header-search">
+    <div class="search-box">
+      <i class="fas fa-search" style="color:var(--gray-400);font-size:.8rem"></i>
+      <input type="text" placeholder="Buscar empleados, reportes, módulos...">
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="icon-btn" onclick="toggleNotif()">
+      <i class="fas fa-bell"></i>
+      <span class="notif-dot"></span>
+    </div>
+    <div class="icon-btn" onclick="showPage('settings')">
+      <i class="fas fa-gear"></i>
+    </div>
+    <div class="icon-btn" style="width:auto;padding:0 10px;gap:8px;font-size:.8rem;font-weight:600;color:var(--gray-700)">
+      <div class="user-avatar" style="width:26px;height:26px;font-size:.65rem">AS</div>
+      Ana Sofía
+    </div>
+  </div>
+</header>
+
+<!-- Notifications Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <span class="notif-panel-title">Notificaciones</span>
+    <span style="font-size:.72rem;color:var(--teal);cursor:pointer;font-weight:600">Marcar todo leído</span>
+  </div>
+  <div class="notif-list">
+    <div class="notif-row unread">
+      <div class="notif-row-icon" style="background:var(--orange-50);color:var(--orange)"><i class="fas fa-clock"></i></div>
+      <div>
+        <div class="notif-row-text"><strong>3 contratos vencen</strong> esta semana. Revisar documentación de empleados.</div>
+        <div class="notif-row-time">Hace 10 min</div>
+      </div>
+    </div>
+    <div class="notif-row unread">
+      <div class="notif-row-icon" style="background:var(--teal-50);color:var(--teal)"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="notif-row-text"><strong>Nuevo candidato</strong> aplicó a Gerente de Producto.</div>
+        <div class="notif-row-time">Hace 35 min</div>
+      </div>
+    </div>
+    <div class="notif-row">
+      <div class="notif-row-icon" style="background:#f0fdf4;color:#10b981"><i class="fas fa-check-circle"></i></div>
+      <div>
+        <div class="notif-row-text">Nómina de <strong>mayo 2025</strong> procesada exitosamente.</div>
+        <div class="notif-row-time">Hace 2 horas</div>
+      </div>
+    </div>
+    <div class="notif-row">
+      <div class="notif-row-icon" style="background:#fef9c3;color:#d97706"><i class="fas fa-exclamation-triangle"></i></div>
+      <div>
+        <div class="notif-row-text">Alerta predictiva: <strong>Alto riesgo rotación</strong> en Dpto. Ventas (4 empleados).</div>
+        <div class="notif-row-time">Hace 5 horas</div>
+      </div>
+    </div>
+    <div class="notif-row">
+      <div class="notif-row-icon" style="background:var(--teal-50);color:var(--teal)"><i class="fas fa-calendar"></i></div>
+      <div>
+        <div class="notif-row-text"><strong>12 solicitudes de vacaciones</strong> pendientes de aprobación.</div>
+        <div class="notif-row-time">Ayer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main class="main">
+
+<!-- ╔═══ PAGE: DASHBOARD ═══╗ -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard Principal</div>
+      <div class="page-subtitle">Resumen ejecutivo en tiempo real · Última actualización: hace 3 min</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <select class="form-control" style="padding:8px 12px;font-size:.78rem;width:auto">
+        <option>Mayo 2025</option><option>Abril 2025</option><option>Marzo 2025</option>
+      </select>
+      <button class="btn btn-primary"><i class="fas fa-download"></i> Exportar</button>
+    </div>
+  </div>
+
+  <!-- KPI Stats -->
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal">
+      <div class="stat-icon teal"><i class="fas fa-users"></i></div>
+      <div class="stat-label">Total Empleados</div>
+      <div class="stat-value">247</div>
+      <div class="stat-change up"><i class="fas fa-arrow-up"></i> +8 este mes</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon orange"><i class="fas fa-user-check"></i></div>
+      <div class="stat-label">Asistencia Hoy</div>
+      <div class="stat-value">94.2%</div>
+      <div class="stat-change up"><i class="fas fa-arrow-up"></i> +1.3% vs ayer</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon green"><i class="fas fa-money-bill-wave"></i></div>
+      <div class="stat-label">Nómina Mensual</div>
+      <div class="stat-value">$1.2M</div>
+      <div class="stat-change down"><i class="fas fa-arrow-down"></i> -2.1% vs mes ant.</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon purple"><i class="fas fa-magnifying-glass"></i></div>
+      <div class="stat-label">Vacantes Abiertas</div>
+      <div class="stat-value">18</div>
+      <div class="stat-change up"><i class="fas fa-arrow-up"></i> 12 en proceso</div>
+    </div>
+  </div>
+
+  <div class="grid grid-21" style="margin-bottom:20px">
+    <!-- Headcount Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Evolución de Headcount 2025</span>
+        <div class="tabs">
+          <button class="tab active">Mensual</button>
+          <button class="tab">Trimestral</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-bars" id="headcountChart">
+          <!-- Generated by JS -->
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--gray-500)">
+            <div style="width:10px;height:10px;border-radius:3px;background:var(--teal)"></div> Ingresos
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--gray-500)">
+            <div style="width:10px;height:10px;border-radius:3px;background:var(--orange)"></div> Salidas
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Departamento Distribution -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Distribución por Área</span>
+      </div>
+      <div class="card-body">
+        <div class="donut-wrap">
+          <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#e2e8f0" stroke-width="18"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="var(--teal)" stroke-width="18"
+              stroke-dasharray="100 151" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="var(--orange)" stroke-width="18"
+              stroke-dasharray="60 191" stroke-dashoffset="-100" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#8b5cf6" stroke-width="18"
+              stroke-dasharray="40 211" stroke-dashoffset="-160" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#10b981" stroke-width="18"
+              stroke-dasharray="51 200" stroke-dashoffset="-200" transform="rotate(-90 55 55)"/>
+            <text x="55" y="51" text-anchor="middle" font-family="Syne,sans-serif" font-size="14" font-weight="700" fill="var(--gray-900)">247</text>
+            <text x="55" y="63" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="7" fill="var(--gray-400)">empleados</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div><span class="legend-label">Tecnología</span><span class="legend-val">40%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div><span class="legend-label">Comercial</span><span class="legend-val">24%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div><span class="legend-label">Operaciones</span><span class="legend-val">16%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span class="legend-label">Soporte</span><span class="legend-val">20%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-12" style="margin-bottom:20px">
+    <!-- Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-bolt" style="color:var(--orange);margin-right:6px"></i>Alertas Inteligentes</span>
+        <span class="badge badge-orange">8 nuevas</span>
+      </div>
+      <div class="card-body">
+        <div class="alerts-list">
+          <div class="alert-item danger">
+            <i class="fas fa-triangle-exclamation alert-icon"></i>
+            <div>
+              <div class="alert-title">Alto riesgo de rotación — Área de Ventas</div>
+              <div class="alert-desc">4 empleados con señales predictivas de salida en los próximos 60 días (modelo IA)</div>
+            </div>
+          </div>
+          <div class="alert-item warning">
+            <i class="fas fa-file-circle-exclamation alert-icon"></i>
+            <div>
+              <div class="alert-title">3 contratos laborales vencen esta semana</div>
+              <div class="alert-desc">Renovar contratos de: Jhon Pérez, Laura Torres, Carlos Muñoz</div>
+            </div>
+          </div>
+          <div class="alert-item warning">
+            <i class="fas fa-chart-line alert-icon"></i>
+            <div>
+              <div class="alert-title">Bajo desempeño detectado — 6 empleados</div>
+              <div class="alert-desc">KPIs por debajo del 60% por tercer mes consecutivo</div>
+            </div>
+          </div>
+          <div class="alert-item info">
+            <i class="fas fa-graduation-cap alert-icon"></i>
+            <div>
+              <div class="alert-title">12 empleados con certificaciones próximas a vencer</div>
+              <div class="alert-desc">Programar renovaciones de capacitación obligatoria</div>
+            </div>
+          </div>
+          <div class="alert-item success">
+            <i class="fas fa-check-circle alert-icon"></i>
+            <div>
+              <div class="alert-title">Nómina de mayo procesada exitosamente</div>
+              <div class="alert-desc">$1,247,380 dispersados a 247 empleados</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Actividad Reciente</span>
+      </div>
+      <div class="card-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:var(--teal-100);color:var(--teal)"><i class="fas fa-user-plus" style="font-size:.7rem"></i></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Nuevo ingreso: María Fernanda López</div>
+              <div class="timeline-desc">Diseñadora UX · Tecnología</div>
+              <div class="timeline-time">Hace 2 horas</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:#ffedd5;color:var(--orange)"><i class="fas fa-calendar" style="font-size:.7rem"></i></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Vacaciones aprobadas</div>
+              <div class="timeline-desc">Andrés Castro — 5 días hábiles (3–9 jun)</div>
+              <div class="timeline-time">Hace 4 horas</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:#dcfce7;color:#059669"><i class="fas fa-file-signature" style="font-size:.7rem"></i></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Contrato firmado digitalmente</div>
+              <div class="timeline-desc">Sofía Restrepo — renovación anual</div>
+              <div class="timeline-time">Hace 6 horas</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:#ede9fe;color:#7c3aed"><i class="fas fa-star" style="font-size:.7rem"></i></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Evaluación 360° completada</div>
+              <div class="timeline-desc">Dpto. Tecnología — 28/30 respuestas</div>
+              <div class="timeline-time">Ayer</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:var(--teal-100);color:var(--teal)"><i class="fas fa-graduation-cap" style="font-size:.7rem"></i></div>
+            <div class="timeline-content">
+              <div class="timeline-title">Certificación completada</div>
+              <div class="timeline-desc">David Mora — AWS Cloud Practitioner</div>
+              <div class="timeline-time">Ayer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick modules row -->
+  <div class="grid grid-4">
+    <div class="card" style="cursor:pointer" onclick="showPage('attendance')">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:1.1rem;flex-shrink:0"><i class="fas fa-clock"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-800)">Asistencia Hoy</div>
+          <div style="font-size:.72rem;color:var(--gray-500);margin-top:2px">232 presentes · 15 ausentes</div>
+          <div class="progress-bar" style="margin-top:7px"><div class="progress-fill" style="width:94%;background:var(--teal)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="showPage('vacations')">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--orange-50);display:flex;align-items:center;justify-content:center;color:var(--orange);font-size:1.1rem;flex-shrink:0"><i class="fas fa-umbrella-beach"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-800)">Vacaciones Pendientes</div>
+          <div style="font-size:.72rem;color:var(--gray-500);margin-top:2px">12 solicitudes por aprobar</div>
+          <div class="progress-bar" style="margin-top:7px"><div class="progress-fill" style="width:65%;background:var(--orange)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="showPage('ats')">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:12px;background:#ede9fe;display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:1.1rem;flex-shrink:0"><i class="fas fa-magnifying-glass"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-800)">Reclutamiento Activo</div>
+          <div style="font-size:.72rem;color:var(--gray-500);margin-top:2px">18 vacantes · 142 candidatos</div>
+          <div class="progress-bar" style="margin-top:7px"><div class="progress-fill" style="width:72%;background:#7c3aed"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="showPage('performance')">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:12px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#059669;font-size:1.1rem;flex-shrink:0"><i class="fas fa-bullseye"></i></div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-800)">Desempeño Promedio</div>
+          <div style="font-size:.72rem;color:var(--gray-500);margin-top:2px">Índice: 78.4% — Bueno</div>
+          <div class="progress-bar" style="margin-top:7px"><div class="progress-fill" style="width:78%;background:#10b981"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: EMPLOYEES ═══╗ -->
+<div id="page-employees" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestión de Empleados</div>
+      <div class="page-subtitle">Core HR — 247 empleados activos en 8 departamentos</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline"><i class="fas fa-file-import"></i> Importar</button>
+      <button class="btn btn-primary" onclick="toggleModal('newEmpModal')"><i class="fas fa-plus"></i> Nuevo Empleado</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <div class="search-box" style="flex:1;min-width:200px">
+        <i class="fas fa-search" style="color:var(--gray-400);font-size:.8rem"></i>
+        <input type="text" placeholder="Buscar por nombre, cargo, departamento...">
+      </div>
+      <select class="form-control" style="width:auto;font-size:.8rem">
+        <option>Todos los departamentos</option>
+        <option>Tecnología</option><option>Comercial</option><option>Operaciones</option><option>RRHH</option>
+      </select>
+      <select class="form-control" style="width:auto;font-size:.8rem">
+        <option>Todos los estados</option>
+        <option>Activo</option><option>Inactivo</option><option>Periodo de prueba</option>
+      </select>
+      <select class="form-control" style="width:auto;font-size:.8rem">
+        <option>Tipo contrato</option>
+        <option>Indefinido</option><option>Término fijo</option><option>Prestación servicios</option>
+      </select>
+      <button class="btn btn-outline" style="font-size:.78rem"><i class="fas fa-filter"></i> Filtros avanzados</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Directorio de Empleados</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:.75rem;color:var(--gray-500)">247 registros</span>
+        <div class="icon-btn"><i class="fas fa-table-cells"></i></div>
+        <div class="icon-btn"><i class="fas fa-list"></i></div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox"></th>
+            <th>Empleado</th>
+            <th>Cargo</th>
+            <th>Departamento</th>
+            <th>Contrato</th>
+            <th>Ingreso</th>
+            <th>Salario</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="employeeTable">
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:between;border-top:1px solid var(--gray-100)">
+      <span style="font-size:.75rem;color:var(--gray-500);flex:1">Mostrando 1-10 de 247 empleados</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem">← Anterior</button>
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:.75rem">1</button>
+        <button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem">2</button>
+        <button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem">3</button>
+        <button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: ORG CHART ═══╗ -->
+<div id="page-org" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Estructura Organizacional</div>
+      <div class="page-subtitle">Jerarquía y reporte de equipos</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-download"></i> Exportar SVG</button>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="org-chart">
+        <div class="org-level">
+          <div class="org-node ceo">
+            <div class="user-avatar" style="width:36px;height:36px;font-size:.85rem;margin:0 auto 6px">CR</div>
+            <div style="font-size:.78rem;font-weight:700;color:var(--gray-800)">Carlos Rueda</div>
+            <div style="font-size:.68rem;color:var(--teal)">CEO</div>
+          </div>
+        </div>
+        <div class="org-connector"></div>
+        <div class="org-level" style="gap:40px">
+          <div class="org-node">
+            <div class="user-avatar" style="width:32px;height:32px;font-size:.75rem;margin:0 auto 5px;background:linear-gradient(135deg,var(--teal),var(--orange))">AS</div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--gray-800)">Ana Sofía R.</div>
+            <div style="font-size:.65rem;color:var(--gray-500)">Dir. RRHH</div>
+          </div>
+          <div class="org-node">
+            <div class="user-avatar" style="width:32px;height:32px;font-size:.75rem;margin:0 auto 5px;background:linear-gradient(135deg,#8b5cf6,#a78bfa)">PM</div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--gray-800)">Pedro Mora</div>
+            <div style="font-size:.65rem;color:var(--gray-500)">Dir. Tecnología</div>
+          </div>
+          <div class="org-node">
+            <div class="user-avatar" style="width:32px;height:32px;font-size:.75rem;margin:0 auto 5px;background:linear-gradient(135deg,#10b981,#34d399)">LV</div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--gray-800)">Laura Vargas</div>
+            <div style="font-size:.65rem;color:var(--gray-500)">Dir. Comercial</div>
+          </div>
+          <div class="org-node">
+            <div class="user-avatar" style="width:32px;height:32px;font-size:.75rem;margin:0 auto 5px;background:linear-gradient(135deg,#f59e0b,#fbbf24)">JO</div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--gray-800)">Juan Ospina</div>
+            <div style="font-size:.65rem;color:var(--gray-500)">Dir. Finanzas</div>
+          </div>
+        </div>
+        <div style="margin-top:20px;text-align:center;font-size:.78rem;color:var(--gray-400)">
+          <i class="fas fa-circle-info" style="margin-right:6px"></i>
+          Haz clic en cualquier nodo para ver el detalle del equipo. TechCorp tiene 8 niveles jerárquicos y 247 empleados en total.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: ATS ═══╗ -->
+<div id="page-ats" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Reclutamiento y Selección (ATS)</div>
+      <div class="page-subtitle">18 vacantes activas · 142 candidatos en proceso</div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal('newVacantModal')"><i class="fas fa-plus"></i> Nueva Vacante</button>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-briefcase"></i></div><div class="stat-label">Vacantes Activas</div><div class="stat-value">18</div><div class="stat-change up">+3 esta semana</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-user-tie"></i></div><div class="stat-label">Candidatos Totales</div><div class="stat-value">142</div><div class="stat-change up">+24 nuevos</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-calendar-check"></i></div><div class="stat-label">Entrevistas Hoy</div><div class="stat-value">7</div><div class="stat-change up">2 finales</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-handshake"></i></div><div class="stat-label">Tiempo Prom. Contratación</div><div class="stat-value">21d</div><div class="stat-change up">-3d vs mes ant.</div></div>
+  </div>
+
+  <!-- Pipeline Kanban -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Pipeline de Candidatos — Gerente de Producto</span>
+      <button class="btn btn-outline" style="font-size:.75rem"><i class="fas fa-filter"></i> Filtrar por vacante</button>
+    </div>
+    <div class="card-body">
+      <div class="kanban" id="atsKanban"></div>
+    </div>
+  </div>
+
+  <!-- Vacantes table -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <span class="card-title">Vacantes Abiertas</span>
+      <span class="badge badge-teal">18 activas</span>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Vacante</th><th>Departamento</th><th>Modalidad</th><th>Candidatos</th><th>Publicada</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><strong>Gerente de Producto</strong></td><td>Tecnología</td><td><span class="badge badge-teal">Híbrido</span></td><td><span class="badge badge-purple">24</span></td><td>15 may</td><td><span class="badge badge-active">Activa</span></td><td><button class="btn btn-outline" style="padding:4px 12px;font-size:.72rem">Ver</button></td></tr>
+          <tr><td><strong>Desarrollador Backend Senior</strong></td><td>Tecnología</td><td><span class="badge badge-teal">Remoto</span></td><td><span class="badge badge-purple">38</span></td><td>12 may</td><td><span class="badge badge-active">Activa</span></td><td><button class="btn btn-outline" style="padding:4px 12px;font-size:.72rem">Ver</button></td></tr>
+          <tr><td><strong>Analista de Ventas</strong></td><td>Comercial</td><td><span class="badge badge-orange">Presencial</span></td><td><span class="badge badge-purple">17</span></td><td>8 may</td><td><span class="badge badge-active">Activa</span></td><td><button class="btn btn-outline" style="padding:4px 12px;font-size:.72rem">Ver</button></td></tr>
+          <tr><td><strong>Diseñador UX/UI</strong></td><td>Tecnología</td><td><span class="badge badge-teal">Remoto</span></td><td><span class="badge badge-purple">31</span></td><td>5 may</td><td><span class="badge badge-pending">Pausa</span></td><td><button class="btn btn-outline" style="padding:4px 12px;font-size:.72rem">Ver</button></td></tr>
+          <tr><td><strong>Coordinador de Operaciones</strong></td><td>Operaciones</td><td><span class="badge badge-orange">Presencial</span></td><td><span class="badge badge-purple">12</span></td><td>2 may</td><td><span class="badge badge-active">Activa</span></td><td><button class="btn btn-outline" style="padding:4px 12px;font-size:.72rem">Ver</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: ONBOARDING ═══╗ -->
+<div id="page-onboarding" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Onboarding Automatizado</div>
+      <div class="page-subtitle">5 nuevos ingresos en proceso · Flujos automatizados activos</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-plus"></i> Iniciar Onboarding</button>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">María Fernanda López — Diseñadora UX</span>
+        <span class="badge badge-teal">En proceso — Día 3</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div class="emp-avatar-lg" style="width:52px;height:52px;font-size:1.2rem">ML</div>
+          <div>
+            <div style="font-weight:700;color:var(--gray-800)">María Fernanda López</div>
+            <div style="font-size:.78rem;color:var(--gray-500)">Ingresó el 27 de mayo · Tecnología</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--teal)">68%</div>
+            <div style="font-size:.7rem;color:var(--gray-400)">completado</div>
+          </div>
+        </div>
+        <div class="progress-bar" style="height:8px;margin-bottom:16px"><div class="progress-fill" style="width:68%;background:linear-gradient(90deg,var(--teal),var(--teal-light))"></div></div>
+        <div class="checklist">
+          <div class="check-item done" onclick="toggleCheck(this)"><div class="check-circle"><i class="fas fa-check"></i></div><div class="check-text">Contrato firmado digitalmente</div></div>
+          <div class="check-item done" onclick="toggleCheck(this)"><div class="check-circle"><i class="fas fa-check"></i></div><div class="check-text">Documentos de identidad entregados</div></div>
+          <div class="check-item done" onclick="toggleCheck(this)"><div class="check-circle"><i class="fas fa-check"></i></div><div class="check-text">Cuenta corporativa creada (email, Slack)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-circle"></div><div class="check-text">Inducción con Recursos Humanos</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-circle"></div><div class="check-text">Capacitación de seguridad de datos</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-circle"></div><div class="check-text">Asignación equipos y accesos</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-circle"></div><div class="check-text">Reunión con equipo directo</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Todos los Onboardings Activos</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div class="avatar" style="background:linear-gradient(135deg,var(--teal),var(--orange))">ML</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600;color:var(--gray-800)">María Fernanda López</div><div style="font-size:.72rem;color:var(--gray-500)">Diseñadora UX · Día 3</div><div class="progress-bar" style="margin-top:5px"><div class="progress-fill" style="width:68%;background:var(--teal)"></div></div></div>
+            <span style="font-size:.78rem;font-weight:700;color:var(--teal)">68%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">JM</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600;color:var(--gray-800)">Julián Montoya</div><div style="font-size:.72rem;color:var(--gray-500)">Dev Backend · Día 1</div><div class="progress-bar" style="margin-top:5px"><div class="progress-fill" style="width:20%;background:#8b5cf6"></div></div></div>
+            <span style="font-size:.78rem;font-weight:700;color:#8b5cf6">20%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div class="avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">AC</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600;color:var(--gray-800)">Andrea Castro</div><div style="font-size:.72rem;color:var(--gray-500)">Analista Financiero · Día 7</div><div class="progress-bar" style="margin-top:5px"><div class="progress-fill" style="width:90%;background:#10b981"></div></div></div>
+            <span style="font-size:.78rem;font-weight:700;color:#10b981">90%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div class="avatar" style="background:linear-gradient(135deg,var(--orange),var(--orange-light))">DG</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600;color:var(--gray-800)">Diego González</div><div style="font-size:.72rem;color:var(--gray-500)">Comercial · Día 5</div><div class="progress-bar" style="margin-top:5px"><div class="progress-fill" style="width:55%;background:var(--orange)"></div></div></div>
+            <span style="font-size:.78rem;font-weight:700;color:var(--orange)">55%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: PAYROLL ═══╗ -->
+<div id="page-payroll" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestión de Nómina</div>
+      <div class="page-subtitle">Procesamiento automático · Período: Mayo 2025</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline"><i class="fas fa-file-pdf"></i> Descargar Colilla</button>
+      <button class="btn btn-primary"><i class="fas fa-play"></i> Procesar Nómina</button>
+    </div>
+  </div>
+
+  <div class="payroll-summary">
+    <div>
+      <div class="payroll-label">Total Nómina Mayo 2025</div>
+      <div class="payroll-amount">$1,247,380</div>
+      <div style="font-size:.8rem;opacity:.75;margin-top:4px">247 empleados · Procesada el 25 may · <span style="color:#86efac">✓ Dispersada</span></div>
+    </div>
+    <div style="display:flex;gap:32px">
+      <div style="text-align:center">
+        <div style="font-size:.72rem;opacity:.7">Salarios Base</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700">$986,200</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:.72rem;opacity:.7">Bonos y Extras</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700">$134,800</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:.72rem;opacity:.7">Deducciones</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:#fca5a5">-$126,380</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Detalle por Empleado</span>
+      <div class="search-box" style="width:240px">
+        <i class="fas fa-search" style="color:var(--gray-400);font-size:.8rem"></i>
+        <input type="text" placeholder="Buscar empleado...">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Empleado</th><th>Cargo</th><th>Salario Base</th><th>H. Extra</th><th>Bonos</th><th>Deducciones</th><th>Neto a Pagar</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--teal),var(--orange))">AS</div>Ana Sofía Restrepo</div></td><td>Dir. RRHH</td><td>$8,500</td><td>$320</td><td>$850</td><td style="color:#ef4444">-$1,200</td><td><strong>$8,470</strong></td><td><span class="badge badge-active">Pagado</span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">PM</div>Pedro Mora</div></td><td>Dir. Tecnología</td><td>$10,200</td><td>$0</td><td>$1,200</td><td style="color:#ef4444">-$1,580</td><td><strong>$9,820</strong></td><td><span class="badge badge-active">Pagado</span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">LV</div>Laura Vargas</div></td><td>Dir. Comercial</td><td>$9,800</td><td>$480</td><td>$2,400</td><td style="color:#ef4444">-$1,460</td><td><strong>$11,220</strong></td><td><span class="badge badge-active">Pagado</span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--orange),var(--orange-light))">JO</div>Juan Ospina</div></td><td>Dir. Finanzas</td><td>$9,200</td><td>$0</td><td>$600</td><td style="color:#ef4444">-$1,380</td><td><strong>$8,420</strong></td><td><span class="badge badge-active">Pagado</span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--teal-dark),#0891b2)">DM</div>David Mora</div></td><td>Dev Senior</td><td>$6,800</td><td>$900</td><td>$500</td><td style="color:#ef4444">-$980</td><td><strong>$7,220</strong></td><td><span class="badge badge-active">Pagado</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: ATTENDANCE ═══╗ -->
+<div id="page-attendance" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Control de Asistencia</div>
+      <div class="page-subtitle">Registro web en tiempo real · Mayo 2025</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline"><i class="fas fa-download"></i> Reporte</button>
+      <button class="btn btn-primary"><i class="fas fa-clock"></i> Registrar Entrada</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-user-check"></i></div><div class="stat-label">Presentes Hoy</div><div class="stat-value">232</div><div class="stat-change up">94.2% asistencia</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-user-xmark"></i></div><div class="stat-label">Ausentes</div><div class="stat-value">15</div><div class="stat-change down">3 sin justificar</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-clock"></i></div><div class="stat-label">H. Extras del Mes</div><div class="stat-value">348h</div><div class="stat-change up">+18% vs abril</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-moon"></i></div><div class="stat-label">Turnos Noche</div><div class="stat-value">42</div><div class="stat-change up">Esta semana</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Calendario Mayo 2025</span>
+        <div style="display:flex;gap:6px;font-size:.7rem">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:var(--teal-100);display:inline-block"></span>Presente</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#fee2e2;display:inline-block"></span>Ausente</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#fef9c3;display:inline-block"></span>Festivo</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Registro de Hoy</span></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Empleado</th><th>Entrada</th><th>Salida</th><th>H. Extras</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--teal),var(--orange))">AS</div>Ana Sofía R.</div></td><td>08:02</td><td>—</td><td>—</td><td><span class="badge badge-active">Presente</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">PM</div>Pedro Mora</div></td><td>08:45</td><td>—</td><td>—</td><td><span class="badge badge-active">Presente</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">DM</div>David Mora</div></td><td>09:10</td><td>—</td><td>—</td><td><span class="badge badge-active">Presente</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--orange),#fb923c)">CP</div>Carlos P.</div></td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-rejected">Ausente</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">LT</div>Laura Torres</div></td><td>07:55</td><td>—</td><td>—</td><td><span class="badge badge-teal">Teletrabajo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: VACATIONS ═══╗ -->
+<div id="page-vacations" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Vacaciones y Permisos</div>
+      <div class="page-subtitle">Gestión de ausencias y flujos de aprobación</div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal('vacationModal')"><i class="fas fa-plus"></i> Solicitar Permiso</button>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-calendar-check"></i></div><div class="stat-label">Solicitudes Pendientes</div><div class="stat-value">12</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-umbrella-beach"></i></div><div class="stat-label">En Vacaciones Hoy</div><div class="stat-value">8</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-check-double"></i></div><div class="stat-label">Aprobadas Este Mes</div><div class="stat-value">34</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-hourglass-half"></i></div><div class="stat-label">Días Promedio Pendientes</div><div class="stat-value">18.3</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Solicitudes Recientes</span>
+      <div class="tabs">
+        <button class="tab active">Pendientes (12)</button>
+        <button class="tab">Aprobadas</button>
+        <button class="tab">Rechazadas</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Empleado</th><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Saldo Disponible</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">DM</div>David Mora</div></td><td>Vacaciones</td><td>3 jun</td><td>9 jun</td><td>5</td><td>15 días</td><td><span class="badge badge-pending">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary" style="padding:4px 10px;font-size:.7rem">Aprobar</button><button class="btn" style="background:#fee2e2;color:#dc2626;padding:4px 10px;font-size:.7rem">Rechazar</button></div></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">LT</div>Laura Torres</div></td><td>Permiso médico</td><td>29 may</td><td>30 may</td><td>2</td><td>21 días</td><td><span class="badge badge-pending">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary" style="padding:4px 10px;font-size:.7rem">Aprobar</button><button class="btn" style="background:#fee2e2;color:#dc2626;padding:4px 10px;font-size:.7rem">Rechazar</button></div></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--orange),#fb923c)">AC</div>Andrés Castro</div></td><td>Permiso personal</td><td>31 may</td><td>31 may</td><td>1</td><td>18 días</td><td><span class="badge badge-pending">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary" style="padding:4px 10px;font-size:.7rem">Aprobar</button><button class="btn" style="background:#fee2e2;color:#dc2626;padding:4px 10px;font-size:.7rem">Rechazar</button></div></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:linear-gradient(135deg,var(--teal),var(--teal-light))">JR</div>Juliana Ríos</div></td><td>Vacaciones</td><td>10 jun</td><td>20 jun</td><td>9</td><td>25 días</td><td><span class="badge badge-active">Aprobada</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: PERFORMANCE ═══╗ -->
+<div id="page-performance" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Evaluación de Desempeño</div>
+      <div class="page-subtitle">KPIs, evaluaciones 360° y seguimiento continuo</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Evaluación</button>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-star"></i></div><div class="stat-label">Puntaje Promedio</div><div class="stat-value">78.4</div><div class="stat-change up">+4.2 vs Q1</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-file-signature"></i></div><div class="stat-label">Evaluaciones Pendientes</div><div class="stat-value">23</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-trophy"></i></div><div class="stat-label">Alto Desempeño</div><div class="stat-value">67</div><div class="stat-change up">27% del equipo</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-chart-bar"></i></div><div class="stat-label">En Desarrollo</div><div class="stat-value">18</div><div class="stat-change down">Requieren atención</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Evaluación 360° — Pedro Mora</span><span class="badge badge-teal">Q2 2025</span></div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <div class="avatar" style="width:50px;height:50px;font-size:1.1rem;background:linear-gradient(135deg,#8b5cf6,#a78bfa)">PM</div>
+          <div>
+            <div style="font-weight:700">Pedro Mora</div>
+            <div style="font-size:.75rem;color:var(--gray-500)">Dir. Tecnología · Evaluación Q2 2025</div>
+            <div class="stars" style="margin-top:4px">
+              <i class="fas fa-star star filled"></i><i class="fas fa-star star filled"></i><i class="fas fa-star star filled"></i><i class="fas fa-star star filled"></i><i class="fas fa-star-half-stroke star filled"></i>
+              <span style="font-size:.75rem;color:var(--gray-600);margin-left:4px">4.5 / 5.0</span>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-wrap" style="margin-bottom:16px">
+          <div class="kpi-item"><div class="kpi-value" style="color:var(--teal)">92</div><div class="kpi-label">Jefes</div></div>
+          <div class="kpi-item"><div class="kpi-value" style="color:var(--orange)">88</div><div class="kpi-label">Pares</div></div>
+          <div class="kpi-item"><div class="kpi-value" style="color:#8b5cf6">85</div><div class="kpi-label">Equipo</div></div>
+        </div>
+        <div>
+          <div class="survey-bar"><div class="survey-label" style="font-size:.72rem">Liderazgo</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:var(--teal)"></div></div></div><div class="survey-score">92</div></div>
+          <div class="survey-bar"><div class="survey-label" style="font-size:.72rem">Comunicación</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--teal)"></div></div></div><div class="survey-score">85</div></div>
+          <div class="survey-bar"><div class="survey-label" style="font-size:.72rem">Resultados</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--orange)"></div></div></div><div class="survey-score">90</div></div>
+          <div class="survey-bar"><div class="survey-label" style="font-size:.72rem">Trabajo en equipo</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#8b5cf6"></div></div></div><div class="survey-score">88</div></div>
+          <div class="survey-bar"><div class="survey-label" style="font-size:.72rem">Innovación</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#10b981"></div></div></div><div class="survey-score">78</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Ranking de Desempeño — Mayo</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(135deg,var(--teal-50),white);border-radius:10px;border:1.5px solid var(--teal-100)">
+            <span style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--teal);width:24px">1</span>
+            <div class="avatar" style="background:linear-gradient(135deg,var(--teal),var(--orange))">LV</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:700">Laura Vargas</div><div style="font-size:.7rem;color:var(--gray-500)">Dir. Comercial</div></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end"><div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--teal)">96.2</div><div class="stars" style="gap:1px"><i class="fas fa-star star filled" style="font-size:.6rem"></i><i class="fas fa-star star filled" style="font-size:.6rem"></i><i class="fas fa-star star filled" style="font-size:.6rem"></i><i class="fas fa-star star filled" style="font-size:.6rem"></i><i class="fas fa-star star filled" style="font-size:.6rem"></i></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <span style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--orange);width:24px">2</span>
+            <div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">PM</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:700">Pedro Mora</div><div style="font-size:.7rem;color:var(--gray-500)">Dir. Tecnología</div></div>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-700)">91.4</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <span style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#d97706;width:24px">3</span>
+            <div class="avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">DM</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:700">David Mora</div><div style="font-size:.7rem;color:var(--gray-500)">Dev Senior</div></div>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-700)">89.1</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-400);width:24px">4</span>
+            <div class="avatar" style="background:linear-gradient(135deg,var(--teal-dark),var(--teal))">AS</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:700">Ana Sofía R.</div><div style="font-size:.7rem;color:var(--gray-500)">Dir. RRHH</div></div>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-700)">87.6</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-400);width:24px">5</span>
+            <div class="avatar" style="background:linear-gradient(135deg,var(--orange),#fb923c)">JO</div>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:700">Juan Ospina</div><div style="font-size:.7rem;color:var(--gray-500)">Dir. Finanzas</div></div>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gray-700)">84.3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: LMS ═══╗ -->
+<div id="page-lms" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Capacitación y Aprendizaje (LMS)</div>
+      <div class="page-subtitle">Cursos, progreso y certificaciones del equipo</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Curso</button>
+  </div>
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-book-open"></i></div><div class="stat-label">Cursos Activos</div><div class="stat-value">24</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-graduation-cap"></i></div><div class="stat-label">Certificaciones Emitidas</div><div class="stat-value">186</div><div class="stat-change up">+12 este mes</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-chart-bar"></i></div><div class="stat-label">Completación Promedio</div><div class="stat-value">71%</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-clock"></i></div><div class="stat-label">H. de Aprendizaje/Emp.</div><div class="stat-value">14.2h</div></div>
+  </div>
+  <div class="grid grid-3">
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,var(--teal-50),var(--teal-100))">📊</div>
+      <span class="badge badge-teal" style="margin-bottom:8px">Tecnología</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">Análisis de Datos con Python</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">12 lecciones · 8h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">38 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--teal)">68% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--teal)"></div></div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,#ffedd5,#fed7aa)">🚀</div>
+      <span class="badge badge-orange" style="margin-bottom:8px">Liderazgo</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">Liderazgo y Gestión de Equipos</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">8 lecciones · 6h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">24 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--orange)">82% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--orange)"></div></div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe)">🔒</div>
+      <span class="badge badge-purple" style="margin-bottom:8px">Obligatorio</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">Seguridad de la Información</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">5 lecciones · 3h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">247 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#7c3aed">95% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:95%;background:#8b5cf6"></div></div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)">💬</div>
+      <span class="badge badge-active" style="margin-bottom:8px">Comunicación</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">Comunicación Asertiva</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">6 lecciones · 4h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">56 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#059669">74% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:74%;background:#10b981"></div></div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,#fef9c3,#fde68a)">⚖️</div>
+      <span class="badge badge-pending" style="margin-bottom:8px">Normativo</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">Legislación Laboral Colombia</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">10 lecciones · 7h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">18 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#d97706">43% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:43%;background:#f59e0b"></div></div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb" style="background:linear-gradient(135deg,var(--teal-50),#ecfeff)">☁️</div>
+      <span class="badge badge-teal" style="margin-bottom:8px">Cloud</span>
+      <div style="font-size:.85rem;font-weight:700;color:var(--gray-800);margin-bottom:6px">AWS Cloud Practitioner</div>
+      <div style="font-size:.72rem;color:var(--gray-500);margin-bottom:10px">15 lecciones · 12h estimadas</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.7rem;color:var(--gray-500)">14 inscritos</div>
+        <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--teal)">60% promedio</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--teal)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: TALENT ═══╗ -->
+<div id="page-talent" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestión del Talento</div>
+      <div class="page-subtitle">Planes de carrera, sucesión y desarrollo de alto potencial</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-plus"></i> Plan de Carrera</button>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Matriz de Talento 9-Box</span></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px">
+          <div style="background:#fee2e2;border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#991b1b;font-weight:600;text-transform:uppercase">Bajo / Alto</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#dc2626;margin:4px 0">8</div><div style="font-size:.62rem;color:#991b1b">Por desarrollar</div></div>
+          <div style="background:#fef9c3;border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#854d0e;font-weight:600;text-transform:uppercase">Medio / Alto</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#d97706;margin:4px 0">22</div><div style="font-size:.62rem;color:#854d0e">En crecimiento</div></div>
+          <div style="background:#dcfce7;border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#166534;font-weight:600;text-transform:uppercase">Alto / Alto</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#059669;margin:4px 0">31</div><div style="font-size:.62rem;color:#166534">Estrellas 🌟</div></div>
+          <div style="background:#fee2e2;border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#991b1b;font-weight:600;text-transform:uppercase">Bajo / Medio</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#dc2626;margin:4px 0">12</div></div>
+          <div style="background:var(--gray-100);border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:var(--gray-600);font-weight:600;text-transform:uppercase">Medio / Medio</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gray-700);margin:4px 0">58</div><div style="font-size:.62rem;color:var(--gray-500)">Sólidos</div></div>
+          <div style="background:var(--teal-100);border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:var(--teal-dark);font-weight:600;text-transform:uppercase">Alto / Medio</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--teal-dark);margin:4px 0">45</div><div style="font-size:.62rem;color:var(--teal-dark)">Alto potencial</div></div>
+          <div style="background:#fee2e2;border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#991b1b;font-weight:600;text-transform:uppercase">Bajo / Bajo</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#dc2626;margin:4px 0">4</div></div>
+          <div style="background:var(--gray-100);border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:var(--gray-600);font-weight:600;text-transform:uppercase">Medio / Bajo</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gray-700);margin:4px 0">38</div></div>
+          <div style="background:var(--orange-50);border-radius:8px;padding:10px;text-align:center"><div style="font-size:.65rem;color:#9a3412;font-weight:600;text-transform:uppercase">Alto / Bajo</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--orange-dark);margin:4px 0">29</div><div style="font-size:.62rem;color:#9a3412">Retener 🎯</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Planes de Sucesión Críticos</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="padding:13px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div><div style="font-size:.82rem;font-weight:700">Director de Tecnología</div><div style="font-size:.72rem;color:var(--gray-500)">Titular: Pedro Mora</div></div>
+              <span class="badge badge-teal">2 sucesores</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div style="display:flex;align-items:center;gap:6px;background:var(--teal-50);border-radius:7px;padding:6px 10px;flex:1"><div class="avatar" style="width:24px;height:24px;font-size:.62rem;background:var(--teal)">DM</div><div><div style="font-size:.72rem;font-weight:600">David Mora</div><div style="font-size:.65rem;color:var(--gray-500)">Listo en 1 año</div></div></div>
+              <div style="display:flex;align-items:center;gap:6px;background:var(--orange-50);border-radius:7px;padding:6px 10px;flex:1"><div class="avatar" style="width:24px;height:24px;font-size:.62rem;background:var(--orange)">JR</div><div><div style="font-size:.72rem;font-weight:600">Juan Ruiz</div><div style="font-size:.65rem;color:var(--gray-500)">Listo en 2 años</div></div></div>
+            </div>
+          </div>
+          <div style="padding:13px;background:var(--gray-50);border-radius:10px;border:1.5px solid var(--gray-200)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div><div style="font-size:.82rem;font-weight:700">Director Comercial</div><div style="font-size:.72rem;color:var(--gray-500)">Titular: Laura Vargas</div></div>
+              <span class="badge badge-orange">1 sucesor</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div style="display:flex;align-items:center;gap:6px;background:var(--orange-50);border-radius:7px;padding:6px 10px;flex:1"><div class="avatar" style="width:24px;height:24px;font-size:.62rem;background:var(--orange)">AC</div><div><div style="font-size:.72rem;font-weight:600">Andrés Castro</div><div style="font-size:.65rem;color:var(--gray-500)">Listo en 18 meses</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: CLIMATE ═══╗ -->
+<div id="page-climate" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Clima Organizacional</div>
+      <div class="page-subtitle">Encuestas y análisis del ambiente laboral</div>
+    </div>
+    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Encuesta</button>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-face-smile"></i></div><div class="stat-label">eNPS Score</div><div class="stat-value">+62</div><div class="stat-change up">Excelente</div></div>
+    <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-poll"></i></div><div class="stat-label">Participación</div><div class="stat-value">87%</div><div class="stat-change up">+5% vs Q1</div></div>
+    <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-heart"></i></div><div class="stat-label">Satisfacción General</div><div class="stat-value">7.8/10</div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-people-group"></i></div><div class="stat-label">Sentido de Pertenencia</div><div class="stat-value">82%</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Resultados por Dimensión — Q2 2025</span></div>
+      <div class="card-body">
+        <div class="survey-bar"><div class="survey-label">Liderazgo</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--teal)"></div></div></div><div class="survey-score">8.5</div></div>
+        <div class="survey-bar"><div class="survey-label">Comunicación</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--teal)"></div></div></div><div class="survey-score">7.4</div></div>
+        <div class="survey-bar"><div class="survey-label">Trabajo en equipo</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--orange)"></div></div></div><div class="survey-score">8.8</div></div>
+        <div class="survey-bar"><div class="survey-label">Compensación</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#f59e0b"></div></div></div><div class="survey-score">6.8</div></div>
+        <div class="survey-bar"><div class="survey-label">Balance vida/trabajo</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#8b5cf6"></div></div></div><div class="survey-score">7.2</div></div>
+        <div class="survey-bar"><div class="survey-label">Crecimiento profesional</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:79%;background:#10b981"></div></div></div><div class="survey-score">7.9</div></div>
+        <div class="survey-bar"><div class="survey-label">Reconocimiento</div><div class="survey-progress"><div class="progress-bar"><div class="progress-fill" style="width:71%;background:var(--teal)"></div></div></div><div class="survey-score">7.1</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Análisis eNPS</span></div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px;margin-bottom:20px">
+          <div style="flex:1;background:#dcfce7;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#059669">54%</div>
+            <div style="font-size:.72rem;color:#166534;font-weight:600">Promotores</div>
+          </div>
+          <div style="flex:1;background:#fef9c3;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#d97706">38%</div>
+            <div style="font-size:.72rem;color:#854d0e;font-weight:600">Neutros</div>
+          </div>
+          <div style="flex:1;background:#fee2e2;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#dc2626">8%</div>
+            <div style="font-size:.72rem;color:#991b1b;font-weight:600">Detractores</div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--teal-50),white);border:1.5px solid var(--teal-100);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:.78rem;color:var(--gray-500);margin-bottom:4px">eNPS = Promotores% − Detractores%</div>
+          <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--teal)">+62</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:var(--teal);color:white;padding:4px 14px;border-radius:99px;font-size:.75rem;font-weight:600;margin-top:6px"><i class="fas fa-arrow-up"></i> Excelente · Benchmark industria: +40</div>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:var(--orange-50);border-radius:10px;border:1.5px solid #fed7aa">
+          <div style="font-size:.78rem;font-weight:600;color:var(--orange-dark)"><i class="fas fa-lightbulb" style="margin-right:6px"></i>Área de mejora prioritaria: Compensación y reconocimiento</div>
+          <div style="font-size:.72rem;color:var(--gray-600);margin-top:4px">El 32% menciona la compensación como factor de insatisfacción. Se recomienda revisión salarial en Q3.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: PORTAL ═══╗ -->
+<div id="page-portal" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Portal del Empleado</div>
+      <div class="page-subtitle">Autogestión completa para Ana Sofía Restrepo</div>
+    </div>
+  </div>
+
+  <div class="emp-profile-hero">
+    <div class="emp-avatar-lg">AS</div>
+    <div class="emp-info">
+      <h2>Ana Sofía Restrepo Gómez</h2>
+      <p>Directora de Recursos Humanos · Tecnología y Personas</p>
+      <div class="emp-meta">
+        <div class="emp-meta-item"><i class="fas fa-id-badge"></i> ID: EMP-0042</div>
+        <div class="emp-meta-item"><i class="fas fa-calendar"></i> Ingreso: 15 Mar 2019</div>
+        <div class="emp-meta-item"><i class="fas fa-building"></i> TechCorp S.A.S.</div>
+        <div class="emp-meta-item"><i class="fas fa-location-dot"></i> Bogotá D.C.</div>
+      </div>
+    </div>
+    <div style="margin-left:auto;text-align:center">
+      <div style="font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800">6.2</div>
+      <div style="font-size:.72rem;opacity:.75">años de antigüedad</div>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="card" style="cursor:pointer">
+      <div class="card-body" style="text-align:center;padding:20px">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:1.1rem;margin:0 auto 10px"><i class="fas fa-umbrella-beach"></i></div>
+        <div style="font-size:.78rem;font-weight:700">Mis Vacaciones</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--teal);margin:4px 0">15</div>
+        <div style="font-size:.7rem;color:var(--gray-500)">días disponibles</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer">
+      <div class="card-body" style="text-align:center;padding:20px">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--orange-50);display:flex;align-items:center;justify-content:center;color:var(--orange);font-size:1.1rem;margin:0 auto 10px"><i class="fas fa-money-bill-wave"></i></div>
+        <div style="font-size:.78rem;font-weight:700">Última Nómina</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--orange);margin:4px 0">$8,470</div>
+        <div style="font-size:.7rem;color:var(--gray-500)">mayo 2025 · neto</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer">
+      <div class="card-body" style="text-align:center;padding:20px">
+        <div style="width:44px;height:44px;border-radius:12px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#059669;font-size:1.1rem;margin:0 auto 10px"><i class="fas fa-star"></i></div>
+        <div style="font-size:.78rem;font-weight:700">Mi Desempeño</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#059669;margin:4px 0">87.6</div>
+        <div style="font-size:.7rem;color:var(--gray-500)">puntaje Q2 2025</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer">
+      <div class="card-body" style="text-align:center;padding:20px">
+        <div style="width:44px;height:44px;border-radius:12px;background:#ede9fe;display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:1.1rem;margin:0 auto 10px"><i class="fas fa-graduation-cap"></i></div>
+        <div style="font-size:.78rem;font-weight:700">Mis Cursos</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#7c3aed;margin:4px 0">3/5</div>
+        <div style="font-size:.7rem;color:var(--gray-500)">completados</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Mis Solicitudes Recientes</span><button class="btn btn-primary" style="font-size:.75rem" onclick="toggleModal('vacationModal')"><i class="fas fa-plus"></i> Nueva</button></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Tipo</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>Vacaciones (5 días)</td><td>3–9 jun</td><td><span class="badge badge-active">Aprobada</span></td></tr>
+            <tr><td>Permiso personal (1 día)</td><td>2 may</td><td><span class="badge badge-active">Aprobada</span></td></tr>
+            <tr><td>Certificado laboral</td><td>15 abr</td><td><span class="badge badge-active">Generado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Documentos Personales</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:9px;border:1.5px solid var(--gray-200)">
+            <i class="fas fa-file-contract" style="color:var(--teal);font-size:1rem"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Contrato de Trabajo</div><div style="font-size:.7rem;color:var(--gray-500)">Renovación 2024 · PDF · 125 KB</div></div>
+            <button class="btn btn-outline" style="padding:4px 10px;font-size:.7rem"><i class="fas fa-download"></i></button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:9px;border:1.5px solid var(--gray-200)">
+            <i class="fas fa-file-invoice-dollar" style="color:var(--orange);font-size:1rem"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Colillas de Nómina 2025</div><div style="font-size:.7rem;color:var(--gray-500)">Enero–Mayo · 5 documentos</div></div>
+            <button class="btn btn-outline" style="padding:4px 10px;font-size:.7rem"><i class="fas fa-download"></i></button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:9px;border:1.5px solid var(--gray-200)">
+            <i class="fas fa-certificate" style="color:#8b5cf6;font-size:1rem"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Certificado Laboral</div><div style="font-size:.7rem;color:var(--gray-500)">Generado 15 abr 2025</div></div>
+            <button class="btn btn-outline" style="padding:4px 10px;font-size:.7rem"><i class="fas fa-download"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══ PAGE: SETTINGS ═══╗ -->
+<div id="page-settings" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Configuración del Sistema</div><div class="page-subtitle">Gestión de la plataforma SaaS multi-tenant</div></div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Información de la Empresa</span></div>
+      <div class="card-body">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+          <div class="form-group"><label class="form-label">Nombre empresa</label><input class="form-control" value="TechCorp S.A.S."></div>
+          <div class="form-group"><label class="form-label">NIT</label><input class="form-control" value="900.123.456-7"></div>
+          <div class="form-group"><label class="form-label">País</label><select class="form-control"><option selected>Colombia</option><option>México</option><option>Argentina</option></select></div>
+          <div class="form-group"><label class="form-label">Ciudad</label><input class="form-control" value="Bogotá D.C."></div>
+          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Dirección</label><input class="form-control" value="Carrera 11 #93-25, Oficina 504"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px"><i class="fas fa-save"></i> Guardar Cambios</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Módulos Activos</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Core HR & Empleados</span><span class="badge badge-active">Activo</span></div>
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Reclutamiento ATS</span><span class="badge badge-active">Activo</span></div>
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Gestión de Nómina</span><span class="badge badge-active">Activo</span></div>
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Control de Asistencia</span><span class="badge badge-active">Activo</span></div>
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">LMS Capacitación</span><span class="badge badge-active">Activo</span></div>
+          <div class="toggle-wrap"><div class="toggle" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Inteligencia Artificial Predictiva</span><span class="badge badge-pending">Beta</span></div>
+          <div class="toggle-wrap"><div class="toggle on" onclick="this.classList.toggle('on')"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">API & Webhooks</span><span class="badge badge-active">Activo</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Integraciones API</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1.5px solid #dcfce7;background:#f0fdf4">
+            <i class="fas fa-envelope" style="color:#059669;font-size:1rem;width:20px;text-align:center"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Correo Corporativo (SMTP)</div><div style="font-size:.7rem;color:var(--gray-500)">mail.techcorp.co — Conectado</div></div>
+            <span class="badge badge-active">✓</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1.5px solid #dcfce7;background:#f0fdf4">
+            <i class="fas fa-file-signature" style="color:#059669;font-size:1rem;width:20px;text-align:center"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Firma Digital (DocuSign)</div><div style="font-size:.7rem;color:var(--gray-500)">API v2.1 — Conectado</div></div>
+            <span class="badge badge-active">✓</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1.5px solid #dcfce7;background:#f0fdf4">
+            <i class="fas fa-calculator" style="color:#059669;font-size:1rem;width:20px;text-align:center"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Sistema Contable (Siigo)</div><div style="font-size:.7rem;color:var(--gray-500)">REST API — Conectado</div></div>
+            <span class="badge badge-active">✓</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--gray-200);background:var(--gray-50)">
+            <i class="fab fa-slack" style="color:var(--gray-400);font-size:1rem;width:20px;text-align:center"></i>
+            <div style="flex:1"><div style="font-size:.8rem;font-weight:600">Slack</div><div style="font-size:.7rem;color:var(--gray-500)">Notificaciones — No configurado</div></div>
+            <button class="btn btn-outline" style="padding:4px 12px;font-size:.7rem">Conectar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Seguridad y Acceso</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="toggle-wrap"><div class="toggle on"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Autenticación de 2 factores (2FA)</span></div>
+          <div class="toggle-wrap"><div class="toggle on"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">SSO / SAML 2.0</span></div>
+          <div class="toggle-wrap"><div class="toggle on"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Auditoría de acciones (audit log)</span></div>
+          <div class="toggle-wrap"><div class="toggle"></div><span style="font-size:.82rem;color:var(--gray-700);flex:1">Restricción IP corporativa</span></div>
+          <div style="margin-top:8px;padding:12px;background:var(--teal-50);border-radius:10px;border:1.5px solid var(--teal-100)">
+            <div style="font-size:.78rem;font-weight:600;color:var(--teal-dark)"><i class="fas fa-shield-halved" style="margin-right:6px"></i>Cifrado AES-256 activo · GDPR / Habeas Data Colombia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main><!-- end main -->
+
+<!-- ═══════════════════════ MODALS ═══════════════════════ -->
+
+<!-- ══ MODAL: Nuevo Empleado (FUNCIONAL con Supabase) ══ -->
+<div class="modal-overlay" id="newEmpModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <span class="modal-title" id="empModalTitle">Registrar Nuevo Empleado</span>
+      <button class="modal-close" onclick="closeEmpModal()">✕</button>
+    </div>
+
+    <!-- Tab headers -->
+    <div class="tabs" style="margin-bottom:20px">
+      <button class="tab active" onclick="switchEmpTab(this,'tab-personal')">👤 Personal</button>
+      <button class="tab" onclick="switchEmpTab(this,'tab-laboral')">💼 Laboral</button>
+      <button class="tab" onclick="switchEmpTab(this,'tab-salarial')">💰 Salarial</button>
+    </div>
+
+    <!-- Tab: Personal -->
+    <div id="tab-personal" class="emp-tab">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group">
+          <label class="form-label">Nombres *</label>
+          <input id="emp_first_name" class="form-control" placeholder="Ej: María Fernanda">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellidos *</label>
+          <input id="emp_last_name" class="form-control" placeholder="Ej: López García">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cédula / Documento</label>
+          <input id="emp_document" class="form-control" placeholder="1234567890">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico *</label>
+          <input id="emp_email" type="email" class="form-control" placeholder="mlopez@empresa.co">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input id="emp_phone" class="form-control" placeholder="+57 300 000 0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección</label>
+          <input id="emp_address" class="form-control" placeholder="Calle 123 # 45-67">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Laboral -->
+    <div id="tab-laboral" class="emp-tab" style="display:none">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group">
+          <label class="form-label">Cargo *</label>
+          <input id="emp_position" class="form-control" placeholder="Ej: Diseñadora UX Senior">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Departamento *</label>
+          <select id="emp_department" class="form-control">
+            <option value="">— Selecciona —</option>
+            <option>Tecnología</option><option>Comercial</option>
+            <option>Operaciones</option><option>RRHH</option>
+            <option>Finanzas</option><option>Marketing</option>
+            <option>Legal</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de ingreso *</label>
+          <input id="emp_hire_date" type="date" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de contrato *</label>
+          <select id="emp_contract" class="form-control">
+            <option value="Indefinido">Término indefinido</option>
+            <option value="Término Fijo">Término fijo</option>
+            <option value="Prestación Serv.">Prestación de servicios</option>
+            <option value="Aprendizaje">Contrato de aprendizaje</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select id="emp_status" class="form-control">
+            <option value="active">Activo</option>
+            <option value="pending">Periodo de prueba</option>
+            <option value="inactive">Inactivo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notas adicionales</label>
+          <input id="emp_notes" class="form-control" placeholder="Observaciones opcionales">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Salarial -->
+    <div id="tab-salarial" class="emp-tab" style="display:none">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Salario base mensual (COP) *</label>
+          <input id="emp_salary" type="number" class="form-control" placeholder="3500000" min="0" step="50000"
+            oninput="calcPayrollPreview()">
+        </div>
+        <!-- Preview de cálculo nómina -->
+        <div style="grid-column:1/-1">
+          <div style="background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:10px;padding:16px" id="payrollPreview">
+            <div style="font-size:.78rem;font-weight:700;color:var(--gray-700);margin-bottom:10px">📊 Vista previa de nómina</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:.78rem">
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--gray-500)">Salario bruto</span>
+                <span id="prev_bruto" style="font-weight:600">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--gray-500)">Salud (4%)</span>
+                <span id="prev_salud" style="color:#ef4444">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--gray-500)">Pensión (4%)</span>
+                <span id="prev_pension" style="color:#ef4444">—</span>
+              </div>
+              <div style="border-top:1px solid var(--gray-200);margin:4px 0"></div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-weight:700;color:var(--gray-800)">Neto a pagar</span>
+                <span id="prev_neto" style="font-weight:800;color:var(--teal-dark)">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--gray-500)">Costo empresa (Parafiscales ~21%)</span>
+                <span id="prev_empresa" style="color:var(--orange)">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error alert -->
+    <div id="empFormError" style="display:none;margin-top:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:.8rem;color:#dc2626">
+      <i class="fas fa-circle-exclamation"></i> <span id="empFormErrorText"></span>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:space-between;align-items:center">
+      <span id="empEditId" style="display:none"></span><!-- hidden edit id -->
+      <div style="font-size:.72rem;color:var(--gray-400)">* Campos obligatorios</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="closeEmpModal()">Cancelar</button>
+        <button class="btn btn-primary" id="saveEmpBtn" onclick="saveEmployee()">
+          <i class="fas fa-save"></i> <span id="saveEmpBtnText">Guardar Empleado</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Ver / Editar Empleado ══ -->
+<div class="modal-overlay" id="viewEmpModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title">Perfil del Empleado</span>
+      <button class="modal-close" onclick="toggleModal('viewEmpModal')">✕</button>
+    </div>
+    <div id="viewEmpContent">
+      <!-- Populated by JS -->
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="toggleModal('viewEmpModal')">Cerrar</button>
+      <button class="btn btn-primary" id="editFromViewBtn" onclick="openEditFromView()">
+        <i class="fas fa-pen"></i> Editar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Panel Superadmin ══ -->
+<div class="modal-overlay" id="superadminModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <div>
+        <span class="modal-title">🔐 Panel Superadmin</span>
+        <div style="font-size:.72rem;color:var(--gray-400);margin-top:2px">Gestión de empresas y usuarios del SaaS</div>
+      </div>
+      <button class="modal-close" onclick="toggleModal('superadminModal')">✕</button>
+    </div>
+
+    <div class="tabs" style="margin-bottom:20px">
+      <button class="tab active" onclick="switchSaTab(this,'sa-companies')">🏢 Empresas</button>
+      <button class="tab" onclick="switchSaTab(this,'sa-users')">👥 Usuarios</button>
+      <button class="tab" onclick="switchSaTab(this,'sa-add')">➕ Nueva empresa</button>
+    </div>
+
+    <!-- Tab: Empresas -->
+    <div id="sa-companies">
+      <div id="saCompaniesList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;padding:20px;color:var(--gray-400);font-size:.82rem">
+          <i class="fas fa-spinner fa-spin"></i> Cargando empresas...
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Usuarios -->
+    <div id="sa-users" style="display:none">
+      <div id="saUsersList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;padding:20px;color:var(--gray-400);font-size:.82rem">
+          <i class="fas fa-spinner fa-spin"></i> Cargando usuarios...
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Nueva empresa -->
+    <div id="sa-add" style="display:none">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Razón social *</label>
+          <input id="sa_company_name" class="form-control" placeholder="Ej: Empresa Cliente S.A.S.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">NIT</label>
+          <input id="sa_company_nit" class="form-control" placeholder="900123456-7">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plan</label>
+          <select id="sa_company_plan" class="form-control">
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <div style="font-size:.78rem;font-weight:600;color:var(--gray-700);margin-bottom:8px">👤 Usuario administrador inicial</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email admin *</label>
+          <input id="sa_admin_email" type="email" class="form-control" placeholder="admin@empresa.co">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre completo</label>
+          <input id="sa_admin_name" class="form-control" placeholder="Nombre del administrador">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Contraseña temporal *</label>
+          <input id="sa_admin_pass" type="text" class="form-control" placeholder="Mín. 8 caracteres" value="">
+          <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px">⚠️ Comparte esta contraseña con el cliente. Deberá cambiarla en su primer acceso.</div>
+        </div>
+      </div>
+      <div id="saAddError" style="display:none;margin-top:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:.8rem;color:#dc2626"></div>
+      <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+        <button class="btn btn-primary" onclick="createCompanyAndUser()">
+          <i class="fas fa-building"></i> Crear empresa y usuario
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Nómina — Detalle de liquidación ══ -->
+<div class="modal-overlay" id="payrollDetailModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <span class="modal-title">Liquidación de Nómina</span>
+      <button class="modal-close" onclick="toggleModal('payrollDetailModal')">✕</button>
+    </div>
+    <div id="payrollDetailContent"><!-- Populated by JS --></div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="toggleModal('payrollDetailModal')">Cerrar</button>
+      <button class="btn btn-primary" onclick="exportPayrollCSV()"><i class="fas fa-download"></i> Exportar CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Vacancy Modal -->
+<div class="modal-overlay" id="newVacantModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Publicar Nueva Vacante</span>
+      <button class="modal-close" onclick="toggleModal('newVacantModal')">✕</button>
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Nombre del cargo *</label><input class="form-control" placeholder="Ej: Desarrollador Backend Senior"></div>
+      <div class="form-group"><label class="form-label">Departamento</label><select class="form-control"><option>Tecnología</option><option>Comercial</option><option>Operaciones</option></select></div>
+      <div class="form-group"><label class="form-label">Modalidad</label><select class="form-control"><option>Presencial</option><option>Remoto</option><option>Híbrido</option></select></div>
+      <div class="form-group"><label class="form-label">Salario mínimo</label><input class="form-control" placeholder="$0"></div>
+      <div class="form-group"><label class="form-label">Salario máximo</label><input class="form-control" placeholder="$0"></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Descripción del cargo *</label><textarea class="form-control" rows="3" placeholder="Describe las responsabilidades, requisitos y beneficios..."></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="toggleModal('newVacantModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="toggleModal('newVacantModal')"><i class="fas fa-paper-plane"></i> Publicar Vacante</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vacation Request Modal -->
+<div class="modal-overlay" id="vacationModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Solicitar Vacaciones / Permiso</span>
+      <button class="modal-close" onclick="toggleModal('vacationModal')">✕</button>
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Tipo de solicitud</label><select class="form-control"><option>Vacaciones anuales</option><option>Permiso médico</option><option>Permiso personal</option><option>Licencia de maternidad/paternidad</option></select></div>
+      <div class="form-group"><label class="form-label">Fecha inicio *</label><input type="date" class="form-control"></div>
+      <div class="form-group"><label class="form-label">Fecha fin *</label><input type="date" class="form-control"></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Motivo / Comentarios</label><textarea class="form-control" rows="2" placeholder="Opcional: describe el motivo de tu solicitud..."></textarea></div>
+    </div>
+    <div style="margin-top:8px;padding:10px 13px;background:var(--orange-50);border-radius:9px;border:1.5px solid #fed7aa">
+      <div style="font-size:.75rem;color:var(--orange-dark)"><i class="fas fa-info-circle" style="margin-right:5px"></i>Tienes <strong>15 días</strong> disponibles. La solicitud será enviada a tu jefe directo para aprobación.</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="toggleModal('vacationModal')">Cancelar</button>
+      <button class="btn btn-orange" onclick="toggleModal('vacationModal')"><i class="fas fa-paper-plane"></i> Enviar Solicitud</button>
+    </div>
+  </div>
+</div>
+
+<!-- Company Switcher Modal -->
+<div class="modal-overlay" id="companyModal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <span class="modal-title">Cambiar de Empresa</span>
+      <button class="modal-close" onclick="toggleModal('companyModal')">✕</button>
+    </div>
+    <div style="font-size:.78rem;color:var(--gray-500);margin-bottom:14px">Multi-tenant SaaS — Selecciona la empresa a gestionar:</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:2px solid var(--teal);background:var(--teal-50);cursor:pointer">
+        <div class="company-avatar">TC</div>
+        <div style="flex:1"><div style="font-size:.82rem;font-weight:700">TechCorp S.A.S.</div><div style="font-size:.72rem;color:var(--gray-500)">247 empleados · Plan Enterprise</div></div>
+        <i class="fas fa-check-circle" style="color:var(--teal)"></i>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--gray-200);cursor:pointer" onclick="toggleModal('companyModal')">
+        <div class="company-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">IH</div>
+        <div style="flex:1"><div style="font-size:.82rem;font-weight:700">InnovaHolding Ltda.</div><div style="font-size:.72rem;color:var(--gray-500)">94 empleados · Plan Pro</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--gray-200);cursor:pointer" onclick="toggleModal('companyModal')">
+        <div class="company-avatar" style="background:linear-gradient(135deg,#10b981,#34d399)">GS</div>
+        <div style="flex:1"><div style="font-size:.82rem;font-weight:700">Grupo Salud +</div><div style="font-size:.72rem;color:var(--gray-500)">412 empleados · Plan Enterprise</div></div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:8px"><i class="fas fa-plus"></i> Agregar nueva empresa</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ═══════════════════════ SUPABASE + APP LOGIC ═══════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  ⚙️  CONFIGURACIÓN — Reemplaza con tus credenciales de Supabase
+// ════════════════════════════════════════════════════════════════
+const SUPABASE_URL      = 'https://tnhmthevtqoemhngnkmv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaG10aGV2dHFvZW1obmdua212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2Mzk2NjEsImV4cCI6MjA5MjIxNTY2MX0.5LPgzpn6SjI6kFRbgeQac1U8hhcITpNZENJnX_jEkqE';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── Estado global ───
+let currentUser    = null;
+let currentCompany = null;
+let isDemoMode     = false;
+let allEmployees   = [];   // cache local para búsqueda/filtros
+let editingEmpId   = null; // id del empleado siendo editado
+
+// ═════════════════════════════════════════════════════
+//  🔔  TOAST
+// ═════════════════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'circle-exclamation'}"></i> ${msg}`;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+}
+
+// ═════════════════════════════════════════════════════
+//  🔐  AUTENTICACIÓN Y CARGA INICIAL
+// ═════════════════════════════════════════════════════
+async function initApp() {
+  const loader = document.getElementById('authLoader');
+  isDemoMode = localStorage.getItem('pf_demo_mode') === '1';
+
+  if (isDemoMode) {
+    const u = JSON.parse(localStorage.getItem('pf_demo_user') || '{}');
+    currentCompany = { id: 'demo', name: u.company_name || 'Empresa Demo', plan: 'enterprise' };
+    applyUserToUI({
+      user_name: u.user_name || 'Demo Admin',
+      email: u.email,
+      company_name: currentCompany.name,
+      company_initials: getInitials(currentCompany.name),
+      role: u.role || 'admin'
+    });
+    await loadDemoData();
+    hideLoader(loader);
+    showToast('Modo demo activo — conecta Supabase para datos reales', 'success');
+    return;
+  }
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('*, companies(*)')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error || !profile) {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+      return;
+    }
+
+    currentUser    = { ...profile, email: session.user.email };
+    currentCompany = profile.companies;
+
+    applyUserToUI({
+      user_name: profile.full_name || session.user.email.split('@')[0],
+      email: session.user.email,
+      company_name: currentCompany.name,
+      company_initials: getInitials(currentCompany.name),
+      role: profile.role
+    });
+
+    // Mostrar botón superadmin si aplica
+    if (profile.role === 'superadmin') {
+      addSuperadminButton();
+    }
+
+    await loadRealData(currentCompany.id);
+    hideLoader(loader);
+    showToast(`Bienvenido · ${currentCompany.name}`, 'success');
+
+  } catch(err) {
+    console.error(err);
+    await loadDemoData();
+    hideLoader(loader);
+  }
+}
+
+function hideLoader(loader) {
+  loader.classList.add('hidden');
+  setTimeout(() => loader.style.display = 'none', 500);
+}
+
+function getInitials(str = '') {
+  return str.split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+
+function applyUserToUI({ user_name, email, company_name, company_initials, role }) {
+  document.querySelectorAll('.company-name').forEach(el => el.textContent = company_name);
+  document.querySelectorAll('.company-avatar').forEach(el => el.textContent = company_initials);
+  const initials = getInitials(user_name);
+  document.querySelectorAll('.user-name').forEach(el => el.textContent = user_name);
+  document.querySelectorAll('.user-avatar').forEach(el => el.textContent = initials);
+  document.querySelectorAll('.user-role').forEach(el => el.textContent =
+    role === 'superadmin' ? '🔐 Superadmin' : role === 'admin' ? 'Administrador' : 'Usuario');
+}
+
+function addSuperadminButton() {
+  const footer = document.querySelector('.sidebar-footer');
+  if (!footer) return;
+  const btn = document.createElement('div');
+  btn.style.cssText = 'margin-top:8px;padding:8px 12px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3);border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.75rem;color:#fb923c;font-weight:600';
+  btn.innerHTML = '<i class="fas fa-shield-halved"></i> Panel Superadmin';
+  btn.onclick = () => openSuperadmin();
+  footer.insertBefore(btn, footer.firstChild);
+}
+
+// ═════════════════════════════════════════════════════
+//  📊  CARGA DE DATOS
+// ═════════════════════════════════════════════════════
+async function loadRealData(companyId) {
+  await Promise.all([
+    loadEmployees(companyId),
+    loadPayrollSummary(companyId),
+  ]);
+}
+
+async function loadEmployees(companyId) {
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('name');
+
+  if (error) { console.error(error); return; }
+  allEmployees = data || [];
+  renderEmployeeTable(allEmployees);
+  updateCounters(allEmployees);
+}
+
+async function loadPayrollSummary(companyId) {
+  const { data } = await supabase
+    .from('employees')
+    .select('salary, status')
+    .eq('company_id', companyId)
+    .eq('status', 'active');
+
+  if (!data) return;
+  const total = data.reduce((s, e) => s + Number(e.salary || 0), 0);
+  const payrollEl = document.querySelector('.payroll-amount');
+  if (payrollEl && total > 0) {
+    payrollEl.textContent = `$${total.toLocaleString('es-CO')}`;
+  }
+}
+
+// ═════════════════════════════════════════════════════
+//  👤  RENDERIZADO DE TABLA DE EMPLEADOS
+// ═════════════════════════════════════════════════════
+function renderEmployeeTable(employees) {
+  const tbody = document.getElementById('employeeTable');
+  if (!tbody) return;
+
+  // Update count text
+  const countEl = document.querySelector('.card-header .card-title + div span');
+  if (countEl) countEl.textContent = `${employees.length} registros`;
+  const paginationEl = document.querySelector('[style*="Mostrando"]');
+  if (paginationEl) paginationEl.textContent = `Mostrando ${Math.min(employees.length,20)} de ${employees.length} empleados`;
+
+  if (employees.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--gray-400)">
+      <i class="fas fa-users" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.3"></i>
+      No hay empleados que coincidan con los filtros.</td></tr>`;
+    return;
+  }
+
+  const colors = [
+    'var(--teal),var(--orange)', '#8b5cf6,#a78bfa', '#10b981,#34d399',
+    'var(--orange),#fb923c', 'var(--teal-dark),#0891b2', '#f59e0b,#fbbf24'
+  ];
+  const stateClass = { active:'badge-active', inactive:'badge-inactive', pending:'badge-pending' };
+  const stateLabel = { active:'Activo', inactive:'Inactivo', pending:'En Prueba' };
+
+  tbody.innerHTML = employees.map(e => {
+    const initials = getInitials(e.name);
+    const grad     = colors[Math.abs((e.name || '').charCodeAt(0)) % colors.length];
+    const salary   = e.salary ? `$${Number(e.salary).toLocaleString('es-CO')}` : '—';
+    const hireDate = e.hire_date
+      ? new Date(e.hire_date + 'T00:00:00').toLocaleDateString('es-CO', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    const sc = stateClass[e.status] || 'badge-inactive';
+    const sl = stateLabel[e.status] || e.status || '—';
+    return `<tr>
+      <td><input type="checkbox" data-id="${e.id}"></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar" style="background:linear-gradient(135deg,${grad})">${initials}</div>
+          <div>
+            <div style="font-weight:600;font-size:.82rem">${e.name}</div>
+            <div style="font-size:.72rem;color:var(--gray-400)">${e.email || ''}</div>
+          </div>
+        </div>
+      </td>
+      <td>${e.position || '—'}</td>
+      <td><span class="badge badge-teal">${e.department || '—'}</span></td>
+      <td style="font-size:.78rem">${e.contract_type || '—'}</td>
+      <td style="font-size:.78rem;color:var(--gray-500)">${hireDate}</td>
+      <td><strong>${salary}</strong></td>
+      <td><span class="badge ${sc}">${sl}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="icon-btn" title="Ver perfil" onclick="viewEmployee('${e.id}')"><i class="fas fa-eye"></i></button>
+          <button class="icon-btn" title="Editar" onclick="openEditEmployee('${e.id}')"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn" title="Eliminar" style="color:#ef4444" onclick="deleteEmployee('${e.id}','${e.name.replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateCounters(employees) {
+  const active   = employees.filter(e => e.status === 'active').length;
+  const inactive = employees.filter(e => e.status === 'inactive').length;
+  const pending  = employees.filter(e => e.status === 'pending').length;
+
+  // Stat cards del dashboard
+  const statValues = document.querySelectorAll('.stat-card .stat-value');
+  if (statValues[0]) statValues[0].textContent = employees.length;
+
+  // Badge sidebar
+  const nb = document.querySelector('.nav-item[onclick*="employees"] .nav-badge');
+  if (nb) nb.textContent = employees.length;
+
+  // Subtítulo de la página de empleados
+  const sub = document.querySelector('#page-employees .page-subtitle');
+  if (sub) sub.textContent = `Core HR · ${active} activos, ${pending} en prueba, ${inactive} inactivos`;
+}
+
+// ═════════════════════════════════════════════════════
+//  🔍  BÚSQUEDA Y FILTROS EN VIVO
+// ═════════════════════════════════════════════════════
+function initEmployeeSearch() {
+  const searchInput = document.querySelector('#page-employees .search-box input');
+  const deptFilter  = document.querySelector('#page-employees select:nth-of-type(1)');
+  const stateFilter = document.querySelector('#page-employees select:nth-of-type(2)');
+  const contractFilter = document.querySelector('#page-employees select:nth-of-type(3)');
+
+  function applyFilters() {
+    const q    = (searchInput?.value || '').toLowerCase();
+    const dept = deptFilter?.value || '';
+    const state= stateFilter?.value || '';
+    const cont = contractFilter?.value || '';
+
+    let filtered = allEmployees;
+    if (q) filtered = filtered.filter(e =>
+      e.name?.toLowerCase().includes(q) ||
+      e.position?.toLowerCase().includes(q) ||
+      e.department?.toLowerCase().includes(q) ||
+      e.email?.toLowerCase().includes(q));
+    if (dept && dept !== 'Todos los departamentos') filtered = filtered.filter(e => e.department === dept);
+    if (state && state !== 'Todos los estados') {
+      const map = { 'Activo':'active', 'Inactivo':'inactive', 'Periodo de prueba':'pending' };
+      filtered = filtered.filter(e => e.status === (map[state] || state));
+    }
+    if (cont && cont !== 'Tipo contrato') filtered = filtered.filter(e => e.contract_type?.includes(cont));
+    renderEmployeeTable(filtered);
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+  deptFilter?.addEventListener('change', applyFilters);
+  stateFilter?.addEventListener('change', applyFilters);
+  contractFilter?.addEventListener('change', applyFilters);
+}
+
+// ═════════════════════════════════════════════════════
+//  ➕  CREAR / EDITAR EMPLEADO
+// ═════════════════════════════════════════════════════
+function openNewEmployee() {
+  editingEmpId = null;
+  document.getElementById('empModalTitle').textContent = 'Registrar Nuevo Empleado';
+  document.getElementById('saveEmpBtnText').textContent = 'Guardar Empleado';
+  clearEmpForm();
+  switchEmpTab(document.querySelector('#newEmpModal .tab'), 'tab-personal');
+  document.getElementById('empFormError').style.display = 'none';
+  toggleModal('newEmpModal');
+}
+
+function openEditEmployee(id) {
+  const emp = allEmployees.find(e => e.id === id);
+  if (!emp) return;
+  editingEmpId = id;
+  document.getElementById('empModalTitle').textContent = 'Editar Empleado';
+  document.getElementById('saveEmpBtnText').textContent = 'Guardar Cambios';
+  fillEmpForm(emp);
+  toggleModal('newEmpModal');
+}
+
+function openEditFromView() {
+  const id = document.getElementById('editFromViewBtn').dataset.empId;
+  toggleModal('viewEmpModal');
+  setTimeout(() => openEditEmployee(id), 150);
+}
+
+function clearEmpForm() {
+  ['emp_first_name','emp_last_name','emp_document','emp_email','emp_phone','emp_address',
+   'emp_position','emp_notes','emp_salary'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const hireDate = document.getElementById('emp_hire_date');
+  if (hireDate) hireDate.value = new Date().toISOString().split('T')[0];
+}
+
+function fillEmpForm(emp) {
+  const parts = (emp.name || '').split(' ');
+  const mid   = Math.ceil(parts.length / 2);
+  document.getElementById('emp_first_name').value  = parts.slice(0, mid).join(' ');
+  document.getElementById('emp_last_name').value   = parts.slice(mid).join(' ');
+  document.getElementById('emp_document').value    = emp.document_id || '';
+  document.getElementById('emp_email').value       = emp.email || '';
+  document.getElementById('emp_phone').value       = emp.phone || '';
+  document.getElementById('emp_address').value     = emp.address || '';
+  document.getElementById('emp_position').value    = emp.position || '';
+  document.getElementById('emp_department').value  = emp.department || '';
+  document.getElementById('emp_hire_date').value   = emp.hire_date || '';
+  document.getElementById('emp_contract').value    = emp.contract_type || 'Indefinido';
+  document.getElementById('emp_status').value      = emp.status || 'active';
+  document.getElementById('emp_notes').value       = emp.notes || '';
+  document.getElementById('emp_salary').value      = emp.salary || '';
+  calcPayrollPreview();
+}
+
+function closeEmpModal() {
+  toggleModal('newEmpModal');
+  editingEmpId = null;
+}
+
+function switchEmpTab(btn, tabId) {
+  document.querySelectorAll('#newEmpModal .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.emp-tab').forEach(t => t.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+}
+
+async function saveEmployee() {
+  const firstName = document.getElementById('emp_first_name').value.trim();
+  const lastName  = document.getElementById('emp_last_name').value.trim();
+  const email     = document.getElementById('emp_email').value.trim();
+  const position  = document.getElementById('emp_position').value.trim();
+  const dept      = document.getElementById('emp_department').value;
+
+  if (!firstName || !lastName) return showEmpError('Ingresa el nombre y apellidos del empleado.');
+  if (!email) return showEmpError('El correo electrónico es obligatorio.');
+  if (!position) return showEmpError('El cargo es obligatorio.');
+  if (!dept) return showEmpError('Selecciona el departamento.');
+
+  const empData = {
+    name:           `${firstName} ${lastName}`.trim(),
+    email:          email,
+    document_id:    document.getElementById('emp_document').value.trim(),
+    phone:          document.getElementById('emp_phone').value.trim(),
+    address:        document.getElementById('emp_address').value.trim(),
+    position:       position,
+    department:     dept,
+    hire_date:      document.getElementById('emp_hire_date').value || null,
+    contract_type:  document.getElementById('emp_contract').value,
+    status:         document.getElementById('emp_status').value,
+    notes:          document.getElementById('emp_notes').value.trim(),
+    salary:         parseFloat(document.getElementById('emp_salary').value) || null,
+    company_id:     currentCompany?.id,
+    updated_at:     new Date().toISOString(),
+  };
+
+  const btn = document.getElementById('saveEmpBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+  try {
+    if (isDemoMode) {
+      // Demo: manipular array local
+      if (editingEmpId) {
+        const idx = allEmployees.findIndex(e => e.id === editingEmpId);
+        if (idx >= 0) allEmployees[idx] = { ...allEmployees[idx], ...empData };
+        showToast('Empleado actualizado (demo)', 'success');
+      } else {
+        const fake = { ...empData, id: 'demo-' + Date.now() };
+        allEmployees.push(fake);
+        showToast('Empleado agregado (demo)', 'success');
+      }
+      renderEmployeeTable(allEmployees);
+      updateCounters(allEmployees);
+      closeEmpModal();
+      return;
+    }
+
+    let error;
+    if (editingEmpId) {
+      ({ error } = await supabase.from('employees').update(empData).eq('id', editingEmpId));
+    } else {
+      ({ error } = await supabase.from('employees').insert(empData));
+    }
+
+    if (error) throw error;
+
+    showToast(editingEmpId ? 'Empleado actualizado ✓' : 'Empleado registrado ✓', 'success');
+    closeEmpModal();
+    await loadEmployees(currentCompany.id);
+
+  } catch(err) {
+    showEmpError(err.message || 'Error al guardar. Intenta de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-save"></i> <span id="saveEmpBtnText">${editingEmpId ? 'Guardar Cambios' : 'Guardar Empleado'}</span>`;
+  }
+}
+
+function showEmpError(msg) {
+  const el = document.getElementById('empFormError');
+  el.querySelector('span').textContent = msg;
+  el.style.display = 'flex';
+}
+
+// ═════════════════════════════════════════════════════
+//  👁️  VER PERFIL DE EMPLEADO
+// ═════════════════════════════════════════════════════
+async function viewEmployee(id) {
+  let emp = allEmployees.find(e => e.id === id);
+  if (!emp && !isDemoMode) {
+    const { data } = await supabase.from('employees').select('*').eq('id', id).single();
+    emp = data;
+  }
+  if (!emp) return;
+
+  const salary   = emp.salary ? `$${Number(emp.salary).toLocaleString('es-CO')}` : '—';
+  const neto     = emp.salary ? `$${(emp.salary * 0.92).toLocaleString('es-CO', { maximumFractionDigits:0 })}` : '—';
+  const hireDate = emp.hire_date
+    ? new Date(emp.hire_date + 'T00:00:00').toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric' })
+    : '—';
+  const grad = ['var(--teal),var(--orange)', '#8b5cf6,#a78bfa', '#10b981,#34d399'][Math.abs((emp.name||'').charCodeAt(0)) % 3];
+  const stateMap = { active:'badge-active', inactive:'badge-inactive', pending:'badge-pending' };
+  const stateLabel = { active:'Activo', inactive:'Inactivo', pending:'En Prueba' };
+
+  document.getElementById('viewEmpContent').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--gray-900),var(--teal-dark));border-radius:12px;padding:24px;color:white;margin-bottom:20px;display:flex;align-items:center;gap:20px">
+      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,${grad});display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;border:3px solid rgba(255,255,255,.25)">${getInitials(emp.name)}</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700">${emp.name}</div>
+        <div style="opacity:.75;font-size:.85rem;margin-top:2px">${emp.position || '—'} · ${emp.department || '—'}</div>
+        <div style="margin-top:8px"><span class="badge ${stateMap[emp.status] || 'badge-inactive'}">${stateLabel[emp.status] || '—'}</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.82rem">
+      <div style="background:var(--gray-50);border-radius:9px;padding:12px"><div style="font-size:.7rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Email</div><div style="font-weight:600">${emp.email || '—'}</div></div>
+      <div style="background:var(--gray-50);border-radius:9px;padding:12px"><div style="font-size:.7rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Teléfono</div><div style="font-weight:600">${emp.phone || '—'}</div></div>
+      <div style="background:var(--gray-50);border-radius:9px;padding:12px"><div style="font-size:.7rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Tipo contrato</div><div style="font-weight:600">${emp.contract_type || '—'}</div></div>
+      <div style="background:var(--gray-50);border-radius:9px;padding:12px"><div style="font-size:.7rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Fecha de ingreso</div><div style="font-weight:600">${hireDate}</div></div>
+      <div style="background:var(--teal-50);border:1px solid var(--teal-100);border-radius:9px;padding:12px"><div style="font-size:.7rem;color:var(--teal-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Salario bruto</div><div style="font-weight:700;color:var(--teal-dark);font-size:.95rem">${salary}</div></div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:12px"><div style="font-size:.7rem;color:#166534;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Neto estimado</div><div style="font-weight:700;color:#166534;font-size:.95rem">${neto}</div></div>
+    </div>
+    ${emp.notes ? `<div style="margin-top:12px;padding:12px;background:#fef9c3;border:1px solid #fde68a;border-radius:9px;font-size:.8rem;color:#92400e"><i class="fas fa-sticky-note" style="margin-right:6px"></i>${emp.notes}</div>` : ''}
+  `;
+
+  document.getElementById('editFromViewBtn').dataset.empId = emp.id;
+  toggleModal('viewEmpModal');
+}
+
+// ═════════════════════════════════════════════════════
+//  🗑️  ELIMINAR EMPLEADO
+// ═════════════════════════════════════════════════════
+async function deleteEmployee(id, name) {
+  if (!confirm(`¿Eliminar a "${name}"? Esta acción no se puede deshacer.`)) return;
+
+  if (isDemoMode) {
+    allEmployees = allEmployees.filter(e => e.id !== id);
+    renderEmployeeTable(allEmployees);
+    updateCounters(allEmployees);
+    showToast('Empleado eliminado (demo)', 'success');
+    return;
+  }
+
+  const { error } = await supabase.from('employees').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar: ' + error.message, 'error'); return; }
+  showToast(`${name} eliminado correctamente`, 'success');
+  await loadEmployees(currentCompany.id);
+}
+
+// ═════════════════════════════════════════════════════
+//  💰  CALCULADORA DE NÓMINA
+// ═════════════════════════════════════════════════════
+function calcPayrollPreview() {
+  const salary = parseFloat(document.getElementById('emp_salary')?.value) || 0;
+  const fmt = n => n > 0 ? `$${Math.round(n).toLocaleString('es-CO')}` : '—';
+
+  const salud   = salary * 0.04;
+  const pension = salary * 0.04;
+  const neto    = salary - salud - pension;
+  const empresa = salary * 0.21; // Parafiscales aprox: SENA 2%, ICBF 3%, CCF 4%, Salud 8.5%, Pensión 12%, ARL ~1.5%
+
+  document.getElementById('prev_bruto').textContent   = fmt(salary);
+  document.getElementById('prev_salud').textContent   = salary > 0 ? `-${fmt(salud)}` : '—';
+  document.getElementById('prev_pension').textContent = salary > 0 ? `-${fmt(pension)}` : '—';
+  document.getElementById('prev_neto').textContent    = fmt(neto);
+  document.getElementById('prev_empresa').textContent = salary > 0 ? `+${fmt(empresa)}` : '—';
+}
+
+// ── Abrir nómina liquidación ──
+async function openPayrollDetail() {
+  const companyId = currentCompany?.id;
+  const employees = isDemoMode ? allEmployees : (await supabase
+    .from('employees')
+    .select('name, position, department, salary, status')
+    .eq('company_id', companyId)
+    .eq('status', 'active')).data || [];
+
+  const month = new Date().toLocaleDateString('es-CO', { month:'long', year:'numeric' });
+  let totalBruto = 0, totalNeto = 0, totalEmpresa = 0;
+
+  const rows = employees.map(e => {
+    const s       = Number(e.salary || 0);
+    const salud   = s * 0.04;
+    const pension = s * 0.04;
+    const neto    = s - salud - pension;
+    const empresa = s * 0.21;
+    totalBruto   += s;
+    totalNeto    += neto;
+    totalEmpresa += empresa;
+    const fmt = n => `$${Math.round(n).toLocaleString('es-CO')}`;
+    return `<tr>
+      <td style="font-size:.78rem;font-weight:600">${e.name}</td>
+      <td style="font-size:.75rem;color:var(--gray-500)">${e.position||'—'}</td>
+      <td style="font-size:.78rem">${fmt(s)}</td>
+      <td style="font-size:.75rem;color:#ef4444">-${fmt(salud+pension)}</td>
+      <td style="font-size:.78rem;font-weight:700;color:var(--teal-dark)">${fmt(neto)}</td>
+    </tr>`;
+  }).join('');
+
+  const fmt = n => `$${Math.round(n).toLocaleString('es-CO')}`;
+  document.getElementById('payrollDetailContent').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--teal-dark),var(--teal));border-radius:12px;padding:18px 22px;color:white;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div><div style="font-size:.75rem;opacity:.75">Periodo</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;text-transform:capitalize">${month}</div></div>
+      <div style="text-align:right"><div style="font-size:.75rem;opacity:.75">Total neto a pagar</div><div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800">${fmt(totalNeto)}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div style="background:var(--gray-50);border-radius:9px;padding:12px;text-align:center"><div style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Empleados</div><div style="font-weight:700;font-size:1.1rem">${employees.length}</div></div>
+      <div style="background:#fef2f2;border-radius:9px;padding:12px;text-align:center"><div style="font-size:.68rem;color:#ef4444;text-transform:uppercase">Deducciones</div><div style="font-weight:700;font-size:1.1rem;color:#ef4444">${fmt(totalBruto-totalNeto)}</div></div>
+      <div style="background:var(--orange-50);border-radius:9px;padding:12px;text-align:center"><div style="font-size:.68rem;color:var(--orange);text-transform:uppercase">Costo empresa</div><div style="font-weight:700;font-size:1.1rem;color:var(--orange)">${fmt(totalEmpresa)}</div></div>
+    </div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:var(--gray-50)">
+        <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--gray-500);font-weight:600;text-transform:uppercase">Empleado</th>
+        <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--gray-500);font-weight:600;text-transform:uppercase">Cargo</th>
+        <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--gray-500);font-weight:600;text-transform:uppercase">Bruto</th>
+        <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--gray-500);font-weight:600;text-transform:uppercase">Deduc.</th>
+        <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--gray-500);font-weight:600;text-transform:uppercase">Neto</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--gray-200)">
+        <td colspan="2" style="padding:10px;font-weight:700;font-size:.82rem">TOTAL</td>
+        <td style="padding:10px;font-weight:700;font-size:.82rem">${fmt(totalBruto)}</td>
+        <td style="padding:10px;font-weight:700;color:#ef4444;font-size:.82rem">-${fmt(totalBruto-totalNeto)}</td>
+        <td style="padding:10px;font-weight:800;color:var(--teal-dark);font-size:.9rem">${fmt(totalNeto)}</td>
+      </tr></tfoot>
+    </table></div>
+  `;
+
+  // Guardar para export
+  window._payrollExportData = employees.map(e => {
+    const s = Number(e.salary || 0);
+    return { Nombre: e.name, Cargo: e.position, Bruto: s, Deduccion: s*0.08, Neto: s*0.92 };
+  });
+
+  toggleModal('payrollDetailModal');
+}
+
+function exportPayrollCSV() {
+  const data = window._payrollExportData || [];
+  const headers = ['Nombre','Cargo','Bruto','Deduccion','Neto'];
+  const csv = [headers.join(','), ...data.map(r => headers.map(h => r[h]).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `nomina_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  showToast('CSV exportado correctamente', 'success');
+}
+
+// ═════════════════════════════════════════════════════
+//  🔐  SUPERADMIN — Gestión de empresas y usuarios
+// ═════════════════════════════════════════════════════
+async function openSuperadmin() {
+  toggleModal('superadminModal');
+  await loadSuperadminData();
+}
+
+async function loadSuperadminData() {
+  // Empresas
+  const { data: companies } = await supabase
+    .from('companies')
+    .select('*, users(count)')
+    .order('created_at', { ascending: false });
+
+  const companiesEl = document.getElementById('saCompaniesList');
+  if (companies) {
+    companiesEl.innerHTML = companies.map(c => {
+      const plan = { starter:'🟡 Starter', pro:'🔵 Pro', enterprise:'🟢 Enterprise' }[c.plan] || c.plan;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--gray-200)">
+        <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--orange));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${getInitials(c.name)}</div>
+        <div style="flex:1">
+          <div style="font-size:.82rem;font-weight:700">${c.name}</div>
+          <div style="font-size:.72rem;color:var(--gray-400)">NIT: ${c.nit || 'N/D'} · ${plan} · ${c.is_active ? '✅ Activa' : '🔴 Inactiva'}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline" style="padding:5px 10px;font-size:.72rem" onclick="toggleCompanyStatus('${c.id}','${c.is_active}')">
+            ${c.is_active ? 'Desactivar' : 'Activar'}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Usuarios
+  const { data: users } = await supabase
+    .from('users')
+    .select('*, companies(name)')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const usersEl = document.getElementById('saUsersList');
+  if (users) {
+    usersEl.innerHTML = users.map(u => {
+      const roleLabel = { superadmin:'🔐 Superadmin', admin:'👔 Admin', user:'👤 Usuario' }[u.role] || u.role;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--gray-100)">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--orange));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:white;flex-shrink:0">${getInitials(u.full_name || u.email || '?')}</div>
+        <div style="flex:1">
+          <div style="font-size:.8rem;font-weight:600">${u.full_name || '(sin nombre)'}</div>
+          <div style="font-size:.72rem;color:var(--gray-400)">${u.email || ''} · ${u.companies?.name || 'Sin empresa'} · ${roleLabel}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline" style="padding:4px 8px;font-size:.68rem" onclick="changeUserRole('${u.id}','${u.role}')">Rol</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+async function toggleCompanyStatus(companyId, isActive) {
+  const newStatus = isActive === 'true' ? false : true;
+  const { error } = await supabase.from('companies').update({ is_active: newStatus }).eq('id', companyId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(`Empresa ${newStatus ? 'activada' : 'desactivada'}`, 'success');
+  await loadSuperadminData();
+}
+
+async function changeUserRole(userId, currentRole) {
+  const roles = ['user','admin','superadmin'];
+  const next  = roles[(roles.indexOf(currentRole) + 1) % roles.length];
+  if (!confirm(`Cambiar rol de "${currentRole}" a "${next}"?`)) return;
+  const { error } = await supabase.from('users').update({ role: next }).eq('id', userId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(`Rol actualizado a "${next}"`, 'success');
+  await loadSuperadminData();
+}
+
+async function createCompanyAndUser() {
+  const name     = document.getElementById('sa_company_name').value.trim();
+  const nit      = document.getElementById('sa_company_nit').value.trim();
+  const plan     = document.getElementById('sa_company_plan').value;
+  const email    = document.getElementById('sa_admin_email').value.trim();
+  const fullName = document.getElementById('sa_admin_name').value.trim();
+  const password = document.getElementById('sa_admin_pass').value.trim();
+
+  const errEl = document.getElementById('saAddError');
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = 'Ingresa la razón social.'; errEl.style.display = 'block'; return; }
+  if (!email) { errEl.textContent = 'Ingresa el email del administrador.'; errEl.style.display = 'block'; return; }
+  if (password.length < 8) { errEl.textContent = 'La contraseña debe tener al menos 8 caracteres.'; errEl.style.display = 'block'; return; }
+
+  try {
+    // 1. Crear empresa
+    const { data: company, error: compError } = await supabase
+      .from('companies')
+      .insert({ name, nit: nit || null, plan })
+      .select()
+      .single();
+
+    if (compError) throw compError;
+
+    // 2. Crear usuario en Auth
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email, password, email_confirm: true,
+      user_metadata: { full_name: fullName }
+    });
+
+    if (authError) {
+      // Rollback empresa
+      await supabase.from('companies').delete().eq('id', company.id);
+      throw authError;
+    }
+
+    // 3. Vincular usuario a empresa
+    await supabase.from('users').upsert({
+      id: authData.user.id,
+      email,
+      full_name: fullName,
+      company_id: company.id,
+      role: 'admin'
+    });
+
+    showToast(`Empresa "${name}" creada con admin ${email}`, 'success');
+    document.getElementById('sa_company_name').value = '';
+    document.getElementById('sa_company_nit').value  = '';
+    document.getElementById('sa_admin_email').value  = '';
+    document.getElementById('sa_admin_name').value   = '';
+    document.getElementById('sa_admin_pass').value   = '';
+    await loadSuperadminData();
+    switchSaTab(document.querySelector('#sa-add').previousElementSibling?.previousElementSibling, 'sa-companies');
+
+  } catch(err) {
+    errEl.textContent = err.message || 'Error al crear empresa. ¿Ya existe ese email?';
+    errEl.style.display = 'block';
+  }
+}
+
+function switchSaTab(btn, tabId) {
+  document.querySelectorAll('#superadminModal .tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  ['sa-companies','sa-users','sa-add'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+// ═════════════════════════════════════════════════════
+//  🚪  LOGOUT
+// ═════════════════════════════════════════════════════
+async function logout() {
+  if (isDemoMode) {
+    localStorage.removeItem('pf_demo_mode');
+    localStorage.removeItem('pf_demo_user');
+    window.location.href = 'login.html';
+    return;
+  }
+  await supabase.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+document.querySelector('.user-card')?.addEventListener('click', () => {
+  if (confirm('¿Deseas cerrar sesión?')) logout();
+});
+
+// ═════════════════════════════════════════════════════
+//  🎭  DATOS DEMO
+// ═════════════════════════════════════════════════════
+async function loadDemoData() {
+  allEmployees = [
+    {id:'1',name:'Ana Sofía Restrepo',email:'ana@techcorp.co',position:'Dir. RRHH',department:'RRHH',contract_type:'Indefinido',hire_date:'2019-03-15',salary:8500000,status:'active',phone:'+57 310 000 0001'},
+    {id:'2',name:'Pedro Mora',email:'pedro@techcorp.co',position:'Dir. Tecnología',department:'Tecnología',contract_type:'Indefinido',hire_date:'2018-01-02',salary:10200000,status:'active',phone:'+57 310 000 0002'},
+    {id:'3',name:'Laura Vargas',email:'laura@techcorp.co',position:'Dir. Comercial',department:'Comercial',contract_type:'Indefinido',hire_date:'2020-05-10',salary:9800000,status:'active'},
+    {id:'4',name:'Juan Ospina',email:'juan@techcorp.co',position:'Dir. Finanzas',department:'Finanzas',contract_type:'Indefinido',hire_date:'2021-02-01',salary:9200000,status:'active'},
+    {id:'5',name:'David Mora',email:'david@techcorp.co',position:'Dev Senior',department:'Tecnología',contract_type:'Indefinido',hire_date:'2021-06-05',salary:6800000,status:'active'},
+    {id:'6',name:'Juliana Ríos',email:'juliana@techcorp.co',position:'Analista Ventas',department:'Comercial',contract_type:'Término Fijo',hire_date:'2023-03-01',salary:3200000,status:'active'},
+    {id:'7',name:'Carlos Pacheco',email:'carlos@techcorp.co',position:'Oper. Logística',department:'Operaciones',contract_type:'Término Fijo',hire_date:'2022-09-15',salary:2800000,status:'inactive'},
+    {id:'8',name:'Sofía Bermúdez',email:'sofia@techcorp.co',position:'Diseñadora Gráfica',department:'Marketing',contract_type:'Prestación Serv.',hire_date:'2024-01-20',salary:3500000,status:'pending'},
+    {id:'9',name:'Andrés Castro',email:'andres@techcorp.co',position:'Dev Frontend',department:'Tecnología',contract_type:'Indefinido',hire_date:'2022-11-08',salary:5400000,status:'active'},
+    {id:'10',name:'María F. López',email:'maria@techcorp.co',position:'Diseñadora UX',department:'Tecnología',contract_type:'Indefinido',hire_date:'2025-05-27',salary:5800000,status:'pending'},
+  ];
+  renderEmployeeTable(allEmployees);
+  updateCounters(allEmployees);
+
+  // Nómina demo
+  const total = allEmployees.filter(e=>e.status==='active').reduce((s,e)=>s+e.salary,0);
+  const payrollEl = document.querySelector('.payroll-amount');
+  if (payrollEl) payrollEl.textContent = `$${total.toLocaleString('es-CO')}`;
+}
+
+// ═════════════════════════════════════════════════════
+//  📱  NAVEGACIÓN (preservada del prototipo)
+// ═════════════════════════════════════════════════════
+const pages    = document.querySelectorAll('.page');
+const navItems = document.querySelectorAll('.nav-item');
+const breadcrumb = document.getElementById('breadcrumb');
+const pageNames = {
+  dashboard:'Dashboard',employees:'Empleados',org:'Organigrama',
+  ats:'Reclutamiento ATS',onboarding:'Onboarding',payroll:'Nómina',
+  attendance:'Asistencia',vacations:'Vacaciones y Permisos',
+  performance:'Desempeño',lms:'Capacitación LMS',talent:'Gestión del Talento',
+  climate:'Clima Organizacional',portal:'Portal del Empleado',settings:'Configuración'
+};
+
+function showPage(name) {
+  pages.forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-'+name);
+  if (target) target.classList.add('active');
+  breadcrumb.textContent = pageNames[name] || name;
+  navItems.forEach(n => {
+    n.classList.remove('active');
+    if (n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+
+// ─── Modales ───
+function toggleModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.toggle('show');
+}
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
+});
+
+// ─── Notificaciones ───
+function toggleNotif() { document.getElementById('notifPanel').classList.toggle('show'); }
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notifPanel');
+  if (panel && !panel.contains(e.target) && !e.target.closest('.icon-btn')) panel.classList.remove('show');
+});
+
+// ─── Gráfico headcount ───
+const months  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const inflows  = [12,8,15,6,9,11,7,14,10,13,8,16];
+const outflows = [3,5,4,8,2,6,4,5,7,3,4,6];
+const maxVal   = Math.max(...inflows,...outflows);
+const chartEl  = document.getElementById('headcountChart');
+if (chartEl) {
+  months.forEach((m,i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-bar-wrap';
+    wrap.innerHTML = `<div style="display:flex;gap:2px;align-items:flex-end;height:100px">
+      <div class="chart-bar" style="height:${(inflows[i]/maxVal)*100}%;flex:1" title="${inflows[i]} ingresos"></div>
+      <div class="chart-bar orange" style="height:${(outflows[i]/maxVal)*100}%;flex:1" title="${outflows[i]} salidas"></div>
+    </div><div class="chart-label">${m}</div>`;
+    chartEl.appendChild(wrap);
+  });
+}
+
+// ─── ATS Kanban ───
+const atsStages = [
+  {label:'Nuevos',color:'var(--gray-400)',cards:[{name:'Camilo Torres',role:'5 años exp.',tag:'🔥 94%'},{name:'Valentina Cruz',role:'3 años exp.',tag:'IA Rec.'}]},
+  {label:'Preselección',color:'var(--teal)',cards:[{name:'Julián Suárez',role:'7 años exp.',tag:'Prueba'},{name:'Mariana P.',role:'4 años exp.',tag:'Revisando'}]},
+  {label:'Entrevista RH',color:'var(--orange)',cards:[{name:'Sebastián R.',role:'6 años exp.',tag:'Mañana'},{name:'Andrea Leal',role:'5 años exp.',tag:'Hoy 3pm'}]},
+  {label:'Entrevista Técnica',color:'#8b5cf6',cards:[{name:'Luis Fernández',role:'8 años exp.',tag:'En proceso'}]},
+  {label:'Oferta',color:'#10b981',cards:[{name:'Carolina Mesa',role:'7 años exp.',tag:'💼 Firma'}]},
+];
+const kanban = document.getElementById('atsKanban');
+if (kanban) {
+  atsStages.forEach(stage => {
+    const col = document.createElement('div');
+    col.className = 'kanban-col';
+    col.innerHTML = `<div class="kanban-header"><span class="kanban-label" style="color:${stage.color}">${stage.label}</span><span class="kanban-count">${stage.cards.length}</span></div>`;
+    stage.cards.forEach(card => {
+      col.innerHTML += `<div class="kanban-card"><div class="kanban-card-title">${card.name}</div><div class="kanban-card-meta"><span>${card.role}</span><span class="badge badge-teal" style="font-size:.6rem">${card.tag}</span></div></div>`;
+    });
+    kanban.appendChild(col);
+  });
+}
+
+// ─── Calendario asistencia ───
+const calGrid = document.getElementById('calendarGrid');
+if (calGrid) {
+  ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => { calGrid.innerHTML += `<div class="cal-day-label">${d}</div>`; });
+  const states = {1:'holiday',2:'holiday',5:'present',6:'present',7:'present',8:'present',9:'present',12:'present',13:'present',14:'present',15:'present',16:'present',19:'present',20:'present',21:'absent',22:'present',23:'present',26:'present',27:'present',28:'present',29:'today'};
+  for (let i=0; i<3; i++) calGrid.innerHTML += `<div class="cal-day empty"></div>`;
+  for (let d=1; d<=29; d++) calGrid.innerHTML += `<div class="cal-day ${states[d]||''}">${d}</div>`;
+}
+
+// ─── Checklist ───
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.check-circle').innerHTML = el.classList.contains('done') ? '<i class="fas fa-check"></i>' : '';
+}
+
+// ─── Responsive ───
+if (window.innerWidth < 780) document.getElementById('menuBtn').style.display = 'flex';
+window.addEventListener('resize', () => {
+  document.getElementById('menuBtn').style.display = window.innerWidth < 780 ? 'flex' : 'none';
+});
+
+// ─── Conectar botón "Nuevo Empleado" del prototipo ───
+document.querySelectorAll('[onclick*="newEmpModal"]').forEach(btn => {
+  btn.setAttribute('onclick', 'openNewEmployee()');
+});
+
+// ─── Conectar botón "Procesar Nómina" ───
+document.querySelectorAll('.btn-primary, .btn-orange').forEach(btn => {
+  if (btn.textContent.includes('Procesar') || btn.textContent.includes('Liquidar')) {
+    btn.onclick = openPayrollDetail;
+  }
+});
+
+// ═════════════════════════════════════════════════════
+//  🚀  INICIAR
+// ═════════════════════════════════════════════════════
+initApp().then(() => {
+  initEmployeeSearch();
+});
+</script>
+</body>
+</html>
