@@ -77,6 +77,50 @@ nav.solid{background:var(--bg);box-shadow:0 1px 0 var(--border);}
 }
 .btn-solid:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(30,58,95,.25);}
 
+/* Hamburger */
+.nav-hamburger{
+  display:none;
+  flex-direction:column;gap:5px;cursor:pointer;
+  padding:6px;border:none;background:transparent;
+}
+.nav-hamburger span{
+  display:block;width:22px;height:2px;
+  background:var(--ink);border-radius:2px;
+  transition:all .3s;
+}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-hamburger.open span:nth-child(2){opacity:0;}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* Mobile nav drawer */
+.mobile-drawer{
+  display:none;
+  position:fixed;top:64px;left:0;right:0;z-index:199;
+  background:rgba(248,247,244,0.98);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  padding:20px 24px 28px;
+  flex-direction:column;gap:0;
+  transform:translateY(-110%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.mobile-drawer.open{transform:none;}
+.mobile-drawer a{
+  display:block;padding:14px 0;
+  font-size:.95rem;font-weight:500;color:var(--ink);
+  text-decoration:none;border-bottom:1px solid var(--border);
+}
+.mobile-drawer a:last-of-type{border-bottom:none;}
+.mobile-drawer .mob-cta{
+  margin-top:20px;display:flex;flex-direction:column;gap:10px;
+}
+.mobile-drawer .mob-cta a{
+  border:none;padding:14px;border-radius:8px;
+  text-align:center;font-weight:600;font-size:.9rem;
+}
+.mob-cta-wsp{background:#25d366;color:white!important;border-bottom:none!important;}
+.mob-cta-email{background:var(--accent);color:white!important;border-bottom:none!important;}
+
 /* HERO */
 .hero{
   min-height:100vh;
@@ -108,7 +152,6 @@ nav.solid{background:var(--bg);box-shadow:0 1px 0 var(--border);}
   66%{border-radius:50% 50% 60% 40%/50% 60% 40% 50%;}
 }
 .hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
-.hero-left{}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--white);border:1px solid var(--border2);
@@ -174,6 +217,7 @@ nav.solid{background:var(--bg);box-shadow:0 1px 0 var(--border);}
 .hero-metrics{
   display:flex;gap:32px;margin-top:52px;
   padding-top:32px;border-top:1px solid var(--border);
+  flex-wrap:wrap;
 }
 .hm{display:flex;flex-direction:column;gap:3px;}
 .hm-n{font-size:1.7rem;font-weight:800;color:var(--ink);letter-spacing:-.03em;line-height:1;}
@@ -232,9 +276,7 @@ nav.solid{background:var(--bg);box-shadow:0 1px 0 var(--border);}
 }
 .lc-chart-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .lc-chart-title{font-size:.72rem;font-weight:600;color:var(--ink);}
-.lc-chart-range{
-  display:flex;gap:4px;
-}
+.lc-chart-range{display:flex;gap:4px;}
 .range-btn{
   font-size:.6rem;padding:2px 8px;border-radius:4px;cursor:pointer;
   border:1px solid var(--border2);background:transparent;color:var(--light);
@@ -266,12 +308,12 @@ nav.solid{background:var(--bg);box-shadow:0 1px 0 var(--border);}
   display:flex;align-items:center;justify-content:center;
   font-size:.6rem;font-weight:700;
 }
-.feed-info{flex:1;}
-.feed-name{font-size:.72rem;font-weight:600;color:var(--ink);}
-.feed-action{font-size:.65rem;color:var(--mid);margin-top:1px;}
+.feed-info{flex:1;min-width:0;}
+.feed-name{font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.feed-action{font-size:.65rem;color:var(--mid);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .feed-badge{
   font-size:.58rem;font-weight:600;padding:2px 8px;border-radius:4px;
-  letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;
+  letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;
 }
 .fb-green{background:#dcfce7;color:#15803d;}
 .fb-blue{background:#dbeafe;color:#1d4ed8;}
@@ -347,17 +389,12 @@ section{position:relative;}
   transition:all .3s;
 }
 .feat-card:hover{background:var(--surface2);z-index:1;}
-.feat-card::after{
-  content:'';position:absolute;bottom:0;right:0;
-  width:120px;height:120px;border-radius:50%;
-  opacity:0;transition:all .4s;
-}
 .fc-accent{position:absolute;top:0;left:0;width:3px;height:0;background:var(--accent);transition:height .3s;}
 .feat-card:hover .fc-accent{height:100%;}
 .f-icon{
   width:48px;height:48px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  margin-bottom:20px;font-size:1.1rem;
+  margin-bottom:20px;
   border:1px solid var(--border);
   background:var(--surface2);
   transition:all .3s;
@@ -458,9 +495,7 @@ section{position:relative;}
 .pf-amber{background:var(--gold);}
 
 /* CTA SECTION */
-.cta-section{
-  padding:80px 48px 100px;
-}
+.cta-section{padding:80px 48px 100px;}
 .cta-inner{
   max-width:1200px;margin:0 auto;
   background:var(--accent);border-radius:20px;
@@ -530,6 +565,7 @@ section{position:relative;}
 .cta-trust{
   display:flex;align-items:center;gap:6px;
   font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px;justify-content:center;
+  flex-wrap:wrap;text-align:center;
 }
 .cta-trust span{color:var(--gold2);}
 
@@ -549,7 +585,7 @@ footer{
 .f-links a:hover{color:rgba(255,255,255,.7);}
 .f-copy{text-align:right;font-size:.7rem;color:rgba(255,255,255,.2);line-height:1.7;}
 .f-contact{text-align:right;}
-.f-contact a{color:rgba(212,160,23,.7);text-decoration:none;font-size:.72rem;font-weight:500;transition:color .2s;}
+.f-contact a{color:rgba(212,160,23,.7);text-decoration:none;font-size:.72rem;font-weight:500;transition:color .2s;display:block;margin-bottom:6px;}
 .f-contact a:hover{color:rgba(212,160,23,1);}
 
 /* SCROLL REVEAL */
@@ -579,11 +615,201 @@ footer{
   padding:9px 22px;background:#25d366;border-radius:6px;
   color:var(--white);font-size:.78rem;font-weight:700;
   text-decoration:none;transition:all .2s;cursor:pointer;border:none;font-family:'Inter',sans-serif;
+  white-space:nowrap;flex-shrink:0;
 }
 .sb-cta:hover{background:#22c55e;transform:translateY(-1px);}
 
-/* Reveal animation for bars */
-@keyframes fillBar{from{width:0;}to{width:var(--target-w);}}
+/* Analytics section */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.analytics-list{margin-top:32px;display:flex;flex-direction:column;gap:14px;}
+.analytics-item{
+  display:flex;align-items:center;gap:12px;padding:14px 18px;
+  background:var(--white);border:1px solid var(--border);border-radius:10px;
+  transition:all .25s;cursor:default;
+}
+.analytics-item:hover{border-color:var(--accent);}
+.ai-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ai-label{font-size:.78rem;font-weight:600;color:var(--ink);}
+.ai-sub{font-size:.7rem;color:var(--mid);margin-top:2px;}
+
+/* ===================== */
+/* RESPONSIVE BREAKPOINTS */
+/* ===================== */
+
+/* Tablet: 768px – 1024px */
+@media (max-width:1024px){
+  nav{padding:0 28px;}
+  .n-links{gap:24px;}
+  .hero{padding:90px 28px 60px;}
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-right{display:none;}
+  .hero h1{font-size:clamp(2.4rem,6vw,3.2rem);}
+  .hero-sub{max-width:100%;}
+  .hero-metrics{gap:24px;}
+  .s-wrap{padding:80px 28px;}
+  .feat-grid{grid-template-columns:repeat(2,1fr);}
+  .ms-grid{grid-template-columns:repeat(2,1fr);}
+  .testi-grid{grid-template-columns:1fr 1fr;gap:14px;}
+  .testi-grid .t-card:nth-child(3){grid-column:1/-1;}
+  .analytics-grid{gap:40px;}
+  .cta-inner{grid-template-columns:1fr;gap:36px;padding:52px 40px;}
+  .cta-right{min-width:unset;}
+  .f-inner{grid-template-columns:1fr 1fr;gap:32px;}
+  .f-contact{text-align:left;}
+  .f-inner > div:nth-child(2){grid-column:1/-1;justify-content:flex-start;}
+  .logos-strip{padding:32px 28px;}
+  .logos-inner{gap:32px;}
+  .sticky-bar{padding:10px 24px;}
+  .sb-kpis{gap:20px;}
+}
+
+/* Mobile: ≤ 767px */
+@media (max-width:767px){
+  html{font-size:14px;}
+
+  /* NAV mobile */
+  nav{padding:0 20px;height:60px;}
+  .n-links{display:none;}
+  .n-cta{display:none;}
+  .nav-hamburger{display:flex;}
+  .mobile-drawer{display:flex;}
+
+  /* HERO mobile */
+  .hero{
+    min-height:100svh;
+    padding:80px 20px 48px;
+    align-items:flex-start;
+  }
+  .hero-shape{width:300px;height:300px;right:-80px;top:30%;}
+  .hero-inner{grid-template-columns:1fr;gap:0;}
+  .hero-right{display:none;}
+  .hero-badge{font-size:.62rem;padding:4px 12px 4px 6px;margin-bottom:20px;}
+  .badge-dot{width:16px;height:16px;}
+  .hero h1{font-size:clamp(2rem,8vw,2.6rem);letter-spacing:-.025em;}
+  .hero h1 .line3{font-size:65%;}
+  .hero-sub{font-size:.85rem;margin:20px 0 28px;line-height:1.7;}
+  .btn-hero{padding:13px 22px;font-size:.82rem;}
+  .hero-actions{gap:10px;}
+  .btn-hero-primary{width:100%;justify-content:center;}
+  .btn-hero-ghost{width:100%;justify-content:center;}
+
+  /* Hero metrics: 2×2 grid */
+  .hero-metrics{
+    gap:0;margin-top:36px;padding-top:24px;
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .hm-n{font-size:1.5rem;}
+  .hm-l{font-size:.62rem;}
+
+  /* LOGOS */
+  .logos-strip{padding:28px 20px;}
+  .logos-inner{gap:20px;}
+  .logos-label{width:100%;text-align:center;margin-bottom:4px;}
+  .logo-item{font-size:.72rem;}
+
+  /* SECTION */
+  .s-wrap{padding:60px 20px;}
+  .s-h{font-size:clamp(1.7rem,6vw,2.2rem);}
+  .s-sub{max-width:100%;font-size:.84rem;}
+
+  /* FEATURES: 1 col */
+  .feat-grid{
+    grid-template-columns:1fr;
+    margin-top:36px;
+    border-radius:12px;
+  }
+  .feat-card{padding:24px 20px;}
+  .f-icon{width:42px;height:42px;border-radius:10px;margin-bottom:14px;}
+  .f-icon svg{width:18px;height:18px;}
+  .f-title{font-size:.85rem;}
+  .f-desc{font-size:.76rem;}
+
+  /* METRICS section */
+  .ms-inner{padding:56px 20px;}
+  .ms-grid{
+    grid-template-columns:1fr 1fr;
+    margin-top:36px;
+  }
+  .ms-item{padding:24px 16px;}
+  .ms-val{font-size:1.8rem;}
+  .ms-lbl{font-size:.65rem;}
+  .ms-sub{font-size:.6rem;}
+
+  /* ANALYTICS */
+  .analytics-grid{
+    grid-template-columns:1fr;
+    gap:32px;
+  }
+  .analytics-list{margin-top:20px;gap:10px;}
+  .analytics-item{padding:12px 14px;}
+  .ai-label{font-size:.76rem;}
+  .prog-section{padding:22px 20px;border-radius:12px;}
+  .prog-hdr{font-size:.85rem;margin-bottom:18px;}
+
+  /* TESTIMONIALS: stacked */
+  .testi-grid{
+    grid-template-columns:1fr;
+    gap:14px;
+    margin-top:36px;
+  }
+  .testi-grid .t-card:nth-child(3){grid-column:auto;}
+  .t-card{padding:22px 18px;}
+  .t-text{font-size:.78rem;}
+  .t-quote{font-size:1.5rem;}
+
+  /* CTA */
+  .cta-section{padding:40px 20px 64px;}
+  .cta-inner{
+    grid-template-columns:1fr;
+    gap:28px;padding:40px 24px;
+    border-radius:16px;
+  }
+  .cta-h{font-size:clamp(1.6rem,6vw,2rem);}
+  .cta-p{font-size:.82rem;}
+  .cta-right{min-width:unset;width:100%;}
+  .btn-cta-wsp,.btn-cta-primary,.btn-cta-ghost{
+    width:100%;padding:15px 20px;font-size:.88rem;
+  }
+
+  /* FOOTER */
+  footer{padding:36px 20px;}
+  .f-inner{
+    grid-template-columns:1fr;
+    gap:28px;
+    text-align:left;
+  }
+  .f-contact{text-align:left;}
+  .f-links{justify-content:flex-start;gap:20px;}
+
+  /* STICKY BAR: simplified on mobile */
+  .sticky-bar{
+    padding:10px 16px;
+    flex-direction:column;
+    gap:10px;
+    align-items:stretch;
+  }
+  .sb-kpis{
+    justify-content:space-between;gap:0;
+  }
+  .sb-kpi{flex-direction:column;align-items:center;gap:2px;flex:1;}
+  .sb-val{font-size:.78rem;}
+  .sb-lbl{font-size:.6rem;text-align:center;}
+  .sb-sep{width:1px;height:28px;}
+  .sb-cta{
+    width:100%;justify-content:center;
+    padding:12px 20px;font-size:.85rem;border-radius:8px;
+  }
+}
+
+/* Very small screens */
+@media (max-width:380px){
+  .hero h1{font-size:1.9rem;}
+  .hero-metrics{grid-template-columns:1fr 1fr;gap:12px;}
+  .hm-n{font-size:1.3rem;}
+  .ms-grid{grid-template-columns:1fr 1fr;}
+  .ms-val{font-size:1.6rem;}
+}
 </style>
 </head>
 <body>
@@ -610,8 +836,28 @@ footer{
       <a href="mailto:fambio.solution@gmail.com" class="btn-outline">Acceder</a>
       <a href="https://wa.me/573022562571?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20INBIO%20NEXUS" target="_blank" class="btn-solid">Solicitar demo →</a>
     </div>
+    <!-- Hamburger -->
+    <button class="nav-hamburger" id="hamburger" aria-label="Menú" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE DRAWER -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <a href="#features" onclick="closeDrawer()">Plataforma</a>
+  <a href="#metricas" onclick="closeDrawer()">Analytics</a>
+  <a href="#testimonios" onclick="closeDrawer()">Clientes</a>
+  <a href="#contacto" onclick="closeDrawer()">Contacto</a>
+  <div class="mob-cta">
+    <a href="https://wa.me/573022562571?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20INBIO%20NEXUS" target="_blank" class="mob-cta-wsp">
+      📱 WhatsApp · Demo gratis
+    </a>
+    <a href="mailto:fambio.solution@gmail.com" class="mob-cta-email">
+      ✉️ Enviar correo
+    </a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero" id="hero">
@@ -751,6 +997,7 @@ footer{
     <div class="logos-label">Confían en INBIO NEXUS</div>
     <div class="logo-item logo-featured">HERPA SAS</div>
     <div class="logo-item">GRUPO ATLAS</div>
+    <div class="logo-item">INNOVA SAS</div>
     <div class="logo-item">TALENTUM CO</div>
     <div class="logo-item">NEXO CORP</div>
     <div class="logo-item">SALUD PLUS</div>
@@ -862,31 +1109,31 @@ footer{
 <!-- KPI + PROGRESS -->
 <section>
   <div class="s-wrap" style="padding-top:80px;">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+    <div class="analytics-grid">
       <div class="sr">
         <div class="s-tag">Analytics en tiempo real</div>
         <h2 class="s-h">Decisiones basadas<br><em>en datos reales</em></h2>
         <p class="s-sub" style="margin-top:14px;">Indicadores clave de talento humano que te dan visibilidad completa del estado de tu organización en tiempo real.</p>
-        <div style="margin-top:32px;display:flex;flex-direction:column;gap:14px;">
-          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:10px;transition:all .25s;cursor:default;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--accent2);flex-shrink:0;"></div>
+        <div class="analytics-list">
+          <div class="analytics-item">
+            <div class="ai-dot" style="background:var(--accent2);"></div>
             <div>
-              <div style="font-size:.78rem;font-weight:600;color:var(--ink);">Alertas proactivas de rotación</div>
-              <div style="font-size:.7rem;color:var(--mid);margin-top:2px;">Anticipa bajas antes de que ocurran</div>
+              <div class="ai-label">Alertas proactivas de rotación</div>
+              <div class="ai-sub">Anticipa bajas antes de que ocurran</div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:10px;transition:all .25s;cursor:default;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--emerald);flex-shrink:0;"></div>
+          <div class="analytics-item">
+            <div class="ai-dot" style="background:var(--emerald);"></div>
             <div>
-              <div style="font-size:.78rem;font-weight:600;color:var(--ink);">Reportes ejecutivos automáticos</div>
-              <div style="font-size:.7rem;color:var(--mid);margin-top:2px;">Presentaciones listas para junta directiva</div>
+              <div class="ai-label">Reportes ejecutivos automáticos</div>
+              <div class="ai-sub">Presentaciones listas para junta directiva</div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:10px;transition:all .25s;cursor:default;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-            <div style="width:8px;height:8px;border-radius:50%;background:#7c3aed;flex-shrink:0;"></div>
+          <div class="analytics-item">
+            <div class="ai-dot" style="background:#7c3aed;"></div>
             <div>
-              <div style="font-size:.78rem;font-weight:600;color:var(--ink);">Benchmarking sectorial</div>
-              <div style="font-size:.7rem;color:var(--mid);margin-top:2px;">Compara tu empresa contra el sector</div>
+              <div class="ai-label">Benchmarking sectorial</div>
+              <div class="ai-sub">Compara tu empresa contra el sector</div>
             </div>
           </div>
         </div>
@@ -1038,7 +1285,7 @@ footer{
       <a href="mailto:fambio.solution@gmail.com">Contacto</a>
     </div>
     <div class="f-contact">
-      <a href="mailto:fambio.solution@gmail.com" style="display:block;margin-bottom:6px;">fambio.solution@gmail.com</a>
+      <a href="mailto:fambio.solution@gmail.com">fambio.solution@gmail.com</a>
       <a href="https://wa.me/573022562571" target="_blank">+57 302 256 2571</a>
       <div style="font-size:.65rem;color:rgba(255,255,255,.2);margin-top:10px;">© 2025 INBIO NEXUS · Colombia</div>
     </div>
@@ -1060,7 +1307,7 @@ footer{
     <div class="sb-sep"></div>
     <div class="sb-kpi">
       <div class="sb-val">+800</div>
-      <div class="sb-lbl">Empresas activas</div>
+      <div class="sb-lbl">Empresas</div>
     </div>
     <div class="sb-sep"></div>
     <div class="sb-kpi">
@@ -1070,11 +1317,26 @@ footer{
   </div>
   <a href="https://wa.me/573022562571?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20INBIO%20NEXUS" target="_blank" class="sb-cta">
     <svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.112 1.523 5.84L.057 23.882a.5.5 0 00.598.632l6.329-1.687C8.599 23.515 10.27 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.733 0-3.388-.463-4.819-1.264l-.344-.202-3.564.95.953-3.477-.222-.356A9.954 9.954 0 012 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg>
-    Solicitar demo gratis
+    Demo gratis
   </a>
 </div>
 
 <script>
+/* ---- MOBILE NAV ---- */
+function toggleDrawer(){
+  const h = document.getElementById('hamburger');
+  const d = document.getElementById('mobileDrawer');
+  h.classList.toggle('open');
+  d.classList.toggle('open');
+  document.body.style.overflow = d.classList.contains('open') ? 'hidden' : '';
+}
+function closeDrawer(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobileDrawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ---- CHART ---- */
 const chartData = {
   '3M': [52,61,58,70,68,80,75,88,82,90,87,95],
   '6M': [38,42,50,45,58,62,60,72,68,80,75,95],
@@ -1082,17 +1344,16 @@ const chartData = {
 };
 let activeRange = '3M';
 
-function renderBars(range) {
+function renderBars(range){
   const bars = document.getElementById('chartBars');
   if(!bars) return;
   bars.innerHTML = '';
   const data = chartData[range];
-  const months = range==='3M'?['E','F','M']:range==='6M'?['J','A','S','O','N','D']:['E','F','M','A','M','J','J','A','S','O','N','D'];
   const colors = data.map((v,i) => i===data.length-1 ? '#1e3a5f' : `rgba(30,58,95,${.15+.7*(v/100)})`);
   data.forEach((h,i) => {
     const b = document.createElement('div');
     b.className = 'cb';
-    b.style.cssText = `background:${colors[i]};height:${h}%;border-radius:3px 3px 0 0;flex:1;transition:all .3s;cursor:pointer;position:relative;`;
+    b.style.cssText = `background:${colors[i]};height:${h}%;border-radius:3px 3px 0 0;flex:1;position:relative;`;
     const tip = document.createElement('div');
     tip.className = 'cb-tip';
     tip.textContent = h+'%';
@@ -1102,47 +1363,45 @@ function renderBars(range) {
     bars.appendChild(b);
   });
 }
-
-function switchRange(btn, range) {
+function switchRange(btn, range){
   document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  activeRange = range;
   renderBars(range);
 }
-
 renderBars('3M');
 
-// Scroll reveal
+/* ---- SCROLL REVEAL ---- */
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if(e.isIntersecting) {
+    if(e.isIntersecting){
       e.target.classList.add('vis');
-      // animate progress bars
       e.target.querySelectorAll('.prog-fill[data-w]').forEach(bar => {
-        setTimeout(()=>{ bar.style.width=bar.dataset.w; bar.style.transition='width 1.4s cubic-bezier(.4,0,.2,1)'; }, 100);
+        setTimeout(()=>{ bar.style.width=bar.dataset.w; }, 100);
       });
     }
   });
-}, {threshold:0.12});
+}, {threshold:0.1});
 document.querySelectorAll('.sr').forEach(el=>io.observe(el));
 
-// Sticky bar
+/* ---- STICKY BAR ---- */
 let stickyShown = false;
 window.addEventListener('scroll', () => {
   const s = window.scrollY;
   document.getElementById('nav').classList.toggle('solid', s>40);
   const bar = document.getElementById('stickyBar');
-  if(s > 600 && !stickyShown){ bar.classList.add('show'); stickyShown=true; }
+  if(s > 500 && !stickyShown){ bar.classList.add('show'); stickyShown=true; }
   if(s < 300 && stickyShown){ bar.classList.remove('show'); stickyShown=false; }
-});
+  // Close drawer on scroll
+  if(s > 80) closeDrawer();
+}, {passive:true});
 
-// Live feed ticker
+/* ---- LIVE FEED ---- */
 const feedEvents = [
-  {init:'MP', name:'María Peña', action:'Completó evaluación 360° · Excelente', badge:'fb-green', btext:'360°', bg:'#dbeafe', col:'#1e40af'},
-  {init:'AL', name:'Andrés López', action:'Ingresó solicitud de vacaciones · 10 días', badge:'fb-amber', btext:'Vacaciones', bg:'#dcfce7', col:'#166534'},
-  {init:'CP', name:'Kathia Benavides', action:'Aprobó nómina quincenal', badge:'fb-blue', btext:'Gerente', bg:'#ede9fe', col:'#5b21b6'},
-  {init:'JN', name:'Helmunt Salas', action:'Publicó convocatoria · Psicólogo clínico', badge:'fb-green', btext:'Contratado', bg:'#dbeafe', col:'#1e40af'},
-  {init:'RG', name:'Rosa García', action:'Completó onboarding · Día 1 exitoso', badge:'fb-green', btext:'Nuevo', bg:'#dcfce7', col:'#166534'},
+  {init:'MP', name:'María Peña', action:'Completó evaluación 360°', badge:'fb-green', btext:'360°', bg:'#dbeafe', col:'#1e40af'},
+  {init:'AL', name:'Andrés López', action:'Solicitud de vacaciones · 10 días', badge:'fb-amber', btext:'Vacaciones', bg:'#dcfce7', col:'#166534'},
+  {init:'KB', name:'Kathia Benavides', action:'Aprobó nómina quincenal', badge:'fb-blue', btext:'Gerente', bg:'#ede9fe', col:'#5b21b6'},
+  {init:'HS', name:'Helmunt Salas', action:'Publicó convocatoria · Psicólogo', badge:'fb-green', btext:'Contratado', bg:'#dbeafe', col:'#1e40af'},
+  {init:'RG', name:'Rosa García', action:'Completó onboarding · Día 1', badge:'fb-green', btext:'Nuevo', bg:'#dcfce7', col:'#166534'},
 ];
 let feedIdx = 3;
 setInterval(() => {
@@ -1152,58 +1411,34 @@ setInterval(() => {
   feedIdx++;
   const row = document.createElement('div');
   row.className = 'feed-row';
-  row.style.opacity='0';row.style.transform='translateX(-10px)';row.style.transition='all .4s';
-  row.innerHTML = `<div class="feed-avatar" style="background:${ev.bg};color:${ev.col};">${ev.init}</div><div class="feed-info"><div class="feed-name">${ev.name}</div><div class="feed-action">${ev.action}</div></div><span class="feed-badge ${ev.badge}">${ev.btext}</span>`;
+  row.style.cssText = 'opacity:0;transform:translateX(-10px);transition:all .4s;';
+  row.innerHTML = `<div class="feed-avatar" style="background:${ev.bg};color:${ev.col};flex-shrink:0;">${ev.init}</div><div class="feed-info"><div class="feed-name">${ev.name}</div><div class="feed-action">${ev.action}</div></div><span class="feed-badge ${ev.badge}">${ev.btext}</span>`;
   feed.insertBefore(row, feed.firstChild);
-  setTimeout(()=>{row.style.opacity='1';row.style.transform='none';},50);
-  if(feed.children.length > 3) {
+  setTimeout(()=>{ row.style.opacity='1'; row.style.transform='none'; }, 50);
+  if(feed.children.length > 3){
     const last = feed.lastChild;
     last.style.opacity='0';
-    setTimeout(()=>last.remove(),300);
+    setTimeout(()=>last.remove(), 300);
   }
 }, 4000);
 
-// Download demo PDF (generates a simple one)
-function downloadDemo() {
-  const content = `INBIO NEXUS - Plataforma de Inteligencia de Talento Humano
+/* ---- SMOOTH SCROLL ---- */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const t = document.querySelector(a.getAttribute('href'));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
+  });
+});
 
-Contacto:
-Email: fambio.solution@gmail.com
-WhatsApp: +57 302 256 2571
-
-Módulos principales:
-• Analítica Predictiva de Talento
-• Automatización de Procesos HR
-• Evaluaciones 360° + OKRs
-• Nómina Inteligente certificada DIAN
-• Gestión Multiempresa
-• Seguridad ISO 27001
-
-Resultados comprobados:
-• 94% reducción carga operativa
-• 3× velocidad de contratación
-• +800 empresas activas en Colombia
-• 99.9% uptime garantizado
-
-Solicite su demo personalizada hoy.
-Sin compromiso · Sin tarjeta de crédito · Onboarding asistido`;
+/* ---- DOWNLOAD DEMO ---- */
+function downloadDemo(){
+  const content = `INBIO NEXUS - Plataforma de Inteligencia de Talento Humano\n\nContacto:\nEmail: fambio.solution@gmail.com\nWhatsApp: +57 302 256 2571\n\nMódulos principales:\n• Analítica Predictiva de Talento\n• Automatización de Procesos HR\n• Evaluaciones 360° + OKRs\n• Nómina Inteligente certificada DIAN\n• Gestión Multiempresa\n• Seguridad ISO 27001\n\nResultados comprobados:\n• 94% reducción carga operativa\n• 3× velocidad de contratación\n• +800 empresas activas en Colombia\n• 99.9% uptime garantizado\n\nSolicite su demo personalizada hoy.\nSin compromiso · Sin tarjeta de crédito · Onboarding asistido`;
   const blob = new Blob([content],{type:'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'INBIO_NEXUS_Brochure.txt';
   a.click();
 }
-
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    const t=document.querySelector(a.getAttribute('href'));
-    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
-  });
-});
 </script>
 </body>
 </html>
-
-
-
