@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal del Empleado · InBio Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════════════
+   TOKENS & RESET
+══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface2:#f0ede8;
+  --surface3:#e8e4de;
+  --primary:#1a3352;
+  --primary2:#26527f;
+  --accent:#0b8a5a;
+  --accent2:#10b97c;
+  --gold:#b5870a;
+  --gold2:#d4a017;
+  --red:#c0392b;
+  --red2:#e74c3c;
+  --teal:#0891b2;
+  --ink:#0d0d0d;
+  --sub:#5a6270;
+  --muted:#9ca3af;
+  --border:#ddd9d2;
+  --border2:#ccc8c0;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.06);
+  --shadow-md:0 8px 28px rgba(0,0,0,.1);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.14);
+  --t:all .2s cubic-bezier(.4,0,.2,1);
+  --r:12px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* ══════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════ */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--primary);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  z-index:100;
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;backdrop-filter:blur(2px)}
+.sidebar-overlay.show{display:block}
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+}
+
+/* SIDEBAR INTERNALS */
+.sb-brand{
+  padding:24px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;gap:11px;
+}
+.sb-brand-mark{
+  width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sb-brand-mark svg{width:16px;height:16px;stroke:white;stroke-width:1.8;fill:none}
+.sb-brand-name{font-family:'DM Serif Display',serif;font-size:1rem;color:#fff;letter-spacing:-.01em}
+.sb-brand-name em{color:rgba(255,255,255,.65);font-style:normal}
+
+.sb-user{
+  padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:11px;
+}
+.sb-ava{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;
+  font-family:'DM Serif Display',serif;
+}
+.sb-user-name{font-size:.82rem;font-weight:700;color:#fff;line-height:1.2}
+.sb-user-role{font-size:.67rem;color:rgba(255,255,255,.5);margin-top:2px;text-transform:uppercase;letter-spacing:.07em}
+.sb-company{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:1px}
+
+.sb-nav{flex:1;overflow-y:auto;padding:12px 10px}
+.sb-section{margin-bottom:6px}
+.sb-section-lbl{font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:8px 10px 5px;font-weight:700}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:9px;
+  cursor:pointer;transition:var(--t);
+  font-size:.8rem;color:rgba(255,255,255,.65);font-weight:500;
+  position:relative;
+}
+.sb-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sb-item.active{background:rgba(255,255,255,.15);color:#fff}
+.sb-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--accent2);border-radius:0 3px 3px 0}
+.sb-item i{width:16px;text-align:center;font-size:.82rem;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--red2);color:#fff;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
+.sb-badge.green{background:var(--accent)}
+
+.sb-footer{padding:14px 10px;border-top:1px solid rgba(255,255,255,.08)}
+.sb-logout{
+  width:100%;padding:10px 14px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:9px;color:rgba(255,255,255,.65);
+  font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:var(--t);
+}
+.sb-logout:hover{background:rgba(220,53,69,.2);border-color:rgba(220,53,69,.3);color:#fca5a5}
+
+/* TOPBAR */
+.topbar{
+  height:60px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  padding:0 24px;
+  position:sticky;top:0;z-index:50;
+  box-shadow:var(--shadow-sm);
+}
+.menu-btn{
+  background:none;border:none;width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;cursor:pointer;color:var(--sub);
+  font-size:.95rem;transition:var(--t);
+  display:none;
+}
+.menu-btn:hover{background:var(--surface2);color:var(--ink)}
+@media(max-width:900px){.menu-btn{display:flex}}
+.topbar-breadcrumb{
+  display:flex;align-items:center;gap:7px;
+  font-size:.75rem;color:var(--muted);flex:1;
+}
+.topbar-breadcrumb .cur{color:var(--ink);font-weight:600}
+.topbar-breadcrumb i{font-size:.6rem}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tb-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:20px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:.72rem;font-weight:600;color:var(--primary);
+  cursor:default;
+}
+.tb-pip{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pip 2.2s ease-in-out infinite}
+@keyframes pip{0%,100%{box-shadow:0 0 0 3px rgba(11,138,90,.2)}50%{box-shadow:0 0 0 7px rgba(11,138,90,0)}}
+
+/* PAGES */
+.content{flex:1;padding:28px 28px 48px;max-width:1200px;width:100%}
+@media(max-width:600px){.content{padding:18px 16px 40px}}
+.page{display:none}
+.page.active{display:block;animation:pageIn .25s cubic-bezier(.4,0,.2,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.page-title{font-family:'DM Serif Display',serif;font-size:1.8rem;letter-spacing:-.025em;color:var(--ink)}
+.page-sub{font-size:.82rem;color:var(--sub);margin-top:3px;line-height:1.5}
+.page-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+
+/* GRID */
+.g{display:grid;gap:14px}
+.g-2{grid-template-columns:repeat(2,1fr)}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+.g-12{grid-template-columns:1fr 2fr}
+.g-21{grid-template-columns:2fr 1fr}
+@media(max-width:900px){.g-4{grid-template-columns:repeat(2,1fr)}.g-3{grid-template-columns:repeat(2,1fr)}.g-12,.g-21,.g-2{grid-template-columns:1fr}}
+@media(max-width:540px){.g-4,.g-3{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;
+  box-shadow:var(--shadow-sm);
+}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+.card-title{font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px}
+.card-body{font-size:.82rem}
+
+/* KPI CARDS */
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px;
+  box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.blue::before{background:linear-gradient(90deg,var(--primary),var(--primary2))}
+.kpi.green::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.kpi.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.kpi.teal::before{background:linear-gradient(90deg,var(--teal),#22d3ee)}
+.kpi.red::before{background:linear-gradient(90deg,var(--red),var(--red2))}
+.kpi-ico{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;margin-bottom:11px;flex-shrink:0;
+}
+.kpi-ico.blue{background:rgba(26,51,82,.08);color:var(--primary)}
+.kpi-ico.green{background:rgba(11,138,90,.1);color:var(--accent)}
+.kpi-ico.gold{background:rgba(181,135,10,.1);color:var(--gold)}
+.kpi-ico.teal{background:rgba(8,145,178,.1);color:var(--teal)}
+.kpi-ico.red{background:rgba(192,57,43,.1);color:var(--red)}
+.kpi-label{font-size:.68rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:4px}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:1.9rem;line-height:1;color:var(--ink)}
+.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:5px}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:.67rem;font-weight:700;padding:3px 8px;border-radius:20px}
+.kpi-badge.up{background:rgba(11,138,90,.1);color:var(--accent)}
+.kpi-badge.dn{background:rgba(192,57,43,.08);color:var(--red)}
+.kpi-badge.neutral{background:rgba(90,98,112,.08);color:var(--sub)}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 18px;border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;
+  cursor:pointer;border:none;transition:var(--t);
+  text-decoration:none;
+}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 16px rgba(26,51,82,.25)}
+.btn-primary:hover{background:var(--primary2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,51,82,.3)}
+.btn-green{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(11,138,90,.25)}
+.btn-green:hover{background:#096b47;transform:translateY(-1px)}
+.btn-gold{background:var(--gold);color:#fff;box-shadow:0 4px 16px rgba(181,135,10,.25)}
+.btn-gold:hover{background:#8a6508;transform:translateY(-1px)}
+.btn-outline{background:none;color:var(--primary);border:1.5px solid var(--border2)}
+.btn-outline:hover{border-color:var(--primary);background:rgba(26,51,82,.04)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#9b2918;transform:translateY(-1px)}
+.btn-sm{padding:7px 14px;font-size:.76rem}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+
+/* FORMS */
+.form-g{margin-bottom:14px}
+.form-lbl{display:block;font-size:.7rem;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.form-ctrl{
+  width:100%;padding:11px 14px;
+  font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--ink);
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:9px;outline:none;transition:var(--t);
+  -webkit-appearance:none;appearance:none;
+}
+.form-ctrl:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(26,51,82,.1)}
+.form-ctrl.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(192,57,43,.08)}
+textarea.form-ctrl{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:540px){.form-row{grid-template-columns:1fr}}
+.field-wrap{position:relative}
+.field-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.8rem}
+.field-wrap .form-ctrl{padding-left:38px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-active{background:rgba(11,138,90,.1);color:var(--accent)}
+.badge-pending{background:rgba(181,135,10,.1);color:var(--gold)}
+.badge-approved{background:rgba(11,138,90,.12);color:var(--accent)}
+.badge-rejected{background:rgba(192,57,43,.1);color:var(--red)}
+.badge-blue{background:rgba(26,51,82,.08);color:var(--primary)}
+.badge-late{background:rgba(181,135,10,.12);color:var(--gold)}
+.badge-ontime{background:rgba(11,138,90,.1);color:var(--accent)}
+
+/* ALERTS */
+.alert-box{display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-radius:10px;font-size:.8rem;line-height:1.55;margin-bottom:14px}
+.alert-box.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.alert-box.error{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}
+.alert-box.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.alert-box.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.alert-box i{font-size:.9rem;margin-top:1px;flex-shrink:0}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--ink);color:#fff;
+  padding:12px 20px;border-radius:11px;
+  font-size:.81rem;font-weight:600;
+  display:flex;align-items:center;gap:9px;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  max-width:360px;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{background:var(--accent)}
+#toast.error{background:var(--red)}
+#toast.warn{background:var(--gold)}
+
+/* MODAL */
+.modal-ov{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:200;
+  align-items:center;justify-content:center;
+  padding:20px;backdrop-filter:blur(4px);
+}
+.modal-ov.open{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--surface);border-radius:16px;
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  animation:modalIn .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-hd{padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--ink)}
+.modal-sub{font-size:.75rem;color:var(--sub);margin-top:3px}
+.modal-close{background:none;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;color:var(--sub);font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0}
+.modal-close:hover{background:var(--surface2);color:var(--ink)}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+
+/* ATTENDANCE BLOCK */
+.att-hero{
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);
+  border-radius:16px;padding:28px;color:#fff;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.att-hero::before{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.att-hero::after{
+  content:'';position:absolute;right:40px;bottom:-60px;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.att-clock{
+  font-family:'DM Serif Display',serif;
+  font-size:3.2rem;line-height:1;letter-spacing:-.03em;
+  margin-bottom:6px;
+}
+.att-date{font-size:.84rem;opacity:.7;margin-bottom:20px}
+.att-loc{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:9px;padding:10px 14px;font-size:.78rem;margin-bottom:18px;
+}
+.att-loc-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);flex-shrink:0;animation:pip 2s ease-in-out infinite}
+.att-loc.error-loc{background:rgba(220,53,69,.15);border-color:rgba(220,53,69,.3)}
+.att-loc.error-loc .att-loc-dot{background:#ff6b6b;animation:none}
+.att-loc.checking .att-loc-dot{background:var(--gold2);animation:pip 1s ease-in-out infinite}
+.att-register-btn{
+  width:100%;padding:15px 20px;
+  background:rgba(255,255,255,.95);color:var(--primary);
+  border:none;border-radius:11px;
+  font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:800;
+  cursor:pointer;transition:var(--t);
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+}
+.att-register-btn:hover:not(:disabled){background:#fff;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.att-register-btn:disabled{opacity:.55;cursor:not-allowed}
+.att-register-btn.registered{background:rgba(11,138,90,.2);border:1.5px solid rgba(11,138,90,.3);color:rgba(255,255,255,.9)}
+.att-spinner{width:18px;height:18px;border:2.5px solid rgba(26,51,82,.2);border-top-color:var(--primary);border-radius:50%;animation:spin .65s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{padding:10px 14px;text-align:left;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);border-bottom:1.5px solid var(--border);white-space:nowrap;background:var(--surface2)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--ink)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(26,51,82,.02)}
+
+/* PROGRESS */
+.prog{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:13px;position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:14px;top:28px;bottom:0;width:1.5px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.62rem;border:2px solid var(--surface)}
+.tl-body{flex:1;padding-top:4px}
+.tl-title{font-size:.78rem;font-weight:700;color:var(--ink)}
+.tl-desc{font-size:.71rem;color:var(--sub);margin-top:2px;line-height:1.5}
+.tl-time{font-size:.67rem;color:var(--muted);margin-top:3px}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;text-align:center}
+.empty i{font-size:2.5rem;color:var(--border2);margin-bottom:14px}
+.empty p{font-size:.82rem;color:var(--muted);max-width:280px}
+
+/* PROFILE CARD */
+.profile-banner{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  border-radius:var(--r);padding:28px;color:#fff;
+  margin-bottom:14px;position:relative;overflow:hidden;
+}
+.profile-banner::after{content:'';position:absolute;right:-30px;bottom:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04)}
+.prof-ava{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:700;color:#fff;
+  font-family:'DM Serif Display',serif;
+  border:3px solid rgba(255,255,255,.2);
+  margin-bottom:14px;
+}
+.prof-name{font-family:'DM Serif Display',serif;font-size:1.5rem;line-height:1.1;margin-bottom:4px}
+.prof-role{font-size:.78rem;opacity:.7}
+.prof-meta{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap}
+.prof-meta-item{font-size:.72rem;opacity:.7}
+.prof-meta-item strong{display:block;font-size:.9rem;font-weight:700;opacity:1;margin-top:1px}
+
+/* SWITCH TABS */
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:20px}
+.tab-btn{
+  flex:1;padding:8px 12px;border-radius:7px;border:none;
+  background:none;font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:600;
+  color:var(--sub);cursor:pointer;transition:var(--t);white-space:nowrap;
+}
+.tab-btn.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+/* STATUS CHIP */
+.status-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:700;
+}
+.chip-green{background:rgba(11,138,90,.1);color:var(--accent)}
+.chip-gold{background:rgba(181,135,10,.1);color:var(--gold)}
+.chip-red{background:rgba(192,57,43,.1);color:var(--red)}
+.chip-blue{background:rgba(26,51,82,.08);color:var(--primary)}
+
+/* LOADER */
+#loader{
+  position:fixed;inset:0;background:var(--primary);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;transition:opacity .5s ease,visibility .5s ease;
+}
+#loader.out{opacity:0;visibility:hidden}
+.loader-logo{font-family:'DM Serif Display',serif;font-size:1.8rem;color:#fff;letter-spacing:-.02em;margin-bottom:6px}
+.loader-sub{font-size:.76rem;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px}
+.loader-bar{width:160px;height:2px;background:rgba(255,255,255,.15);border-radius:1px;overflow:hidden}
+.loader-fill{height:100%;background:var(--accent2);border-radius:1px;animation:loadFill 1.6s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes loadFill{from{width:0}to{width:100%}}
+
+/* NOTIFICATION DOT */
+.notif-dot{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--red2);border:2px solid var(--surface);
+}
+
+/* SECTION DIVIDER */
+.sec-divider{height:1px;background:var(--border);margin:20px 0}
+
+/* HORARIO INFO */
+.horario-card{
+  background:linear-gradient(135deg,rgba(11,138,90,.06),rgba(11,138,90,.02));
+  border:1px solid rgba(11,138,90,.15);
+  border-radius:var(--r);padding:16px;
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:20px;
+}
+.horario-card i{font-size:1.3rem;color:var(--accent);flex-shrink:0}
+.horario-text{font-size:.78rem;color:var(--ink)}
+.horario-text strong{display:block;font-weight:700;margin-bottom:2px}
+.horario-text span{color:var(--sub);font-size:.73rem}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo" id="loaderName">Portal Empleado</div>
+  <div class="loader-sub">InBio Nexus · Cargando...</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="sb-brand-name">InBio <em>Nexus</em></div>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-ava" id="sbAva">?</div>
+      <div>
+        <div class="sb-user-name" id="sbName">Empleado</div>
+        <div class="sb-user-role" id="sbRole">Portal Empleado</div>
+        <div class="sb-company" id="sbCompany">—</div>
+      </div>
+    </div>
+
+    <div class="sb-nav">
+      <div class="sb-section">
+        <div class="sb-section-lbl">Mi espacio</div>
+        <div class="sb-item active" onclick="nav('dashboard',this)"><i class="fas fa-house"></i> Dashboard</div>
+        <div class="sb-item" onclick="nav('perfil',this)"><i class="fas fa-user-circle"></i> Mi Perfil</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">Gestión</div>
+        <div class="sb-item" onclick="nav('asistencia',this)"><i class="fas fa-clock"></i> Registrar Asistencia</div>
+        <div class="sb-item" onclick="nav('mis-asistencias',this)"><i class="fas fa-calendar-check"></i> Mis Asistencias</div>
+        <div class="sb-item" onclick="nav('vacaciones',this)"><i class="fas fa-umbrella-beach"></i> Vacaciones <span class="sb-badge" id="vacBadge" style="display:none">0</span></div>
+        <div class="sb-item" onclick="nav('permisos',this)"><i class="fas fa-file-pen"></i> Permisos <span class="sb-badge" id="permBadge" style="display:none">0</span></div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">Información</div>
+        <div class="sb-item" onclick="nav('nomina-personal',this)"><i class="fas fa-money-bill-wave"></i> Mi Nómina</div>
+        <div class="sb-item" onclick="nav('documentos-emp',this)"><i class="fas fa-file-lines"></i> Mis Documentos</div>
+      </div>
+    </div>
+
+    <div class="sb-footer">
+      <button class="sb-logout" onclick="logout()">
+        <i class="fas fa-right-from-bracket"></i> Cerrar Sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="topbar-breadcrumb">
+        <i class="fas fa-house"></i>
+        <i class="fas fa-chevron-right"></i>
+        <span class="cur" id="breadcrumb">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="tb-pill">
+          <div class="tb-pip"></div>
+          <span id="topbarCompany">Portal Activo</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-hd">
+          <div>
+            <div class="page-title" id="dashGreet">¡Bienvenido!</div>
+            <div class="page-sub" id="dashDate">Cargando fecha...</div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="g g-4" style="margin-bottom:16px">
+          <div class="kpi green">
+            <div class="kpi-ico green"><i class="fas fa-calendar-check"></i></div>
+            <div class="kpi-label">Asistencias Este Mes</div>
+            <div class="kpi-value" id="kpiAtt">0</div>
+            <div class="kpi-sub">días registrados</div>
+          </div>
+          <div class="kpi gold">
+            <div class="kpi-ico gold"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="kpi-label">Tardanzas Este Mes</div>
+            <div class="kpi-value" id="kpiLate">0</div>
+            <div class="kpi-sub">llegadas después de 08:15</div>
+          </div>
+          <div class="kpi blue">
+            <div class="kpi-ico blue"><i class="fas fa-umbrella-beach"></i></div>
+            <div class="kpi-label">Días Vacaciones</div>
+            <div class="kpi-value" id="kpiVac">15</div>
+            <div class="kpi-sub">disponibles</div>
+          </div>
+          <div class="kpi teal">
+            <div class="kpi-ico teal"><i class="fas fa-file-pen"></i></div>
+            <div class="kpi-label">Permisos Pendientes</div>
+            <div class="kpi-value" id="kpiPermisos">0</div>
+            <div class="kpi-sub">en revisión</div>
+          </div>
+        </div>
+
+        <div class="g g-21" style="margin-bottom:16px">
+          <!-- Asistencia rápida -->
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title"><i class="fas fa-clock" style="color:var(--accent)"></i> Estado de Hoy</span>
+            </div>
+            <div id="dashAttStatus">
+              <div class="empty"><i class="fas fa-clock"></i><p>Aún no has registrado tu asistencia hoy</p></div>
+            </div>
+            <div style="margin-top:14px">
+              <button class="btn btn-green" style="width:100%;justify-content:center" onclick="nav('asistencia',null)">
+                <i class="fas fa-clock"></i> Ir a Registrar Asistencia
+              </button>
+            </div>
+          </div>
+
+          <!-- Actividad reciente -->
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Actividad Reciente</span></div>
+            <div class="tl" id="dashActivity">
+              <div class="empty" style="padding:20px"><i class="fas fa-history"></i><p>Sin actividad reciente</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solicitudes -->
+        <div class="g g-2">
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title"><i class="fas fa-umbrella-beach" style="color:var(--teal)"></i> Mis Vacaciones</span>
+              <button class="btn btn-outline btn-sm" onclick="nav('vacaciones',null)">Ver todas</button>
+            </div>
+            <div id="dashVac">
+              <div class="empty" style="padding:20px"><i class="fas fa-umbrella-beach"></i><p>No tienes solicitudes de vacaciones</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title"><i class="fas fa-file-pen" style="color:var(--gold)"></i> Mis Permisos</span>
+              <button class="btn btn-outline btn-sm" onclick="nav('permisos',null)">Ver todos</button>
+            </div>
+            <div id="dashPermisos">
+              <div class="empty" style="padding:20px"><i class="fas fa-file-pen"></i><p>No tienes permisos solicitados</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PERFIL ═══ -->
+      <div id="page-perfil" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mi Perfil</div><div class="page-sub">Información personal y datos laborales</div></div>
+        </div>
+
+        <div class="profile-banner">
+          <div class="prof-ava" id="profAva">?</div>
+          <div class="prof-name" id="profName">—</div>
+          <div class="prof-role" id="profRole">—</div>
+          <div class="prof-meta">
+            <div class="prof-meta-item">Empresa <strong id="profCompany">—</strong></div>
+            <div class="prof-meta-item">Ingreso <strong id="profIngreso">—</strong></div>
+            <div class="prof-meta-item">Contrato <strong id="profContrato">—</strong></div>
+          </div>
+        </div>
+
+        <div class="g g-2">
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Información de Contacto</span></div>
+            <div id="profContactInfo"></div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Datos Laborales</span></div>
+            <div id="profLaboralInfo"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ASISTENCIA ═══ -->
+      <div id="page-asistencia" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Registrar Asistencia</div><div class="page-sub">Registro geolocalizado · Validación de horario y ubicación</div></div>
+        </div>
+
+        <!-- Horario info -->
+        <div class="horario-card">
+          <i class="fas fa-info-circle"></i>
+          <div class="horario-text">
+            <strong>Horario laboral: 08:00 AM — 17:00 PM</strong>
+            <span>Margen permitido: 15 minutos. Después de las 08:15 AM se registra como tardanza. Radio de ubicación: 100 metros desde la sede.</span>
+          </div>
+        </div>
+
+        <!-- Hero de registro -->
+        <div class="att-hero">
+          <div class="att-clock" id="attClock">--:--:--</div>
+          <div class="att-date" id="attDate">—</div>
+          <div class="att-loc" id="attLoc">
+            <div class="att-loc-dot"></div>
+            <span id="attLocText">Verificando ubicación...</span>
+          </div>
+          <button class="att-register-btn" id="attBtn" onclick="registrarAsistencia()">
+            <span class="att-spinner" id="attSpinner"></span>
+            <i class="fas fa-clock" id="attBtnIco"></i>
+            <span id="attBtnText">Registrar Entrada</span>
+          </button>
+          <div id="attBtnMsg" style="text-align:center;margin-top:12px;font-size:.75rem;opacity:.75"></div>
+        </div>
+
+        <!-- Estado del día -->
+        <div class="g g-3" style="margin-bottom:16px">
+          <div class="card">
+            <div class="kpi-label" style="margin-bottom:6px">Estado Hoy</div>
+            <div id="attStatusHoy" style="font-size:.85rem;font-weight:700;color:var(--sub)">—</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label" style="margin-bottom:6px">Hora Registrada</div>
+            <div id="attHoraReg" style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--ink)">—</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label" style="margin-bottom:6px">Tardanzas del Mes</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--gold)" id="attLateCount">0</div>
+          </div>
+        </div>
+
+        <!-- Ultimas asistencias -->
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Últimas 7 Asistencias</span></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Hora</th><th>Estado</th><th>Ubicación</th><th>IP</th></tr></thead>
+              <tbody id="attRecentTable">
+                <tr><td colspan="5"><div class="empty" style="padding:20px"><i class="fas fa-clock"></i><p>Sin registros aún</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MIS ASISTENCIAS ═══ -->
+      <div id="page-mis-asistencias" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mis Asistencias</div><div class="page-sub">Historial completo de asistencias registradas</div></div>
+          <div class="page-actions">
+            <select class="form-ctrl" id="attMonthFilter" style="width:auto" onchange="renderMisAsistencias()">
+              <option value="all">Todos los períodos</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="g g-4" style="margin-bottom:16px">
+          <div class="kpi green">
+            <div class="kpi-ico green"><i class="fas fa-check-circle"></i></div>
+            <div class="kpi-label">A Tiempo</div>
+            <div class="kpi-value" id="statsOnTime">0</div>
+          </div>
+          <div class="kpi gold">
+            <div class="kpi-ico gold"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="kpi-label">Tardanzas</div>
+            <div class="kpi-value" id="statsLate">0</div>
+          </div>
+          <div class="kpi blue">
+            <div class="kpi-ico blue"><i class="fas fa-calendar"></i></div>
+            <div class="kpi-label">Total Registros</div>
+            <div class="kpi-value" id="statsTotal">0</div>
+          </div>
+          <div class="kpi teal">
+            <div class="kpi-ico teal"><i class="fas fa-percent"></i></div>
+            <div class="kpi-label">Puntualidad</div>
+            <div class="kpi-value" id="statsPct">0%</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Historial de Asistencias</span></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Día</th><th>Hora Entrada</th><th>Estado</th><th>Ubicación</th><th>IP</th></tr></thead>
+              <tbody id="allAttTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ VACACIONES ═══ -->
+      <div id="page-vacaciones" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mis Vacaciones</div><div class="page-sub">Solicita y gestiona tus días de descanso</div></div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('modalVacaciones')"><i class="fas fa-plus"></i> Nueva Solicitud</button>
+          </div>
+        </div>
+
+        <div class="g g-3" style="margin-bottom:16px">
+          <div class="kpi blue">
+            <div class="kpi-ico blue"><i class="fas fa-calendar-days"></i></div>
+            <div class="kpi-label">Días Disponibles</div>
+            <div class="kpi-value" id="vacDiasDisp">15</div>
+          </div>
+          <div class="kpi gold">
+            <div class="kpi-ico gold"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-label">Días Solicitados</div>
+            <div class="kpi-value" id="vacDiasSol">0</div>
+          </div>
+          <div class="kpi green">
+            <div class="kpi-ico green"><i class="fas fa-check-double"></i></div>
+            <div class="kpi-label">Días Aprobados</div>
+            <div class="kpi-value" id="vacDiasAprob">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <span class="card-title">Mis Solicitudes de Vacaciones</span>
+          </div>
+          <div id="vacList">
+            <div class="empty"><i class="fas fa-umbrella-beach"></i><p>No tienes solicitudes de vacaciones. ¡Crea tu primera!</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PERMISOS ═══ -->
+      <div id="page-permisos" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mis Permisos</div><div class="page-sub">Solicita permisos laborales y haz seguimiento</div></div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('modalPermiso')"><i class="fas fa-plus"></i> Nuevo Permiso</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-hd"><span class="card-title">Tipos de Permisos Disponibles</span></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;font-size:.76rem">
+            <span style="padding:6px 12px;background:rgba(26,51,82,.07);border-radius:20px;color:var(--primary)">🏥 Médico</span>
+            <span style="padding:6px 12px;background:rgba(181,135,10,.08);border-radius:20px;color:var(--gold)">👤 Personal</span>
+            <span style="padding:6px 12px;background:rgba(11,138,90,.08);border-radius:20px;color:var(--accent)">🎓 Académico</span>
+            <span style="padding:6px 12px;background:rgba(8,145,178,.08);border-radius:20px;color:var(--teal)">⚖️ Legal / Judicial</span>
+            <span style="padding:6px 12px;background:rgba(124,58,237,.08);border-radius:20px;color:#7c3aed">🏠 Calamidad doméstica</span>
+            <span style="padding:6px 12px;background:rgba(90,98,112,.07);border-radius:20px;color:var(--sub)">📋 Otro</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Historial de Permisos</span></div>
+          <div id="permisosList">
+            <div class="empty"><i class="fas fa-file-pen"></i><p>No tienes permisos solicitados aún.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MI NÓMINA ═══ -->
+      <div id="page-nomina-personal" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mi Nómina</div><div class="page-sub">Detalle de liquidación y descuentos del período actual</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div style="background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:11px;padding:22px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+            <div>
+              <div style="font-size:.72rem;opacity:.65;margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em">Neto a Recibir — Período Actual</div>
+              <div style="font-family:'DM Serif Display',serif;font-size:2.2rem;line-height:1" id="nomNetoBig">$0</div>
+              <div style="font-size:.74rem;opacity:.65;margin-top:4px" id="nomPeriodLbl">Calculando...</div>
+            </div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap">
+              <div style="text-align:center"><div style="font-size:.65rem;opacity:.6;text-transform:uppercase;letter-spacing:.07em">Bruto</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;margin-top:2px" id="nomBruto">—</div></div>
+              <div style="text-align:center"><div style="font-size:.65rem;opacity:.6;text-transform:uppercase;letter-spacing:.07em">Deducciones</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;margin-top:2px;color:#fca5a5" id="nomDeducc">—</div></div>
+            </div>
+          </div>
+
+          <div class="g g-2">
+            <div>
+              <div style="font-size:.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Conceptos de Pago</div>
+              <div id="nomConceptos"></div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Descuentos de Ley</div>
+              <div id="nomDescuentos"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Historial de Pagos</span></div>
+          <div id="nomHistorial">
+            <div class="empty"><i class="fas fa-money-bill-wave"></i><p>Historial no disponible</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MIS DOCUMENTOS ═══ -->
+      <div id="page-documentos-emp" class="page">
+        <div class="page-hd">
+          <div><div class="page-title">Mis Documentos</div><div class="page-sub">Documentos y archivos personales</div></div>
+        </div>
+        <div class="g g-2">
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Documentos Laborales</span></div>
+            <div id="docsLaborales">
+              <div class="empty"><i class="fas fa-file-lines"></i><p>Sin documentos disponibles</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Colillas de Nómina</span></div>
+            <div id="docsNomina">
+              <div class="empty"><i class="fas fa-file-invoice-dollar"></i><p>Sin colillas disponibles</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══ MODALES ═══ -->
+
+<!-- Modal: Solicitar Vacaciones -->
+<div class="modal-ov" id="modalVacaciones">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title">Solicitar Vacaciones</div><div class="modal-sub">Envía tu solicitud al administrador</div></div>
+      <button class="modal-close" onclick="closeModal('modalVacaciones')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="vacModalAlert" class="alert-box" style="display:none"></div>
+      <div class="form-g">
+        <label class="form-lbl">Tipo de Solicitud</label>
+        <select class="form-ctrl" id="vacTipo">
+          <option>Vacaciones anuales</option>
+          <option>Licencia remunerada</option>
+          <option>Licencia no remunerada</option>
+          <option>Licencia maternidad/paternidad</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-g">
+          <label class="form-lbl">Fecha Inicio *</label>
+          <input type="date" class="form-ctrl" id="vacStart" oninput="calcVacDays()">
+        </div>
+        <div class="form-g">
+          <label class="form-lbl">Fecha Fin *</label>
+          <input type="date" class="form-ctrl" id="vacEnd" oninput="calcVacDays()">
+        </div>
+      </div>
+      <div class="alert-box info" id="vacDaysInfo" style="display:none">
+        <i class="fas fa-calendar-check"></i>
+        <span id="vacDaysText">—</span>
+      </div>
+      <div class="form-g">
+        <label class="form-lbl">Observaciones</label>
+        <textarea class="form-ctrl" id="vacObs" placeholder="Describe el motivo o agregar información adicional..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalVacaciones')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveVacacion()"><i class="fas fa-paper-plane"></i> Enviar Solicitud</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Solicitar Permiso -->
+<div class="modal-ov" id="modalPermiso">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title">Solicitar Permiso</div><div class="modal-sub">Envía tu solicitud al administrador</div></div>
+      <button class="modal-close" onclick="closeModal('modalPermiso')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="permModalAlert" class="alert-box" style="display:none"></div>
+      <div class="form-g">
+        <label class="form-lbl">Tipo de Permiso *</label>
+        <select class="form-ctrl" id="permTipo">
+          <option value="">— Selecciona un tipo —</option>
+          <option>Médico</option>
+          <option>Personal</option>
+          <option>Académico</option>
+          <option>Legal / Judicial</option>
+          <option>Calamidad doméstica</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-g">
+          <label class="form-lbl">Fecha del Permiso *</label>
+          <input type="date" class="form-ctrl" id="permFecha">
+        </div>
+        <div class="form-g">
+          <label class="form-lbl">Duración</label>
+          <select class="form-ctrl" id="permDuracion">
+            <option>Medio día (mañana)</option>
+            <option>Medio día (tarde)</option>
+            <option>Día completo</option>
+            <option>Varios días</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-g">
+        <label class="form-lbl">Motivo Detallado *</label>
+        <textarea class="form-ctrl" id="permMotivo" rows="3" placeholder="Explica con detalle el motivo del permiso..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalPermiso')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePermiso()"><i class="fas fa-paper-plane"></i> Enviar Solicitud</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   PORTAL DEL EMPLEADO · Supabase Integration — Sin localStorage
+   Todo guardado en la nube. Realtime activado.
+══════════════════════════════════════════════════════════════ */
+
+const SUPABASE_URL      = 'https://tnhmthevtqoemhngnkmv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaG10aGV2dHFvZW1obmdua212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2Mzk2NjEsImV4cCI6MjA5MjIxNTY2MX0.5LPgzpn6SjI6kFRbgeQac1U8hhcITpNZENJnX_jEkqE';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+
+// ══ CONFIGURACIÓN DE HORARIO Y UBICACIÓN ══
+const CONFIG = {
+  HORA_ENTRADA: '08:00',
+  MARGEN_MIN:   15,
+  SEDE_LAT:     10.9877,
+  SEDE_LNG:     -74.7983,
+  RADIO_M:      100,
+  SEDE_NOMBRE:  'Carrera 49 #75-25, Barranquilla',
+};
+
+/* ═══ ESTADO GLOBAL ═══ */
+let currentUser    = null;
+let currentEmpData = null;   // fila de public.employees
+let employeeRowId  = null;   // UUID del registro en employees
+let companyId      = null;
+let userAttendances = [];
+let userVacaciones  = [];
+let userPermisos    = [];
+let locationState   = { lat: null, lng: null, address: '', inRange: false, checked: false };
+let clockInterval   = null;
+let todayRegistered = false;
+let todayAttRecord  = null;
+
+/* ═══ INIT ═══ */
+async function init() {
+  // 1. Verificar sesión
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+  currentUser = session.user;
+
+  // 2. Verificar rol — si es admin, redirigir
+  const { data: profile } = await sb
+    .from('users')
+    .select('role, company_id, full_name')
+    .eq('id', currentUser.id)
+    .single();
+
+  const role = (profile?.role || 'user').toLowerCase();
+  if (role === 'admin' || role === 'superadmin') {
+    window.location.href = 'app.html';
+    return;
+  }
+  companyId = profile?.company_id || null;
+
+  // 3. Cargar datos del empleado
+  await loadEmployeeData();
+
+  // 4. Cargar datos personales desde Supabase
+  await loadData();
+
+  // 5. Configurar UI
+  setupUI();
+
+  // 6. Realtime
+  setupRealtime();
+
+  // 7. Reloj y ubicación
+  startClock();
+  checkLocation();
+
+  // 8. Ocultar loader
+  setTimeout(() => { document.getElementById('loader').classList.add('out'); }, 1600);
+}
+
+/* ═══ CARGA DATOS DEL EMPLEADO ═══ */
+async function loadEmployeeData() {
+  // Buscar por email del usuario autenticado en la tabla employees
+  const { data: emp, error } = await sb
+    .from('employees')
+    .select('*')
+    .eq('email', currentUser.email)
+    .single();
+
+  if (emp && !error) {
+    employeeRowId = emp.id;
+    companyId     = companyId || emp.company_id;
+
+    // Parsear nombre
+    const parts    = (emp.name || '').trim().split(' ');
+    const nombre   = parts.slice(0, Math.ceil(parts.length / 2)).join(' ') || emp.name;
+    const apellido = parts.slice(Math.ceil(parts.length / 2)).join(' ')    || '';
+
+    // Obtener nombre de la empresa
+    let empresaNombre = 'InBio Nexus';
+    if (emp.company_id) {
+      const { data: co } = await sb.from('companies').select('name').eq('id', emp.company_id).single();
+      if (co) empresaNombre = co.name;
+    }
+
+    currentEmpData = {
+      id:        emp.id,
+      nombre:    nombre,
+      apellido:  apellido,
+      email:     emp.email || currentUser.email,
+      cargo:     emp.position || emp.cargo || 'Empleado',
+      dept:      emp.department || emp.dept || 'General',
+      contrato:  emp.contract_type || 'Indefinido',
+      ingreso:   emp.hire_date || '',
+      salario:   parseFloat(emp.salary || 0),
+      empresa:   empresaNombre,
+      vacDias:   15,
+      tel:       emp.phone || '',
+      doc:       emp.document_id || '',
+      addr:      emp.address || '',
+      rol:       'empleado',
+    };
+  } else {
+    // Fallback: usar datos del usuario auth
+    currentEmpData = {
+      id:        currentUser.id,
+      nombre:    currentUser.user_metadata?.full_name?.split(' ')[0] || currentUser.email.split('@')[0],
+      apellido:  currentUser.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
+      email:     currentUser.email,
+      cargo:     'Empleado',
+      dept:      'General',
+      contrato:  'Indefinido',
+      ingreso:   new Date().toISOString().split('T')[0],
+      salario:   0,
+      empresa:   'InBio Nexus',
+      vacDias:   15,
+      tel: '', doc: '', addr: '',
+      rol: 'empleado',
+    };
+    console.warn('No se encontró fila en employees para:', currentUser.email);
+  }
+  document.getElementById('loaderName').textContent = currentEmpData.nombre + ' ' + currentEmpData.apellido;
+}
+
+/* ═══ CARGAR DATOS DESDE SUPABASE ═══ */
+async function loadData() {
+  await Promise.all([
+    loadAttendances(),
+    loadVacaciones(),
+    loadPermisos(),
+  ]);
+  // Verificar si ya registró hoy
+  const todayStr = getTodayStr();
+  todayAttRecord = userAttendances.find(a => a.date === todayStr) || null;
+  todayRegistered = !!todayAttRecord;
+  refreshAllViews();
+}
+
+async function loadAttendances() {
+  if (!employeeRowId) { userAttendances = []; return; }
+  const { data, error } = await sb
+    .from('attendance')
+    .select('*')
+    .eq('employee_id', employeeRowId)
+    .order('date', { ascending: false })
+    .limit(90);
+  if (error) { console.error('Error loading attendance:', error); userAttendances = []; return; }
+  userAttendances = (data || []).map(a => ({
+    id:         a.id,
+    fecha:      a.date,
+    hora:       a.check_in || '',
+    horaCorta:  a.check_in ? a.check_in.substr(0, 5) : '',
+    estado:     a.status === 'late' ? 'tarde' : 'a_tiempo',
+    ubicacion:  a.notes || '',
+    ip:         a.ip_address || '',
+    lat:        a.latitude,
+    lng:        a.longitude,
+  }));
+}
+
+async function loadVacaciones() {
+  if (!employeeRowId) { userVacaciones = []; return; }
+  const { data, error } = await sb
+    .from('leave_requests')
+    .select('*')
+    .eq('employee_id', employeeRowId)
+    .order('created_at', { ascending: false });
+  if (error) { console.warn('leave_requests error:', error.message); userVacaciones = []; return; }
+  userVacaciones = (data || []).map(row => ({
+    id:        row.id,
+    tipo:      row.request_type || 'Vacaciones anuales',
+    desde:     row.start_date || '',
+    hasta:     row.end_date || '',
+    dias:      row.days_requested || 1,
+    estado:    row.status || 'pending',
+    obs:       row.notes || '',
+    createdAt: row.created_at,
+  }));
+}
+
+async function loadPermisos() {
+  if (!employeeRowId) { userPermisos = []; return; }
+  const { data, error } = await sb
+    .from('permission_requests')
+    .select('*')
+    .eq('employee_id', employeeRowId)
+    .order('created_at', { ascending: false });
+  if (error) { console.warn('permission_requests error:', error.message); userPermisos = []; return; }
+  userPermisos = (data || []).map(row => ({
+    id:       row.id,
+    tipo:     row.permission_type || row.tipo || '',
+    fecha:    row.request_date || row.fecha || '',
+    duracion: row.duration || row.duracion || 'Día completo',
+    motivo:   row.reason || row.motivo || '',
+    estado:   row.status || 'pending',
+    createdAt: row.created_at,
+  }));
+}
+
+/* ═══ REALTIME ═══ */
+function setupRealtime() {
+  if (!employeeRowId) return;
+  sb.channel('employee-portal')
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'leave_requests',
+      filter: `employee_id=eq.${employeeRowId}`
+    }, async () => {
+      await loadVacaciones();
+      renderVacaciones();
+      renderDashboard();
+      showToast('📡 Solicitud de vacaciones actualizada', 'success');
+    })
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'permission_requests',
+      filter: `employee_id=eq.${employeeRowId}`
+    }, async () => {
+      await loadPermisos();
+      renderPermisos();
+      renderDashboard();
+      showToast('📡 Permiso actualizado en tiempo real', 'success');
+    })
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'attendance',
+      filter: `employee_id=eq.${employeeRowId}`
+    }, async () => {
+      await loadAttendances();
+      const todayStr  = getTodayStr();
+      todayAttRecord  = userAttendances.find(a => a.fecha === todayStr) || null;
+      todayRegistered = !!todayAttRecord;
+      renderAsistencia();
+      updateAttButtons();
+    })
+    .subscribe();
+}
+
+/* ═══ SETUP UI ═══ */
+function setupUI() {
+  const ini      = ((currentEmpData.nombre || '?')[0] + (currentEmpData.apellido || '')[0]).toUpperCase();
+  const fullName = (currentEmpData.nombre + ' ' + currentEmpData.apellido).trim();
+
+  document.getElementById('sbAva').textContent       = ini;
+  document.getElementById('sbName').textContent      = fullName;
+  document.getElementById('sbRole').textContent      = currentEmpData.cargo || 'Empleado';
+  document.getElementById('sbCompany').textContent   = currentEmpData.empresa || currentEmpData.dept || '';
+  document.getElementById('topbarCompany').textContent = currentEmpData.empresa || 'Portal Activo';
+
+  // Perfil
+  document.getElementById('profAva').textContent     = ini;
+  document.getElementById('profName').textContent    = fullName;
+  document.getElementById('profRole').textContent    = currentEmpData.cargo || '—';
+  document.getElementById('profCompany').textContent = currentEmpData.empresa || '—';
+  document.getElementById('profIngreso').textContent = currentEmpData.ingreso ? new Date(currentEmpData.ingreso + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+  document.getElementById('profContrato').textContent = currentEmpData.contrato || '—';
+
+  document.getElementById('profContactInfo').innerHTML =
+    infoRow('fas fa-envelope', 'Email', currentEmpData.email) +
+    infoRow('fas fa-phone', 'Teléfono', currentEmpData.tel || 'No registrado') +
+    infoRow('fas fa-id-card', 'Documento', currentEmpData.doc || 'No registrado') +
+    infoRow('fas fa-map-marker-alt', 'Dirección', currentEmpData.addr || 'No registrada');
+  document.getElementById('profLaboralInfo').innerHTML =
+    infoRow('fas fa-briefcase', 'Cargo', currentEmpData.cargo || '—') +
+    infoRow('fas fa-building', 'Departamento', currentEmpData.dept || '—') +
+    infoRow('fas fa-file-contract', 'Tipo Contrato', currentEmpData.contrato || '—') +
+    infoRow('fas fa-calendar-alt', 'Fecha Ingreso', currentEmpData.ingreso || '—');
+
+  // Saludo
+  const hour  = new Date().getHours();
+  const greet = hour < 12 ? '¡Buenos días' : hour < 18 ? '¡Buenas tardes' : '¡Buenas noches';
+  document.getElementById('dashGreet').textContent = greet + ', ' + currentEmpData.nombre + '!';
+  document.getElementById('dashDate').textContent  = new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function infoRow(ico, lbl, val) {
+  return `<div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <div style="width:30px;height:30px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--sub)"><i class="${ico}" style="font-size:.75rem"></i></div>
+    <div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">${lbl}</div><div style="font-size:.8rem;font-weight:600;margin-top:1px">${val}</div></div>
+  </div>`;
+}
+
+/* ═══ HELPERS ═══ */
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+function formatTime(date) { return date.toTimeString().substr(0, 8); }
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function isLate(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  const entry  = h * 60 + m;
+  const [oh, om] = CONFIG.HORA_ENTRADA.split(':').map(Number);
+  const official = oh * 60 + om + CONFIG.MARGEN_MIN;
+  return entry > official;
+}
+
+async function getPublicIP() {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    const d = await r.json();
+    return d.ip || 'desconocida';
+  } catch { return 'desconocida'; }
+}
+
+/* ═══ RELOJ ═══ */
+function startClock() {
+  const update = () => {
+    const now = new Date();
+    const el  = document.getElementById('attClock');
+    if (el) el.textContent = formatTime(now);
+    const dEl = document.getElementById('attDate');
+    if (dEl) dEl.textContent = now.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  update();
+  clockInterval = setInterval(update, 1000);
+}
+
+/* ═══ GEOLOCALIZACIÓN ═══ */
+function checkLocation() {
+  const locEl  = document.getElementById('attLoc');
+  const locTxt = document.getElementById('attLocText');
+  if (!locEl || !locTxt) return;
+  locEl.className = 'att-loc checking';
+  locTxt.textContent = 'Verificando ubicación GPS...';
+  if (!navigator.geolocation) {
+    locationState = { inRange: false, checked: true };
+    locEl.className = 'att-loc error-loc';
+    locTxt.textContent = 'Geolocalización no disponible en este dispositivo';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const dist    = haversineDistance(lat, lng, CONFIG.SEDE_LAT, CONFIG.SEDE_LNG);
+      const inRange = dist <= CONFIG.RADIO_M;
+      locationState = { lat, lng, inRange, checked: true, distM: Math.round(dist), address: CONFIG.SEDE_NOMBRE };
+      locEl.className = 'att-loc' + (inRange ? '' : ' error-loc');
+      locTxt.textContent = inRange
+        ? `Ubicación verificada · ${CONFIG.SEDE_NOMBRE} (${locationState.distM}m)`
+        : `Fuera de zona · estás a ${locationState.distM}m de la sede (máx ${CONFIG.RADIO_M}m)`;
+    },
+    () => {
+      // En modo demo/dev: permitir con aviso
+      locationState = { inRange: true, checked: true, lat: CONFIG.SEDE_LAT, lng: CONFIG.SEDE_LNG, mock: true, address: CONFIG.SEDE_NOMBRE };
+      locEl.className = 'att-loc';
+      locTxt.textContent = `${CONFIG.SEDE_NOMBRE} · (GPS no disponible — acceso concedido)`;
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+/* ═══ REGISTRO DE ASISTENCIA → SUPABASE ═══ */
+async function registrarAsistencia() {
+  const btn     = document.getElementById('attBtn');
+  const spinner = document.getElementById('attSpinner');
+  const ico     = document.getElementById('attBtnIco');
+  const txt     = document.getElementById('attBtnText');
+  const msg     = document.getElementById('attBtnMsg');
+
+  if (todayRegistered) {
+    showToast('Ya registraste tu asistencia hoy. Solo se permite un registro por día.', 'warn');
+    return;
+  }
+  if (!locationState.checked) {
+    showToast('Esperando verificación de ubicación...', 'warn');
+    checkLocation();
+    return;
+  }
+  if (!locationState.inRange) {
+    showToast('Estás fuera de la ubicación permitida. No puedes registrar asistencia.', 'error');
+    return;
+  }
+  if (!employeeRowId) {
+    showToast('No se encontró tu perfil de empleado. Contacta al administrador.', 'error');
+    return;
+  }
+
+  // UI cargando
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  ico.style.display = 'none';
+  txt.textContent = 'Registrando...';
+
+  const ip    = await getPublicIP();
+  const now   = new Date();
+  const hora  = now.toTimeString().substr(0, 5);
+  const tarde = isLate(hora);
+
+  // Verificar doble registro (doble check en BD)
+  const todayStr = getTodayStr();
+  const { data: existing } = await sb
+    .from('attendance')
+    .select('id')
+    .eq('employee_id', employeeRowId)
+    .eq('date', todayStr)
+    .single();
+
+  if (existing) {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    ico.style.display = '';
+    txt.textContent = 'Registrar Entrada';
+    showToast('Ya tienes un registro de asistencia hoy en el sistema.', 'warn');
+    return;
+  }
+
+  // Insertar en Supabase
+  const record = {
+    employee_id:  employeeRowId,
+    company_id:   companyId,
+    date:         todayStr,
+    check_in:     now.toTimeString().substr(0, 8),
+    status:       tarde ? 'late' : 'present',
+    notes:        locationState.mock
+      ? `${CONFIG.SEDE_NOMBRE} (GPS no disponible)`
+      : `Lat: ${locationState.lat?.toFixed(5)}, Lng: ${locationState.lng?.toFixed(5)} · ${CONFIG.SEDE_NOMBRE}`,
+    latitude:     locationState.lat,
+    longitude:    locationState.lng,
+    ip_address:   ip,
+    created_at:   now.toISOString(),
+  };
+
+  const { data: inserted, error } = await sb.from('attendance').insert(record).select().single();
+
+  // UI resultado
+  spinner.style.display = 'none';
+  ico.style.display = '';
+
+  if (error) {
+    btn.disabled = false;
+    txt.textContent = 'Registrar Entrada';
+    showToast('Error al registrar: ' + error.message, 'error');
+    return;
+  }
+
+  // Éxito
+  todayRegistered = true;
+  todayAttRecord  = {
+    id:        inserted.id,
+    fecha:     todayStr,
+    hora:      now.toTimeString().substr(0, 8),
+    horaCorta: hora,
+    estado:    tarde ? 'tarde' : 'a_tiempo',
+    ubicacion: record.notes,
+    ip:        ip,
+  };
+  userAttendances = [todayAttRecord, ...userAttendances];
+
+  btn.classList.add('registered');
+  ico.className = 'fas fa-check-circle';
+  txt.textContent = tarde ? '¡Asistencia registrada · Tardanza detectada!' : '¡Asistencia registrada exitosamente!';
+  msg.textContent = `${now.toTimeString().substr(0, 8)} · ${tarde ? '⚠️ Después de las 08:15 AM — Tardanza registrada' : '✓ Puntual'}`;
+
+  showToast(
+    tarde
+      ? `⚠️ Entrada registrada: ${hora} — Tardanza detectada`
+      : `✓ Asistencia registrada: ${hora} · ¡Puntual!`,
+    tarde ? 'warn' : 'success'
+  );
+
+  refreshAllViews();
+  updateAttButtons();
+}
+
+function updateAttButtons() {
+  const btn = document.getElementById('attBtn');
+  const ico = document.getElementById('attBtnIco');
+  const txt = document.getElementById('attBtnText');
+  const msg = document.getElementById('attBtnMsg');
+  if (!btn) return;
+  if (todayRegistered && todayAttRecord) {
+    btn.disabled = true;
+    btn.classList.add('registered');
+    ico.className = 'fas fa-check-circle';
+    txt.textContent = 'Asistencia Ya Registrada Hoy';
+    msg.textContent = `Registrada a las ${todayAttRecord.horaCorta || todayAttRecord.hora} · ${todayAttRecord.estado === 'tarde' ? '⚠️ Tardanza' : '✓ Puntual'}`;
+    const statusEl = document.getElementById('attStatusHoy');
+    const horaEl   = document.getElementById('attHoraReg');
+    if (statusEl) statusEl.innerHTML = `<span class="badge ${todayAttRecord.estado === 'tarde' ? 'badge-late' : 'badge-ontime'}">${todayAttRecord.estado === 'tarde' ? '⚠️ Tardanza' : '✓ A tiempo'}</span>`;
+    if (horaEl)   horaEl.textContent = todayAttRecord.horaCorta || todayAttRecord.hora;
+  }
+}
+
+/* ═══ VACACIONES → SUPABASE ═══ */
+function calcVacDays() {
+  const s = document.getElementById('vacStart').value;
+  const e = document.getElementById('vacEnd').value;
+  const infoEl = document.getElementById('vacDaysInfo');
+  const txt    = document.getElementById('vacDaysText');
+  if (s && e) {
+    const dias = Math.max(0, Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24)) + 1);
+    infoEl.style.display = 'flex';
+    txt.textContent = `Días solicitados: ${dias} · Saldo disponible: ${currentEmpData.vacDias || 15} días`;
+  } else {
+    infoEl.style.display = 'none';
+  }
+}
+
+async function saveVacacion() {
+  const tipo   = document.getElementById('vacTipo').value;
+  const desde  = document.getElementById('vacStart').value;
+  const hasta  = document.getElementById('vacEnd').value;
+  const obs    = document.getElementById('vacObs').value;
+  const alertEl = document.getElementById('vacModalAlert');
+
+  if (!desde || !hasta) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Por favor selecciona las fechas de inicio y fin.';
+    alertEl.style.display = 'flex';
+    return;
+  }
+  if (new Date(hasta) < new Date(desde)) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> La fecha de fin no puede ser anterior a la de inicio.';
+    alertEl.style.display = 'flex';
+    return;
+  }
+
+  const dias = Math.ceil((new Date(hasta) - new Date(desde)) / (1000 * 60 * 60 * 24)) + 1;
+
+  const record = {
+    employee_id:    employeeRowId,
+    company_id:     companyId,
+    request_type:   tipo,
+    start_date:     desde,
+    end_date:       hasta,
+    days_requested: dias,
+    status:         'pending',
+    notes:          obs,
+    created_at:     new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('leave_requests').insert(record);
+  if (error) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Error al enviar: ' + error.message;
+    alertEl.style.display = 'flex';
+    return;
+  }
+
+  closeModal('modalVacaciones');
+  document.getElementById('vacStart').value = '';
+  document.getElementById('vacEnd').value   = '';
+  document.getElementById('vacObs').value   = '';
+  document.getElementById('vacDaysInfo').style.display = 'none';
+  alertEl.style.display = 'none';
+
+  await loadVacaciones();
+  refreshAllViews();
+  showToast('Solicitud de vacaciones enviada al administrador ✓', 'success');
+}
+
+/* ═══ PERMISOS → SUPABASE ═══ */
+async function savePermiso() {
+  const tipo    = document.getElementById('permTipo').value;
+  const fecha   = document.getElementById('permFecha').value;
+  const duracion = document.getElementById('permDuracion').value;
+  const motivo  = document.getElementById('permMotivo').value.trim();
+  const alertEl = document.getElementById('permModalAlert');
+
+  if (!tipo) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Selecciona el tipo de permiso.';
+    alertEl.style.display = 'flex';
+    return;
+  }
+  if (!fecha) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Selecciona la fecha del permiso.';
+    alertEl.style.display = 'flex';
+    return;
+  }
+  if (!motivo) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Por favor escribe el motivo del permiso.';
+    alertEl.style.display = 'flex';
+    return;
+  }
+
+  const record = {
+    employee_id:     employeeRowId,
+    company_id:      companyId,
+    permission_type: tipo,
+    request_date:    fecha,
+    duration:        duracion,
+    reason:          motivo,
+    status:          'pending',
+    created_at:      new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('permission_requests').insert(record);
+  if (error) {
+    alertEl.className = 'alert-box error';
+    alertEl.innerHTML = '<i class="fas fa-circle-exclamation"></i> Error al enviar: ' + error.message;
+    alertEl.style.display = 'flex';
+    return;
+  }
+
+  closeModal('modalPermiso');
+  document.getElementById('permTipo').value   = '';
+  document.getElementById('permFecha').value  = '';
+  document.getElementById('permMotivo').value = '';
+  alertEl.style.display = 'none';
+
+  await loadPermisos();
+  refreshAllViews();
+  showToast('Solicitud de permiso enviada al administrador ✓', 'success');
+}
+
+/* ═══ RENDER VIEWS ═══ */
+function refreshAllViews() {
+  renderDashboard();
+  renderAsistencia();
+  renderMisAsistencias();
+  renderVacaciones();
+  renderPermisos();
+  renderNomina();
+  renderDocumentos();
+  updateAttButtons();
+  updateBadges();
+}
+
+function updateBadges() {
+  const pendVac  = userVacaciones.filter(v => v.estado === 'pending').length;
+  const pendPerm = userPermisos.filter(p => p.estado === 'pending').length;
+  const vBadge = document.getElementById('vacBadge');
+  const pBadge = document.getElementById('permBadge');
+  if (vBadge) { vBadge.textContent = pendVac;  vBadge.style.display  = pendVac  > 0 ? '' : 'none'; }
+  if (pBadge) { pBadge.textContent = pendPerm; pBadge.style.display  = pendPerm > 0 ? '' : 'none'; }
+}
+
+function renderDashboard() {
+  const thisMonth = getTodayStr().substr(0, 7);
+  const monthAtts = userAttendances.filter(a => a.fecha.startsWith(thisMonth));
+  const lates     = monthAtts.filter(a => a.estado === 'tarde').length;
+  const pendVac   = userVacaciones.filter(v => v.estado === 'pending').length;
+  const pendPerm  = userPermisos.filter(p => p.estado === 'pending').length;
+
+  document.getElementById('kpiAtt').textContent      = monthAtts.length;
+  document.getElementById('kpiLate').textContent     = lates;
+  document.getElementById('kpiVac').textContent      = currentEmpData.vacDias || 15;
+  document.getElementById('kpiPermisos').textContent = pendPerm;
+
+  // Estado hoy
+  const dashAtt = document.getElementById('dashAttStatus');
+  if (todayAttRecord) {
+    const tarde = todayAttRecord.estado === 'tarde';
+    dashAtt.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:${tarde?'rgba(181,135,10,.06)':'rgba(11,138,90,.06)'};border:1px solid ${tarde?'rgba(181,135,10,.2)':'rgba(11,138,90,.2)'};border-radius:11px">
+        <div style="width:42px;height:42px;border-radius:50%;background:${tarde?'rgba(181,135,10,.12)':'rgba(11,138,90,.12)'};display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:${tarde?'var(--gold)':'var(--accent)'}"><i class="fas ${tarde?'fa-triangle-exclamation':'fa-check-circle'}"></i></div>
+        <div><div style="font-weight:700;font-size:.84rem">${tarde?'⚠️ Tardanza registrada':'✅ Entrada puntual'}</div><div style="font-size:.73rem;color:var(--sub);margin-top:2px">Hora: ${todayAttRecord.horaCorta || todayAttRecord.hora} · Ubicación: ${todayAttRecord.ubicacion || '—'} · IP: ${todayAttRecord.ip || '—'}</div></div>
+      </div>`;
+  } else if (dashAtt) {
+    dashAtt.innerHTML = '<div class="empty"><i class="fas fa-clock"></i><p>Aún no has registrado tu asistencia hoy</p></div>';
+  }
+
+  // Actividad reciente
+  const acts = [];
+  userAttendances.slice(0, 3).forEach(a => acts.push({ ico: 'fa-clock', color: a.estado === 'tarde' ? 'var(--gold)' : 'var(--accent)', bg: a.estado === 'tarde' ? 'rgba(181,135,10,.1)' : 'rgba(11,138,90,.1)', title: `Asistencia ${a.estado === 'tarde' ? '— Tardanza' : '— Puntual'}`, desc: `${a.horaCorta || a.hora} · ${a.fecha}` }));
+  userVacaciones.slice(0, 2).forEach(v => acts.push({ ico: 'fa-umbrella-beach', color: 'var(--teal)', bg: 'rgba(8,145,178,.1)', title: `Vacaciones — ${v.tipo}`, desc: `${v.desde} → ${v.hasta} · ${estadoLabel(v.estado)}` }));
+  userPermisos.slice(0, 2).forEach(p => acts.push({ ico: 'fa-file-pen', color: 'var(--gold)', bg: 'rgba(181,135,10,.1)', title: `Permiso — ${p.tipo}`, desc: `${p.fecha} · ${estadoLabel(p.estado)}` }));
+
+  const actEl = document.getElementById('dashActivity');
+  actEl.innerHTML = acts.slice(0, 5).map(a => `
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${a.bg};color:${a.color}"><i class="fas ${a.ico}" style="font-size:.62rem"></i></div>
+      <div class="tl-body"><div class="tl-title">${a.title}</div><div class="tl-desc">${a.desc}</div></div>
+    </div>`).join('') || '<div class="empty" style="padding:20px"><i class="fas fa-history"></i><p>Sin actividad reciente</p></div>';
+
+  // Resumen vacaciones y permisos en dashboard
+  const dVac = document.getElementById('dashVac');
+  dVac.innerHTML = userVacaciones.slice(0, 3).map(v => solicitudRow('umbrella-beach', v.tipo, `${v.desde} → ${v.hasta} · ${v.dias} días`, v.estado)).join('') || '<div class="empty" style="padding:20px"><i class="fas fa-umbrella-beach"></i><p>Sin solicitudes</p></div>';
+
+  const dPerm = document.getElementById('dashPermisos');
+  dPerm.innerHTML = userPermisos.slice(0, 3).map(p => solicitudRow('file-pen', p.tipo, `${p.fecha} · ${p.duracion}`, p.estado)).join('') || '<div class="empty" style="padding:20px"><i class="fas fa-file-pen"></i><p>Sin permisos</p></div>';
+}
+
+function solicitudRow(ico, title, sub, estado) {
+  const { label, cls } = estadoInfo(estado);
+  return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+    <div style="width:32px;height:32px;border-radius:9px;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--sub)"><i class="fas fa-${ico}" style="font-size:.75rem"></i></div>
+    <div style="flex:1;min-width:0"><div style="font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${title}</div><div style="font-size:.69rem;color:var(--sub);margin-top:1px">${sub}</div></div>
+    <span class="badge ${cls}">${label}</span>
+  </div>`;
+}
+
+function estadoInfo(estado) {
+  const map = { pending: { label: 'Pendiente', cls: 'badge-pending' }, approved: { label: 'Aprobado', cls: 'badge-approved' }, rejected: { label: 'Rechazado', cls: 'badge-rejected' } };
+  return map[estado] || { label: estado, cls: 'badge-blue' };
+}
+
+function estadoLabel(estado) {
+  return { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado' }[estado] || estado;
+}
+
+function renderAsistencia() {
+  const thisMonth = getTodayStr().substr(0, 7);
+  const monthAtts = userAttendances.filter(a => a.fecha.startsWith(thisMonth));
+  const lates     = monthAtts.filter(a => a.estado === 'tarde').length;
+  if (document.getElementById('attLateCount')) document.getElementById('attLateCount').textContent = lates;
+
+  const tbody  = document.getElementById('attRecentTable');
+  if (!tbody) return;
+  const recent = userAttendances.slice(0, 7);
+  tbody.innerHTML = recent.length ? recent.map(a => `<tr>
+    <td style="font-weight:600">${a.fecha}</td>
+    <td style="font-family:'DM Serif Display',serif;font-size:.95rem">${a.horaCorta || a.hora}</td>
+    <td><span class="badge ${a.estado === 'tarde' ? 'badge-late' : 'badge-ontime'}">${a.estado === 'tarde' ? '⚠️ Tardanza' : '✓ A tiempo'}</span></td>
+    <td style="font-size:.73rem;color:var(--sub);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.ubicacion || '—'}</td>
+    <td style="font-size:.72rem;color:var(--muted)">${a.ip || '—'}</td>
+  </tr>`).join('') : '<tr><td colspan="5"><div class="empty" style="padding:20px"><i class="fas fa-clock"></i><p>Sin registros aún</p></div></td></tr>';
+}
+
+function renderMisAsistencias() {
+  const filter = document.getElementById('attMonthFilter');
+  if (filter && filter.options.length <= 1) {
+    const months = [...new Set(userAttendances.map(a => a.fecha.substr(0, 7)))];
+    months.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m;
+      const d   = new Date(m + '-01');
+      opt.textContent = d.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+      filter.appendChild(opt);
+    });
+  }
+  const filterVal = filter?.value || 'all';
+  const atts = filterVal === 'all' ? userAttendances : userAttendances.filter(a => a.fecha.startsWith(filterVal));
+  const ontime = atts.filter(a => a.estado === 'a_tiempo').length;
+  const late   = atts.filter(a => a.estado === 'tarde').length;
+  const total  = atts.length;
+  const pct    = total > 0 ? Math.round(ontime / total * 100) : 0;
+
+  document.getElementById('statsOnTime').textContent = ontime;
+  document.getElementById('statsLate').textContent   = late;
+  document.getElementById('statsTotal').textContent  = total;
+  document.getElementById('statsPct').textContent    = pct + '%';
+
+  const tbody = document.getElementById('allAttTable');
+  if (!tbody) return;
+  tbody.innerHTML = atts.length ? atts.map(a => {
+    const d = new Date(a.fecha + 'T00:00:00');
+    return `<tr>
+      <td style="font-weight:700">${a.fecha}</td>
+      <td style="font-size:.75rem;color:var(--sub)">${d.toLocaleDateString('es-CO', { weekday: 'long' })}</td>
+      <td style="font-family:'DM Serif Display',serif;font-size:.95rem">${a.hora}</td>
+      <td><span class="badge ${a.estado === 'tarde' ? 'badge-late' : 'badge-ontime'}">${a.estado === 'tarde' ? '⚠️ Tardanza' : '✓ A tiempo'}</span></td>
+      <td style="font-size:.72rem;color:var(--sub);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.ubicacion || '—'}</td>
+      <td style="font-size:.71rem;color:var(--muted)">${a.ip || '—'}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6"><div class="empty" style="padding:28px"><i class="fas fa-calendar"></i><p>Sin asistencias registradas</p></div></td></tr>';
+}
+
+function renderVacaciones() {
+  const disp   = currentEmpData.vacDias || 15;
+  const usados = userVacaciones.filter(v => v.estado === 'approved').reduce((s, v) => s + (v.dias || 0), 0);
+  const sol    = userVacaciones.filter(v => v.estado === 'pending').reduce((s, v) => s + (v.dias || 0), 0);
+  if (document.getElementById('vacDiasDisp'))  document.getElementById('vacDiasDisp').textContent  = Math.max(0, disp - usados);
+  if (document.getElementById('vacDiasSol'))   document.getElementById('vacDiasSol').textContent   = sol;
+  if (document.getElementById('vacDiasAprob')) document.getElementById('vacDiasAprob').textContent = usados;
+
+  const list = document.getElementById('vacList');
+  if (!list) return;
+  list.innerHTML = userVacaciones.length ? `<div class="tbl-wrap"><table>
+    <thead><tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Estado</th><th>Observaciones</th></tr></thead>
+    <tbody>${userVacaciones.map(v => {
+      const { label, cls } = estadoInfo(v.estado);
+      return `<tr>
+        <td style="font-weight:600;font-size:.78rem">${v.tipo}</td>
+        <td>${v.desde}</td><td>${v.hasta}</td>
+        <td><strong>${v.dias}</strong></td>
+        <td><span class="badge ${cls}">${label}</span></td>
+        <td style="font-size:.73rem;color:var(--sub)">${v.obs || '—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>` : '<div class="empty"><i class="fas fa-umbrella-beach"></i><p>No tienes solicitudes de vacaciones. ¡Crea tu primera!</p></div>';
+}
+
+function renderPermisos() {
+  const list = document.getElementById('permisosList');
+  if (!list) return;
+  list.innerHTML = userPermisos.length ? `<div class="tbl-wrap"><table>
+    <thead><tr><th>Tipo</th><th>Fecha</th><th>Duración</th><th>Motivo</th><th>Estado</th></tr></thead>
+    <tbody>${userPermisos.map(p => {
+      const { label, cls } = estadoInfo(p.estado);
+      return `<tr>
+        <td style="font-weight:600;font-size:.78rem">${p.tipo}</td>
+        <td>${p.fecha}</td>
+        <td style="font-size:.75rem;color:var(--sub)">${p.duracion}</td>
+        <td style="font-size:.75rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.motivo}</td>
+        <td><span class="badge ${cls}">${label}</span></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>` : '<div class="empty"><i class="fas fa-file-pen"></i><p>No tienes permisos solicitados aún.</p></div>';
+}
+
+function renderNomina() {
+  const sal     = currentEmpData.salario || 0;
+  const salud   = sal * 0.04;
+  const pension = sal * 0.04;
+  const fondo   = sal > 4 * 1300000 ? sal * 0.01 : 0;
+  const neto    = sal - salud - pension - fondo;
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+
+  if (document.getElementById('nomNetoBig'))   document.getElementById('nomNetoBig').textContent   = fmt(neto);
+  if (document.getElementById('nomBruto'))     document.getElementById('nomBruto').textContent     = fmt(sal);
+  if (document.getElementById('nomDeducc'))    document.getElementById('nomDeducc').textContent    = '-' + fmt(salud + pension + fondo);
+  if (document.getElementById('nomPeriodLbl')) document.getElementById('nomPeriodLbl').textContent = `Período: ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })} · ${currentEmpData.empresa || ''}`;
+
+  const conceRow = (lbl, val, color = 'var(--ink)') => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.8rem"><span style="color:var(--sub)">${lbl}</span><span style="font-weight:700;color:${color}">${val}</span></div>`;
+  if (document.getElementById('nomConceptos'))  document.getElementById('nomConceptos').innerHTML  = conceRow('Salario base', fmt(sal)) + conceRow('H. extras', '—') + conceRow('Bonificaciones', '—') + `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800"><span>Total Devengado</span><span style="color:var(--accent)">${fmt(sal)}</span></div>`;
+  if (document.getElementById('nomDescuentos')) document.getElementById('nomDescuentos').innerHTML = conceRow('Salud empleado (4%)', '-' + fmt(salud), 'var(--red)') + conceRow('Pensión empleado (4%)', '-' + fmt(pension), 'var(--red)') + conceRow('Fondo solidaridad (1%)', fondo > 0 ? '-' + fmt(fondo) : '—', fondo > 0 ? 'var(--red)' : 'var(--muted)') + `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800"><span>Total Deducciones</span><span style="color:var(--red)">-${fmt(salud + pension + fondo)}</span></div>`;
+}
+
+function renderDocumentos() {
+  const docs = [
+    { ico: 'fa-file-contract', color: 'var(--primary)', name: 'Contrato de Trabajo', desc: `${currentEmpData.contrato || 'Indefinido'} · PDF` },
+    { ico: 'fa-id-card', color: 'var(--gold)', name: 'Copia de Cédula', desc: 'Documento de identidad' },
+  ];
+  const colillas = ['Enero 2025', 'Febrero 2025', 'Marzo 2025', 'Abril 2025', 'Mayo 2025', 'Junio 2025'];
+  const mkDoc = d => `<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)">
+    <div style="width:36px;height:36px;border-radius:9px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:${d.color};flex-shrink:0"><i class="fas ${d.ico}" style="font-size:.85rem"></i></div>
+    <div style="flex:1"><div style="font-size:.8rem;font-weight:700">${d.name}</div><div style="font-size:.69rem;color:var(--sub);margin-top:1px">${d.desc}</div></div>
+    <button class="btn btn-outline btn-sm" onclick="showToast('Descargando...','success')"><i class="fas fa-download"></i></button>
+  </div>`;
+  if (document.getElementById('docsLaborales')) document.getElementById('docsLaborales').innerHTML = docs.map(mkDoc).join('');
+  if (document.getElementById('docsNomina'))    document.getElementById('docsNomina').innerHTML    = colillas.map(m => mkDoc({ ico: 'fa-file-invoice-dollar', color: 'var(--accent)', name: `Colilla ${m}`, desc: 'PDF · Nómina mensual' })).join('');
+}
+
+/* ═══ NAVEGACIÓN ═══ */
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('.sb-item').forEach(i => { if (i.getAttribute('onclick')?.includes(`'${page}'`)) i.classList.add('active'); });
+  const labels = { dashboard: 'Dashboard', perfil: 'Mi Perfil', asistencia: 'Registrar Asistencia', 'mis-asistencias': 'Mis Asistencias', vacaciones: 'Mis Vacaciones', permisos: 'Mis Permisos', 'nomina-personal': 'Mi Nómina', 'documentos-emp': 'Mis Documentos' };
+  document.getElementById('breadcrumb').textContent = labels[page] || page;
+  window.scrollTo(0, 0);
+  if (window.innerWidth < 900) closeSidebar();
+  if (page === 'asistencia')       { checkLocation(); updateAttButtons(); }
+  if (page === 'mis-asistencias')  renderMisAsistencias();
+}
+
+/* ═══ SIDEBAR ═══ */
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sideOverlay').classList.toggle('show'); }
+function closeSidebar()  { document.getElementById('sidebar').classList.remove('open');  document.getElementById('sideOverlay').classList.remove('show'); }
+
+/* ═══ MODALES ═══ */
+function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+document.querySelectorAll('.modal-ov').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+/* ═══ TOAST ═══ */
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  const icons = { success: 'fa-check-circle', error: 'fa-circle-exclamation', warn: 'fa-triangle-exclamation' };
+  t.innerHTML = `<i class="fas ${icons[type] || 'fa-check-circle'}"></i> ${msg}`;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 4000);
+}
+
+/* ═══ LOGOUT ═══ */
+async function logout() {
+  if (!confirm('¿Deseas cerrar sesión?')) return;
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+/* ═══ ARRANQUE ═══ */
+init();
+</script>
+</body>
+</html>
