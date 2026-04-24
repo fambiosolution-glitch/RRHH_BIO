@@ -27,6 +27,24 @@ body {
   color: var(--ink); overflow-x: hidden;
 }
 
+/* PANTALLA DE CARGA INICIAL */
+#initOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  transition: opacity .3s ease;
+}
+#initOverlay.hidden { opacity: 0; pointer-events: none; }
+.init-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(30,58,95,.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+.init-label { font-size: .78rem; color: var(--light); font-weight: 500; letter-spacing: .04em; }
+
 /* BG */
 .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: radial-gradient(ellipse 60% 50% at 15% 50%, rgba(30,58,95,.055) 0%, transparent 70%),
@@ -227,6 +245,12 @@ input.ok { border-color: var(--emerald); box-shadow: 0 0 0 4px rgba(21,138,98,.0
 </style>
 </head>
 <body>
+<!-- OVERLAY DE VERIFICACIÓN DE SESIÓN -->
+<div id="initOverlay">
+  <div class="init-spinner"></div>
+  <span class="init-label">Verificando sesión…</span>
+</div>
+
 <div class="bg-layer"></div>
 <div class="bg-grid"></div>
 <div class="bg-noise"></div>
@@ -378,20 +402,68 @@ input.ok { border-color: var(--emerald); box-shadow: 0 0 0 4px rgba(21,138,98,.0
 const SUPABASE_URL      = 'https://tnhmthevtqoemhngnkmv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaG10aGV2dHFvZW1obmdua212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2Mzk2NjEsImV4cCI6MjA5MjIxNTY2MX0.5LPgzpn6SjI6kFRbgeQac1U8hhcITpNZENJnX_jEkqE';
 
-// ── CLAVE: persistSession: false evita que la sesión se guarde en localStorage
-// ── La sesión solo dura mientras el tab esté abierto (sessionStorage)
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    persistSession: false,   // No guardar sesión al cerrar el navegador/pestaña
-    autoRefreshToken: true,  // Mantener token fresco mientras la página esté abierta
+    persistSession: true,
+    autoRefreshToken: true,
     detectSessionInUrl: true
   }
 });
 
-// Auto-redirect si hay sesión activa en ESTA pestaña
+// ── REDIRECCIÓN POR ROL ──────────────────────────────────────────────────────
+// Consulta la tabla 'profiles' y redirige según el campo 'role'
+// Valores esperados: 'admin' → app.html | 'empleado' → portal-empleado.html
+async function redirectByRole(user) {
+  try {
+    const { data: profile, error } = await sb
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (error || !profile) {
+      // Sin perfil: redirige al app principal como fallback seguro
+      console.warn('[InBio] Perfil no encontrado, usando fallback:', error?.message);
+      window.location.href = 'app.html';
+      return;
+    }
+
+    if (profile.role === 'admin') {
+      window.location.href = 'app.html';
+    } else if (profile.role === 'empleado') {
+      window.location.href = 'portal-empleado.html';
+    } else {
+      // Rol desconocido → fallback
+      console.warn('[InBio] Rol desconocido:', profile.role);
+      window.location.href = 'app.html';
+    }
+  } catch (err) {
+    console.error('[InBio] Error en redirectByRole:', err);
+    showErr('Error al verificar permisos. Intenta de nuevo.');
+    setLoading('loginBtn', 'loginSpin', 'loginInner', false);
+  }
+}
+
+// ── AUTO-REDIRECT si ya hay sesión activa ────────────────────────────────────
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) window.location.href = 'app.html';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      // Hay sesión → redirigir por rol (el overlay se queda visible durante la redirección)
+      await redirectByRole(session.user);
+    } else {
+      // No hay sesión → mostrar el formulario de login
+      const overlay = document.getElementById('initOverlay');
+      overlay.classList.add('hidden');
+      setTimeout(() => { overlay.style.display = 'none'; }, 350);
+    }
+  } catch (err) {
+    console.error('[InBio] Error verificando sesión:', err);
+    // Si falla la verificación, mostrar el login igual
+    const overlay = document.getElementById('initOverlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 350);
+  }
 })();
 
 const $ = id => document.getElementById(id);
@@ -481,7 +553,7 @@ $('password').addEventListener('input', () => {
   hideAlerts(); setErr('password', false);
 });
 
-// ── LOGIN ──
+// ── LOGIN ────────────────────────────────────────────────────────────────────
 async function handleLogin() {
   hideAlerts();
   const email = $('email').value.trim();
@@ -495,21 +567,28 @@ async function handleLogin() {
 
   setLoading('loginBtn','loginSpin','loginInner', true);
   try {
-    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
     if (error) {
       let msg = 'Correo o contraseña incorrectos. Verifica e intenta de nuevo.';
-      if (error.message.includes('Email not confirmed')) msg = 'Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada.';
-      if (error.message.toLowerCase().includes('too many') || error.message.toLowerCase().includes('rate limit')) msg = 'Demasiados intentos. Espera unos minutos e intenta de nuevo.';
+      if (error.message.includes('Email not confirmed'))
+        msg = 'Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada.';
+      if (error.message.toLowerCase().includes('too many') || error.message.toLowerCase().includes('rate limit'))
+        msg = 'Demasiados intentos. Espera unos minutos e intenta de nuevo.';
       showErr(msg);
       setErr('email', true); setErr('password', true);
       setLoading('loginBtn','loginSpin','loginInner', false);
       return;
     }
-    // Solo recordar el correo (no la sesión)
+
+    // Recordar correo si el usuario lo pidió
     if ($('remember').checked) localStorage.setItem('pf_remember', email);
     else localStorage.removeItem('pf_remember');
-    showOk('¡Acceso concedido! Redirigiendo…');
-    setTimeout(() => window.location.href = 'app.html', 900);
+
+    showOk('¡Acceso concedido! Verificando permisos…');
+
+    // ✅ Redirige según el rol del usuario
+    await redirectByRole(data.user);
+
   } catch {
     showErr('Error de conexión. Verifica tu internet e intenta de nuevo.');
     setLoading('loginBtn','loginSpin','loginInner', false);
@@ -570,7 +649,7 @@ $('resetEmail').addEventListener('blur', () => {
   if (v) setErr('resetEmail', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
 });
 
-// Prellenar solo el correo (no la sesión)
+// Prellenar solo el correo
 const rem = localStorage.getItem('pf_remember');
 if (rem) { $('email').value = rem; $('remember').checked = true; }
 </script>
