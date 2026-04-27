@@ -1027,10 +1027,10 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:
 let CONFIG = {
   HORA_ENTRADA:  '08:00',
   MARGEN_MIN:    15,
-  SEDE_LAT:      10.993975,
-  SEDE_LNG:      -74.796387,
+  SEDE_LAT:      10.993800,
+  SEDE_LNG:      -74.811200,
   RADIO_M:       500,
-  SEDE_NOMBRE:   'Sede Principal — Barranquilla',
+  SEDE_NOMBRE:   'HERPA IPS · Cra 49 #75-25, Barranquilla',
   GEO_LOCK:      true,
   /* ── Ventana horaria de registro ────────────────────────────
      Antes de HORA_OPEN  → bloqueado (demasiado temprano)
@@ -1068,8 +1068,12 @@ async function init() {
     if (!session) { window.location.href = 'login.html'; return; }
     currentUser = session.user;
 
-    // Verificar rol
-    const { data: profile } = await sb.from('users').select('role,company_id,full_name').eq('id', currentUser.id).single();
+    // Verificar rol (manejo robusto: RLS puede bloquear select en tabla users)
+    let profile = null;
+    try {
+      const { data: p, error: pe } = await sb.from('users').select('role,company_id,full_name').eq('id', currentUser.id).maybeSingle();
+      if (!pe) profile = p;
+    } catch(_) { /* RLS puede denegar acceso — continuamos como empleado */ }
     const role = (profile?.role || 'user').toLowerCase();
     if (role === 'admin' || role === 'superadmin') { window.location.href = 'app.html'; return; }
 
@@ -1206,9 +1210,9 @@ async function loadAttConfig() {
     const ps = document.getElementById('policySede');
     const pr = document.getElementById('policyRadio');
     const pv = document.getElementById('policyVentana');
-    if (pe) pe.textContent = `Entrada: ${CONFIG.HORA_ENTRADA} AM`;
+    if (pe) pe.textContent = `Entrada: ${CONFIG.HORA_ENTRADA}`;
     if (pt) pt.textContent = `Tolerancia: ${CONFIG.MARGEN_MIN} min`;
-    if (ps) ps.textContent = CONFIG.SEDE_NOMBRE;
+    if (ps) ps.textContent = CONFIG.SEDE_NOMBRE || 'HERPA IPS · Cra 49 #75-25, Barranquilla';
     if (pr) pr.textContent = `Radio máximo: ${CONFIG.RADIO_M}m`;
     if (pv) pv.textContent = `Ventana: ${CONFIG.HORA_OPEN} – ${CONFIG.HORA_CLOSE}`;
   } catch(e) { /* usa defaults */ }
@@ -1841,7 +1845,12 @@ async function registrarAsistencia() {
 
   // 1c. Ya registrado hoy
   if (todayRegistered) {
-    showToast('Ya registraste tu asistencia hoy.', 'warn');
+    const esTarde = todayAttRecord?.estado === 'tarde';
+    const horaReg = todayAttRecord?.horaCorta || todayAttRecord?.hora || '—';
+    const empNm   = (currentEmpData?.nombre + ' ' + currentEmpData?.apellido).trim();
+    showSecPanel([{ ok: true, label: `✅ ${empNm} ya registró asistencia hoy a las ${horaReg} · ${esTarde ? '⚠️ Con tardanza' : '✓ Puntual'}` }]);
+    showToast(`✅ Ya registraste hoy a las ${horaReg} · ${esTarde ? 'Con tardanza' : 'Puntual'}`, 'warn');
+    renderAsistencia();
     return;
   }
 
@@ -1925,17 +1934,19 @@ async function registrarAsistencia() {
     }
 
     // ── Construir registro con metadatos de seguridad ────
+    const empFullName = (currentEmpData.nombre + ' ' + currentEmpData.apellido).trim();
     const record = {
-      employee_id:  employeeRowId,
-      company_id:   companyId,
-      date:         todayStr,
-      check_in:     horaFull,
-      status:       tarde ? 'late' : 'present',
-      notes:        `Lat: ${locationState.lat?.toFixed(6)}, Lng: ${locationState.lng?.toFixed(6)} · ${CONFIG.SEDE_NOMBRE} · dist: ${locationState.distM}m · prec: ±${locationState.accuracy || '?'}m`,
-      latitude:     locationState.lat,
-      longitude:    locationState.lng,
-      ip_address:   ip,
-      created_at:   nowLocal.toISOString(),
+      employee_id:   employeeRowId,
+      company_id:    companyId,
+      employee_name: empFullName,
+      date:          todayStr,
+      check_in:      horaFull,
+      status:        tarde ? 'late' : 'present',
+      notes:         `Lat: ${locationState.lat?.toFixed(6)}, Lng: ${locationState.lng?.toFixed(6)} · ${CONFIG.SEDE_NOMBRE} · dist: ${locationState.distM}m · prec: ±${locationState.accuracy || '?'}m`,
+      latitude:      locationState.lat,
+      longitude:     locationState.lng,
+      ip_address:    ip,
+      created_at:    nowLocal.toISOString(),
     };
 
     const { data: inserted, error } = await sb.from('attendance').insert(record).select().single();
@@ -1963,8 +1974,8 @@ async function registrarAsistencia() {
     if (secPanel) setTimeout(() => { secPanel.style.display = 'none'; }, 3000);
 
     showToast(tarde
-      ? `⚠️ Asistencia registrada: ${hora} — Tardanza detectada`
-      : `✓ Asistencia registrada: ${hora} · ¡Puntual!`, tarde ? 'warn' : 'success');
+      ? `⚠️ ${empFullName} — Asistencia registrada: ${hora} · Tardanza detectada`
+      : `✅ ${empFullName} — Entrada registrada: ${hora} · ¡Puntual!`, tarde ? 'warn' : 'success');
 
     renderAsistencia(); renderDashboard(); renderMisAsistencias(); renderPerfil();
 
