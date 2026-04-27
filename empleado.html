@@ -1023,14 +1023,74 @@ const SUPABASE_URL      = 'https://tnhmthevtqoemhngnkmv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaG10aGV2dHFvZW1obmdua212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2Mzk2NjEsImV4cCI6MjA5MjIxNTY2MX0.5LPgzpn6SjI6kFRbgeQac1U8hhcITpNZENJnX_jEkqE';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true }});
 
+/* ══════════════════════════════════════════════════════════════
+   SQL REQUERIDO EN SUPABASE — ejecutar en SQL Editor
+   ══════════════════════════════════════════════════════════════
+
+-- 1. Columnas adicionales en attendance (si no existen):
+ALTER TABLE public.attendance
+  ADD COLUMN IF NOT EXISTS employee_name text,
+  ADD COLUMN IF NOT EXISTS is_late       boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS device_type   text DEFAULT 'unknown';
+
+-- 2. Tabla de notificaciones de asistencia (historial completo):
+CREATE TABLE IF NOT EXISTS public.attendance_notifications (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  attendance_id  uuid REFERENCES public.attendance(id) ON DELETE CASCADE,
+  employee_id    uuid REFERENCES public.employees(id)  ON DELETE CASCADE,
+  company_id     uuid REFERENCES public.companies(id)  ON DELETE CASCADE,
+  employee_name  text NOT NULL,
+  cargo          text,
+  dept           text,
+  check_in       time,
+  date           date,
+  is_late        boolean DEFAULT false,
+  ip_address     text,
+  device_type    text,
+  lat            double precision,
+  lng            double precision,
+  dist_m         integer,
+  accuracy_m     integer,
+  message        text,
+  created_at     timestamptz DEFAULT now()
+);
+
+-- 3. RLS para attendance_notifications:
+ALTER TABLE public.attendance_notifications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "employees_own_notifs" ON public.attendance_notifications
+  FOR SELECT USING (employee_id = auth.uid()
+    OR EXISTS (SELECT 1 FROM public.employees WHERE id = employee_id AND email = (SELECT email FROM auth.users WHERE id = auth.uid())));
+CREATE POLICY "employees_insert_notifs" ON public.attendance_notifications
+  FOR INSERT WITH CHECK (employee_id IN (SELECT id FROM public.employees WHERE email = (SELECT email FROM auth.users WHERE id = auth.uid())));
+CREATE POLICY "admins_all_notifs" ON public.attendance_notifications
+  FOR ALL USING (company_id IN (SELECT company_id FROM public.users WHERE id = auth.uid() AND role IN ('admin','superadmin')));
+
+-- 4. RLS fix para users (si da permission denied):
+-- Asegúrate que exista esta política:
+CREATE POLICY IF NOT EXISTS "users_own_row" ON public.users
+  FOR SELECT USING (id = auth.uid());
+
+-- 5. RLS para attendance — permitir INSERT al empleado autenticado:
+CREATE POLICY IF NOT EXISTS "employees_insert_attendance" ON public.attendance
+  FOR INSERT WITH CHECK (
+    employee_id IN (SELECT id FROM public.employees WHERE email = (SELECT email FROM auth.users WHERE id = auth.uid()))
+  );
+CREATE POLICY IF NOT EXISTS "employees_select_attendance" ON public.attendance
+  FOR SELECT USING (
+    employee_id IN (SELECT id FROM public.employees WHERE email = (SELECT email FROM auth.users WHERE id = auth.uid()))
+    OR company_id IN (SELECT company_id FROM public.users WHERE id = auth.uid() AND role IN ('admin','superadmin'))
+  );
+
+══════════════════════════════════════════════════════════════ */
+
 /* ══ CONFIG DINÁMICA (se actualiza desde attendance_config) ══ */
 let CONFIG = {
   HORA_ENTRADA:  '08:00',
   MARGEN_MIN:    15,
-  SEDE_LAT:      10.998388,
-  SEDE_LNG:      -74.808054,
-  RADIO_M:       150,
-  SEDE_NOMBRE:   'Herpa IPS \u00b7 Cra 49 N\u00ba 75-25 Barranquilla',
+  SEDE_LAT:      10.993975,
+  SEDE_LNG:      -74.796387,
+  RADIO_M:       500,
+  SEDE_NOMBRE:   'Sede Principal — Barranquilla',
   GEO_LOCK:      true,
   /* ── Ventana horaria de registro ────────────────────────────
      Antes de HORA_OPEN  → bloqueado (demasiado temprano)
@@ -1068,8 +1128,21 @@ async function init() {
     if (!session) { window.location.href = 'login.html'; return; }
     currentUser = session.user;
 
-    // Verificar rol
-    const { data: profile } = await sb.from('users').select('role,company_id,full_name').eq('id', currentUser.id).single();
+    // Verificar rol — intentar users primero, fallback a employees (evita permission denied)
+    let profile = null;
+    try {
+      const { data: p, error: pe } = await sb.from('users').select('role,company_id,full_name').eq('id', currentUser.id).single();
+      if (!pe) profile = p;
+    } catch(_) { /* RLS puede bloquear users — se continúa con employees */ }
+
+    // Si users está bloqueado, intentar extraer rol desde employees
+    if (!profile) {
+      try {
+        const { data: ep } = await sb.from('employees').select('company_id,role').eq('email', currentUser.email).maybeSingle();
+        if (ep) profile = { role: ep.role || 'user', company_id: ep.company_id, full_name: null };
+      } catch(_) {}
+    }
+
     const role = (profile?.role || 'user').toLowerCase();
     if (role === 'admin' || role === 'superadmin') { window.location.href = 'app.html'; return; }
 
@@ -1193,7 +1266,7 @@ async function loadAttConfig() {
       CONFIG.MARGEN_MIN   = data.late_tolerance || 15;
       CONFIG.SEDE_LAT     = data.geo_lat        || CONFIG.SEDE_LAT;
       CONFIG.SEDE_LNG     = data.geo_lng        || CONFIG.SEDE_LNG;
-      CONFIG.RADIO_M      = data.geo_radius     || 150;
+      CONFIG.RADIO_M      = data.geo_radius     || 500;
       CONFIG.SEDE_NOMBRE  = data.geo_name       || CONFIG.SEDE_NOMBRE;
       CONFIG.GEO_LOCK     = data.geo_lock !== false;
       // Ventana horaria (si la BD la tiene; si no, se usa la predeterminada)
@@ -1659,52 +1732,48 @@ function checkLocation() {
     return;
   }
 
-  const MAX_ACCURACY_M = 80;   // Exigimos precisión ≤ 80m para evitar lecturas por IP/WiFi
-  const MAX_ATTEMPTS   = 3;    // Hasta 3 intentos antes de declarar fallo
+  const onSuccess = pos => {
+    locationAttempts++;
+    const { latitude: lat, longitude: lng, accuracy } = pos.coords;
 
-  const tryGPS = (attempt) => {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    // Rechazar lecturas con precisión muy baja (> 200m) — pueden ser IPs falsas
+    if (accuracy > 500) {
+      locEl.className = 'att-loc-box out-range';
+      locTxt.textContent = `⚠️ Precisión GPS insuficiente (±${Math.round(accuracy)}m) — muévete a zona abierta`;
+      locationState = { inRange: false, checked: true, error: 'low_accuracy', accuracy };
+      return;
+    }
 
-        // Si la precisión es mala y aún tenemos intentos, reintentamos
-        if (accuracy > MAX_ACCURACY_M && attempt < MAX_ATTEMPTS) {
-          locTxt.textContent = `GPS impreciso (±${Math.round(accuracy)}m) · reintentando (${attempt}/${MAX_ATTEMPTS})...`;
-          setTimeout(() => tryGPS(attempt + 1), 1500);
-          return;
-        }
-
-        // Precisión inaceptable después de todos los intentos
-        if (accuracy > MAX_ACCURACY_M) {
-          locEl.className = 'att-loc-box out-range';
-          locTxt.textContent = `\u26a0\ufe0f Precisión GPS insuficiente (±${Math.round(accuracy)}m) — sal a zona abierta o activa GPS del dispositivo`;
-          locationState = { inRange: false, checked: true, error: 'low_accuracy', accuracy };
-          return;
-        }
-
-        const dist    = haversineDistance(lat, lng, CONFIG.SEDE_LAT, CONFIG.SEDE_LNG);
-        const inRange = dist <= CONFIG.RADIO_M;
-        locationState = { lat, lng, inRange, checked: true, distM: Math.round(dist), accuracy: Math.round(accuracy) };
-        locEl.className = 'att-loc-box' + (inRange ? '' : ' out-range');
-        locTxt.textContent = inRange
-          ? `\u2713 En ${CONFIG.SEDE_NOMBRE} \u00b7 ${locationState.distM}m \u00b7 \u00b1${locationState.accuracy}m`
-          : `\u26d4 Fuera de zona \u00b7 ${locationState.distM}m de la sede (m\u00e1x ${CONFIG.RADIO_M}m)`;
-      },
-      err => {
-        const msgs = {
-          1: '\u26d4 Permiso GPS denegado \u2014 act\u00edvalo en Ajustes del navegador',
-          2: '\u26d4 GPS sin se\u00f1al \u2014 abre el m\u00f3dulo desde la sede',
-          3: '\u26d4 GPS tard\u00f3 demasiado \u2014 verifica conexi\u00f3n y se\u00f1al',
-        };
-        locationState = { inRange: false, checked: true, error: `geo_${err.code}`, errCode: err.code };
-        locEl.className = 'att-loc-box out-range';
-        locTxt.textContent = msgs[err.code] || `\u26d4 Error GPS (${err.code}) \u2014 contacta soporte`;
-      },
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-    );
+    const dist    = haversineDistance(lat, lng, CONFIG.SEDE_LAT, CONFIG.SEDE_LNG);
+    const inRange = dist <= CONFIG.RADIO_M;
+    locationState = { lat, lng, inRange, checked: true, distM: Math.round(dist), accuracy: Math.round(accuracy) };
+    locEl.className = 'att-loc-box' + (inRange ? '' : ' out-range');
+    locTxt.textContent = inRange
+      ? `✓ Ubicado en ${CONFIG.SEDE_NOMBRE} · ${locationState.distM}m · precisión ±${locationState.accuracy}m`
+      : `⛔ Fuera de zona · ${locationState.distM}m de la sede (máx ${CONFIG.RADIO_M}m)`;
   };
 
-  tryGPS(1);
+  const onError = err => {
+    locationAttempts++;
+    // ════════════════════════════════════════════════════════
+    // CORRECCIÓN CRÍTICA: Error GPS → SIEMPRE bloquear.
+    // El código anterior ponía inRange=true aquí — VULNERABILIDAD.
+    // ════════════════════════════════════════════════════════
+    const msgs = {
+      1: '⛔ Permiso GPS denegado — actívalo en Ajustes del navegador',
+      2: '⛔ GPS sin señal — abre el módulo desde la sede',
+      3: '⛔ GPS tardó demasiado — verifica conexión y señal',
+    };
+    locationState = { inRange: false, checked: true, error: `geo_${err.code}`, errCode: err.code };
+    locEl.className = 'att-loc-box out-range';
+    locTxt.textContent = msgs[err.code] || `⛔ Error GPS (${err.code}) — contacta soporte`;
+  };
+
+  navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+    enableHighAccuracy: true,
+    timeout:            15000,
+    maximumAge:         0,    // Nunca usar caché de ubicación
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1845,7 +1914,11 @@ async function registrarAsistencia() {
 
   // 1c. Ya registrado hoy
   if (todayRegistered) {
-    showToast('Ya registraste tu asistencia hoy.', 'warn');
+    const rec = todayAttRecord;
+    const msg = rec
+      ? `✅ ${currentEmpData.nombre}, ya registraste entrada a las ${rec.horaCorta || rec.hora} · ${rec.estado === 'tarde' ? '⚠️ Tardanza' : '✓ Puntual'}`
+      : '✅ Ya registraste tu asistencia hoy.';
+    showToast(msg, 'warn');
     return;
   }
 
@@ -1929,17 +2002,21 @@ async function registrarAsistencia() {
     }
 
     // ── Construir registro con metadatos de seguridad ────
+    const fullName = ((currentEmpData.nombre || '') + ' ' + (currentEmpData.apellido || '')).trim();
     const record = {
-      employee_id:  employeeRowId,
-      company_id:   companyId,
-      date:         todayStr,
-      check_in:     horaFull,
-      status:       tarde ? 'late' : 'present',
-      notes:        `Lat: ${locationState.lat?.toFixed(6)}, Lng: ${locationState.lng?.toFixed(6)} · ${CONFIG.SEDE_NOMBRE} · dist: ${locationState.distM}m · prec: ±${locationState.accuracy || '?'}m`,
-      latitude:     locationState.lat,
-      longitude:    locationState.lng,
-      ip_address:   ip,
-      created_at:   nowLocal.toISOString(),
+      employee_id:   employeeRowId,
+      company_id:    companyId,
+      date:          todayStr,
+      check_in:      horaFull,
+      status:        tarde ? 'late' : 'present',
+      employee_name: fullName,
+      is_late:       tarde,
+      device_type:   /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      notes:         `Lat: ${locationState.lat?.toFixed(6)}, Lng: ${locationState.lng?.toFixed(6)} · ${CONFIG.SEDE_NOMBRE} · dist: ${locationState.distM}m · prec: ±${locationState.accuracy || '?'}m`,
+      latitude:      locationState.lat,
+      longitude:     locationState.lng,
+      ip_address:    ip,
+      created_at:    nowLocal.toISOString(),
     };
 
     const { data: inserted, error } = await sb.from('attendance').insert(record).select().single();
@@ -1963,12 +2040,38 @@ async function registrarAsistencia() {
     };
     userAttendances = [todayAttRecord, ...userAttendances];
 
-    // Ocultar panel de seguridad tras éxito
+    // ── Persistir notificación en Supabase ──────────────────
+    const fullName2 = ((currentEmpData.nombre || '') + ' ' + (currentEmpData.apellido || '')).trim();
+    try {
+      await sb.from('attendance_notifications').insert({
+        attendance_id: inserted.id,
+        employee_id:   employeeRowId,
+        company_id:    companyId,
+        employee_name: fullName2,
+        cargo:         currentEmpData.cargo || '—',
+        dept:          currentEmpData.dept  || '—',
+        check_in:      horaFull,
+        date:          todayStr,
+        is_late:       tarde,
+        ip_address:    ip,
+        device_type:   record.device_type,
+        lat:           locationState.lat,
+        lng:           locationState.lng,
+        dist_m:        locationState.distM,
+        accuracy_m:    locationState.accuracy,
+        message:       tarde
+          ? `⚠️ TARDANZA · ${fullName2} (${currentEmpData.cargo || 'Empleado'}) registró entrada a las ${hora} — ${CONFIG.MARGEN_MIN} min de tolerancia superados`
+          : `✅ PUNTUAL · ${fullName2} (${currentEmpData.cargo || 'Empleado'}) registró entrada a las ${hora}`,
+        created_at:    nowLocal.toISOString(),
+      });
+    } catch(_) { /* tabla puede no existir — no afecta flujo principal */ }
+
+    // ── Ocultar panel de seguridad tras éxito ───────────────
     if (secPanel) setTimeout(() => { secPanel.style.display = 'none'; }, 3000);
 
     showToast(tarde
-      ? `⚠️ Asistencia registrada: ${hora} — Tardanza detectada`
-      : `✓ Asistencia registrada: ${hora} · ¡Puntual!`, tarde ? 'warn' : 'success');
+      ? `⚠️ Tardanza registrada — ${hora} · María: revisar tu puntualidad`
+      : `✅ Entrada registrada a las ${hora} · ¡Puntual, ${currentEmpData.nombre}!`, tarde ? 'warn' : 'success');
 
     renderAsistencia(); renderDashboard(); renderMisAsistencias(); renderPerfil();
 
