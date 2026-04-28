@@ -305,7 +305,313 @@ tr:hover td{background:rgba(15,30,53,.015)}
 .tab{flex:1;padding:7px 12px;border-radius:var(--radius-sm);border:none;background:none;font-family:var(--font-sans);font-size:.73rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--t);white-space:nowrap}
 .tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm)}
 
-/* ════════ ASISTENCIA HERO CARD ════════ */
+/* ════════ VACACIONES KPI — ESTADOS DINÁMICOS ════════ */
+#kpiVacCard { transition: background .4s, border .4s, box-shadow .4s; }
+#kpiVacCard:hover { box-shadow: var(--shadow-md) !important; transform: translateY(-2px); }
+#kpiVacCard .kpi-ico.red { background: var(--red-light); color: var(--red-2); }
+#kpiVacCard .kpi-ico.teal { background: var(--teal-light); color: var(--teal); }
+#kpiVacDias { transition: color .4s; }
+
+/* Confetti fall animation */
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: .9; }
+  80%  { opacity: .7; }
+  100% { transform: translateY(160px) rotate(420deg); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   VAC-LOCK BANNER — Vacaciones Bloqueadas
+══════════════════════════════════════════════════════════ */
+.vac-lock-card {
+  position: relative;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 50%, #1a2e4e 100%);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-navy), 0 0 0 1px rgba(154,123,58,.18);
+  color: #fff;
+}
+.vac-lock-stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-3), var(--gold-2), transparent);
+  opacity: .85;
+}
+.vac-lock-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.vac-lock-particles span {
+  position: absolute;
+  border-radius: 50%;
+  opacity: .08;
+  animation: vlpFloat 8s ease-in-out infinite;
+}
+.vac-lock-particles span:nth-child(1){width:200px;height:200px;right:-60px;top:-60px;background:radial-gradient(circle,var(--gold-3),transparent 70%);animation-delay:0s}
+.vac-lock-particles span:nth-child(2){width:140px;height:140px;left:-40px;bottom:-40px;background:radial-gradient(circle,var(--navy-4),transparent 70%);animation-delay:-2s}
+.vac-lock-particles span:nth-child(3){width:80px;height:80px;left:38%;top:10px;background:radial-gradient(circle,rgba(255,255,255,.5),transparent 70%);animation-delay:-4s;opacity:.05}
+.vac-lock-particles span:nth-child(4){width:60px;height:60px;right:22%;bottom:10px;background:radial-gradient(circle,var(--gold-2),transparent 70%);animation-delay:-1s;opacity:.06}
+.vac-lock-particles span:nth-child(5){width:100px;height:100px;left:20%;top:-20px;background:radial-gradient(circle,var(--teal),transparent 70%);animation-delay:-3s;opacity:.04}
+.vac-lock-particles span:nth-child(6){width:50px;height:50px;right:8%;top:20%;opacity:.05;background:radial-gradient(circle,#fff,transparent 70%);animation-delay:-5s}
+.vac-lock-particles span:nth-child(7){width:30px;height:30px;left:50%;bottom:15%;opacity:.06;background:radial-gradient(circle,var(--gold-3),transparent 70%);animation-delay:-6s}
+.vac-lock-particles span:nth-child(8){width:90px;height:90px;right:35%;top:50%;opacity:.04;background:radial-gradient(circle,var(--navy-4),transparent 70%);animation-delay:-7s}
+@keyframes vlpFloat {
+  0%,100%{transform:scale(1) translate(0,0)}
+  33%{transform:scale(1.15) translate(6px,-8px)}
+  66%{transform:scale(.9) translate(-4px,6px)}
+}
+
+.vac-lock-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 28px 28px 24px;
+  flex-wrap: wrap;
+}
+
+/* Icon side */
+.vac-lock-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.vac-lock-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(154,123,58,.12);
+  border: 1.5px solid rgba(154,123,58,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: vlRingPulse 3s ease-in-out infinite;
+  box-shadow: 0 0 24px rgba(154,123,58,.15);
+}
+@keyframes vlRingPulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(154,123,58,.2),0 0 20px rgba(154,123,58,.1)}
+  50%{box-shadow:0 0 0 8px rgba(154,123,58,.06),0 0 32px rgba(154,123,58,.18)}
+}
+.vac-lock-icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(154,123,58,.4);
+}
+.vac-lock-status-badge {
+  font-size: .57rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold-3);
+  background: rgba(154,123,58,.14);
+  border: 1px solid rgba(154,123,58,.28);
+  border-radius: 99px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+/* Content */
+.vac-lock-content {
+  flex: 1;
+  min-width: 220px;
+}
+.vac-lock-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .02em;
+  margin-bottom: 6px;
+}
+.vac-lock-msg {
+  font-size: .8rem;
+  color: rgba(255,255,255,.65);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+.vac-lock-msg strong { color: var(--gold-3); }
+
+/* Countdown boxes */
+.vac-lock-countdown-wrap { margin-bottom: 18px; }
+.vac-lock-cdown-label {
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vac-lock-cdown-boxes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vac-cdown-box {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 54px;
+  backdrop-filter: blur(4px);
+}
+.vcb-num {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.vcb-unit {
+  display: block;
+  font-size: .52rem;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-top: 3px;
+}
+.vac-cdown-sep {
+  font-size: 1.4rem;
+  color: rgba(255,255,255,.2);
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -8px;
+}
+
+/* Progress bar */
+.vac-lock-progress-wrap { }
+.vac-lock-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .58rem;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 7px;
+  gap: 8px;
+}
+.vac-lock-progress-label span:nth-child(2) { color: var(--gold-3); font-weight: 700; }
+.vac-lock-progress-track {
+  height: 6px;
+  background: rgba(255,255,255,.08);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+.vac-lock-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-3));
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.vac-lock-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 32px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35));
+  animation: vlShimmer 2s ease-in-out infinite;
+}
+@keyframes vlShimmer {
+  0%,100%{opacity:.5} 50%{opacity:1}
+}
+
+/* Aside info cards */
+.vac-lock-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 180px;
+}
+.vac-lock-info-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: background var(--t);
+}
+.vac-lock-info-card:hover { background: rgba(255,255,255,.1); }
+.vla-days { border-color: rgba(154,123,58,.22); background: rgba(154,123,58,.07); }
+.vla-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-3);
+  font-size: .88rem;
+  flex-shrink: 0;
+}
+.vla-label {
+  font-size: .58rem;
+  color: rgba(255,255,255,.38);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 2px;
+}
+.vla-value {
+  font-size: .88rem;
+  font-weight: 700;
+  color: #fff;
+}
+.vac-lock-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: .65rem;
+  color: rgba(255,255,255,.3);
+  line-height: 1.5;
+  padding: 0 4px;
+}
+.vac-lock-tip i { color: var(--gold); margin-top: 2px; flex-shrink: 0; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .vac-lock-inner { padding: 20px 16px 18px; gap: 16px; }
+  .vac-lock-aside { min-width: 100%; flex-direction: row; flex-wrap: wrap; }
+  .vac-lock-info-card { flex: 1; min-width: 130px; }
+  .vac-lock-tip { display: none; }
+}
+@media (max-width: 600px) {
+  .vac-lock-icon-wrap { flex-direction: row; align-items: center; gap: 12px; }
+  .vac-lock-title { font-size: 1.1rem; }
+  .vcb-num { font-size: 1.2rem; }
+  .vac-cdown-box { min-width: 44px; padding: 6px 8px; }
+}
+
+/* KPI "En Vacaciones" pulsating border */
+@keyframes vacPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168,41,41,.15), var(--shadow-sm); }
+  50%       { box-shadow: 0 0 0 6px rgba(168,41,41,.06), var(--shadow-sm); }
+}
+#kpiVacCard[data-active="true"] { animation: vacPulse 2.4s ease-in-out infinite; }
+
+/* Hourglass spin override */
+#kpiVacIco i.fa-hourglass-half { animation: spin .9s linear infinite !important; }
+
+
 .att-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 55%,#1E3760 100%);border-radius:var(--radius-xl);padding:28px 32px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-navy)}
 .att-hero::before{content:'';position:absolute;right:-50px;top:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.18) 0%,transparent 70%);pointer-events:none}
 .att-hero::after{content:'';position:absolute;right:60px;bottom:-70px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(39,77,130,.3) 0%,transparent 70%);pointer-events:none}
@@ -401,7 +707,7 @@ tr:hover td{background:rgba(15,30,53,.015)}
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-logo">INBIO <span class="loader-nexus">Nexus</span></div>
+  <div class="loader-logo">Herpa SAS</span></div>
   <div class="loader-badge">Portal del Empleado</div>
   <div id="loaderCompany" class="loader-sub">Cargando sesión...</div>
   <div class="loader-bar"><div class="loader-fill"></div></div>
@@ -506,10 +812,347 @@ tr:hover td{background:rgba(15,30,53,.015)}
   </div>
 
   <div class="g g-4" style="margin-bottom:16px">
-    <div class="kpi green"><div class="kpi-ico green"><i class="fas fa-calendar-check"></i></div><div class="kpi-label">Asistencias Mes</div><div class="kpi-value" id="kpiAttMes">0</div></div>
-    <div class="kpi gold"><div class="kpi-ico gold"><i class="fas fa-hourglass-half"></i></div><div class="kpi-label">Solicitudes Activas</div><div class="kpi-value" id="kpiSolicitudes">0</div></div>
-    <div class="kpi blue"><div class="kpi-ico blue"><i class="fas fa-calendar-days"></i></div><div class="kpi-label">Días Vacaciones Disp.</div><div class="kpi-value" id="kpiVacDias">15</div></div>
-    <div class="kpi navy"><div class="kpi-ico navy"><i class="fas fa-money-bill-wave"></i></div><div class="kpi-label">Neto Estimado</div><div class="kpi-value" style="font-size:1.2rem" id="kpiNeto">—</div></div>
+    <!-- KPI: Asistencias Mes — clic va a Mis Asistencias -->
+    <div class="kpi green" style="cursor:pointer;transition:all .2s" onclick="nav('mis-asistencias',null)" title="Ver mis asistencias" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div class="kpi-ico green"><i class="fas fa-calendar-check"></i></div>
+      <div class="kpi-label">Asistencias Mes</div>
+      <div class="kpi-value" id="kpiAttMes" style="font-size:2.4rem">0</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:4px"><i class="fas fa-arrow-right" style="font-size:.5rem"></i> Ver detalle</div>
+    </div>
+    <!-- KPI: Solicitudes Activas — clic abre modal -->
+    <div class="kpi gold" style="cursor:pointer;transition:all .2s" onclick="openSolicitudesModal()" title="Ver solicitudes activas" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div class="kpi-ico gold"><i class="fas fa-hourglass-half"></i></div>
+      <div class="kpi-label">Solicitudes Activas</div>
+      <div class="kpi-value" id="kpiSolicitudes" style="font-size:2.4rem">0</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:4px"><i class="fas fa-arrow-right" style="font-size:.5rem"></i> Ver detalle</div>
+    </div>
+    <!-- KPI: Vacaciones — SIEMPRE clickeable, lleva al módulo de vacaciones -->
+    <div class="kpi blue" id="kpiVacCard" style="cursor:pointer;transition:all .2s" onclick="nav('vacaciones',null)" title="Ver mis vacaciones" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div class="kpi-ico blue" id="kpiVacIco"><i class="fas fa-calendar-days"></i></div>
+      <div class="kpi-label" id="kpiVacLabel">Días Vacaciones Disp.</div>
+      <div class="kpi-value" id="kpiVacDias">15</div>
+      <div id="kpiVacSub" style="font-size:.68rem;color:var(--muted);margin-top:4px;line-height:1.4"></div>
+      <!-- Barra de progreso de vacaciones -->
+      <div id="kpiVacBar" style="display:none;margin-top:8px">
+        <div style="height:4px;background:var(--bg-2);border-radius:3px;overflow:hidden">
+          <div id="kpiVacBarFill" style="height:100%;border-radius:3px;transition:width .6s ease;background:var(--navy-3)"></div>
+        </div>
+        <div id="kpiVacCountdown" style="font-size:.62rem;color:var(--muted-2);margin-top:4px;font-weight:600"></div>
+      </div>
+    </div>
+    <!-- KPI: Neto Estimado — clic va a Mi Nómina -->
+    <div class="kpi navy" style="cursor:pointer;transition:all .2s" onclick="nav('nomina-personal',null)" title="Ver mi nómina" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div class="kpi-ico navy"><i class="fas fa-money-bill-wave"></i></div>
+      <div class="kpi-label">Neto Estimado</div>
+      <div class="kpi-value" style="font-size:1.8rem" id="kpiNeto">—</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:4px"><i class="fas fa-arrow-right" style="font-size:.5rem"></i> Ver desglose</div>
+    </div>
+  </div>
+
+  <!-- Modal: Solicitudes Activas — Navy header redesign -->
+  <style>
+  #modalSolicitudes .modal {
+    max-width: 620px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 32px 96px rgba(12,21,32,.45), 0 4px 24px rgba(12,21,32,.18);
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+  }
+  .sol-modal-hd {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .sol-modal-hd::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-2), var(--gold-3), transparent);
+  }
+  /* decorative circles */
+  .sol-modal-hd::after {
+    content: '';
+    position: absolute;
+    right: -40px; bottom: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(154,123,58,.07);
+    pointer-events: none;
+  }
+  .sol-hd-inner {
+    padding: 20px 24px 30px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .sol-hd-left { display: flex; align-items: center; gap: 14px; }
+  .sol-hd-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: rgba(154,123,58,.18);
+    border: 1.5px solid rgba(154,123,58,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; color: var(--gold-3);
+    flex-shrink: 0;
+  }
+  .sol-hd-title {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: .02em;
+    line-height: 1.2;
+  }
+  .sol-hd-sub {
+    font-size: .71rem;
+    color: rgba(255,255,255,.48);
+    margin-top: 3px;
+    letter-spacing: .02em;
+  }
+  .sol-hd-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(154,123,58,.2);
+    border: 1px solid rgba(154,123,58,.35);
+    border-radius: 99px;
+    padding: 2px 9px;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gold-3);
+    margin-top: 6px;
+  }
+  .sol-modal-close {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.12);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(255,255,255,.6);
+    font-size: .82rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--t);
+    flex-shrink: 0;
+  }
+  .sol-modal-close:hover {
+    background: rgba(255,255,255,.18);
+    color: #fff;
+    border-color: rgba(255,255,255,.25);
+  }
+  /* White curve connector */
+  .sol-modal-curve {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    height: 20px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  /* Scrollable body */
+  .sol-modal-body {
+    background: #fff;
+    padding: 4px 24px 24px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .sol-modal-body::-webkit-scrollbar { width: 4px; }
+  .sol-modal-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 99px; }
+  /* Footer */
+  .sol-modal-footer {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+  /* Section header inside body */
+  .sol-section-hd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 8px;
+    margin-bottom: 10px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .sol-section-ico {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem;
+    flex-shrink: 0;
+  }
+  .sol-section-ico.teal { background: var(--teal-light); color: var(--teal-2); }
+  .sol-section-ico.gold { background: var(--gold-light); color: var(--gold-2); }
+  .sol-section-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-2);
+  }
+  .sol-section-count {
+    margin-left: auto;
+    font-size: .64rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 2px 8px;
+  }
+  /* Item cards */
+  .sol-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 15px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 9px;
+    gap: 12px;
+    flex-wrap: wrap;
+    transition: box-shadow var(--t), border-color var(--t);
+    position: relative;
+    overflow: hidden;
+  }
+  .sol-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+  .sol-item.teal::before { background: var(--teal-2); }
+  .sol-item.gold::before { background: var(--gold-2); }
+  .sol-item:hover { box-shadow: var(--shadow-sm); border-color: var(--border-2); }
+  .sol-item-title {
+    font-weight: 700;
+    font-size: .84rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .sol-item-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: .71rem;
+    color: var(--muted);
+  }
+  .sol-item-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 2px 8px;
+    font-size: .68rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .sol-item-meta-chip.dur { color: var(--gold); border-color: var(--gold-border); background: var(--gold-light); }
+  .sol-item-meta-chip.dias { color: var(--teal-2); border-color: rgba(11,104,116,.2); background: var(--teal-light); }
+  .sol-item-motivo {
+    font-size: .7rem;
+    color: var(--muted-2);
+    font-style: italic;
+    margin-top: 5px;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .sol-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .sol-pend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(154,123,58,.1);
+    border: 1px solid var(--gold-border);
+    border-radius: 99px;
+    padding: 3px 10px;
+    font-size: .65rem;
+    font-weight: 700;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .sol-ver-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: .72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t);
+    border: 1.5px solid;
+    white-space: nowrap;
+  }
+  .sol-ver-btn.teal {
+    background: var(--teal-light);
+    border-color: rgba(11,104,116,.25);
+    color: var(--teal-2);
+  }
+  .sol-ver-btn.teal:hover { background: rgba(11,104,116,.15); }
+  .sol-ver-btn.gold {
+    background: var(--gold-light);
+    border-color: var(--gold-border);
+    color: var(--gold);
+  }
+  .sol-ver-btn.gold:hover { background: rgba(154,123,58,.18); }
+  </style>
+
+  <div class="modal-ov" id="modalSolicitudes">
+    <div class="modal wide">
+      <!-- Header navy -->
+      <div class="sol-modal-hd">
+        <div class="sol-hd-inner">
+          <div class="sol-hd-left">
+            <div class="sol-hd-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div>
+              <div class="sol-hd-title">Solicitudes Activas</div>
+              <div class="sol-hd-sub">Solicitudes pendientes de aprobación</div>
+              <div class="sol-hd-badge"><i class="fas fa-circle-dot" style="font-size:.5rem"></i> En revisión</div>
+            </div>
+          </div>
+          <button class="sol-modal-close" onclick="closeModal('modalSolicitudes')"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <!-- Curva blanca de transición -->
+      <div class="sol-modal-curve"></div>
+      <!-- Body scrollable -->
+      <div class="sol-modal-body" id="solicitudesModalBody">
+        <div class="empty" style="padding:32px 0"><i class="fas fa-hourglass"></i><p>Cargando solicitudes...</p></div>
+      </div>
+      <!-- Footer -->
+      <div class="sol-modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modalSolicitudes')" style="font-size:.78rem;padding:7px 18px">
+          <i class="fas fa-xmark"></i> Cerrar
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="g g-21" style="margin-bottom:16px">
@@ -539,8 +1182,8 @@ tr:hover td{background:rgba(15,30,53,.015)}
       <div class="card-hd"><span class="card-title"><i class="fas fa-file-pen" style="color:var(--gold);margin-right:5px"></i>Mis Permisos</span></div>
       <div id="dashPermResumen"><div class="empty" style="padding:14px"><i class="fas fa-file-pen"></i><p>Sin permisos</p></div></div>
     </div>
-    <div class="card">
-      <div class="card-hd"><span class="card-title"><i class="fas fa-chart-simple" style="color:var(--green-2);margin-right:5px"></i>Asistencia del Mes</span></div>
+    <div class="card" style="cursor:pointer;transition:all .2s" onclick="nav('mis-asistencias',null)" title="Ver mis asistencias" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div class="card-hd"><span class="card-title"><i class="fas fa-chart-simple" style="color:var(--green-2);margin-right:5px"></i>Asistencia del Mes</span><span style="font-size:.63rem;color:var(--muted-2);display:flex;align-items:center;gap:3px"><i class="fas fa-arrow-right" style="font-size:.55rem"></i> Ver todo</span></div>
       <div id="dashAttBar"></div>
     </div>
   </div>
@@ -832,7 +1475,90 @@ tr:hover td{background:rgba(15,30,53,.015)}
   <div class="page-hd">
     <div><div class="page-title">Mis Vacaciones</div><div class="page-sub">Solicita y gestiona tus días de descanso y licencias</div></div>
     <div class="page-actions">
-      <button class="btn btn-primary" onclick="openModal('modalVacaciones')"><i class="fas fa-plus"></i> Nueva Solicitud</button>
+      <button class="btn btn-primary" id="btnSolicitarVac" onclick="openModal('modalVacaciones')"><i class="fas fa-plus"></i> Nueva Solicitud</button>
+    </div>
+  </div>
+
+  <!-- ══════════ BANNER VACACIONES BLOQUEADAS ══════════ -->
+  <div id="vacLockBanner" style="display:none;margin-bottom:20px">
+    <div class="vac-lock-card">
+      <!-- Animated background particles -->
+      <div class="vac-lock-particles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+
+      <!-- Top stripe -->
+      <div class="vac-lock-stripe"></div>
+
+      <div class="vac-lock-inner">
+        <!-- Left: icon + badge -->
+        <div class="vac-lock-icon-wrap">
+          <div class="vac-lock-icon-ring">
+            <div class="vac-lock-icon-circle">
+              <i class="fas fa-lock"></i>
+            </div>
+          </div>
+          <span class="vac-lock-status-badge">No disponible</span>
+        </div>
+
+        <!-- Center: main info -->
+        <div class="vac-lock-content">
+          <div class="vac-lock-title">Vacaciones aún no habilitadas</div>
+          <div class="vac-lock-msg" id="vacLockMsg">
+            🔒 Las vacaciones se activan cuando cumplas <strong>1 año</strong> de trabajo.
+          </div>
+
+          <!-- Countdown display -->
+          <div class="vac-lock-countdown-wrap">
+            <div class="vac-lock-cdown-label"><i class="fas fa-hourglass-half"></i> Tiempo restante para tu aniversario</div>
+            <div class="vac-lock-cdown-boxes" id="vacLockCountdownBoxes">
+              <div class="vac-cdown-box" id="vcb-d"><span class="vcb-num">—</span><span class="vcb-unit">días</span></div>
+              <div class="vac-cdown-sep">:</div>
+              <div class="vac-cdown-box" id="vcb-h"><span class="vcb-num">—</span><span class="vcb-unit">horas</span></div>
+              <div class="vac-cdown-sep">:</div>
+              <div class="vac-cdown-box" id="vcb-m"><span class="vcb-num">—</span><span class="vcb-unit">min</span></div>
+              <div class="vac-cdown-sep">:</div>
+              <div class="vac-cdown-box" id="vcb-s"><span class="vcb-num">—</span><span class="vcb-unit">seg</span></div>
+            </div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="vac-lock-progress-wrap">
+            <div class="vac-lock-progress-label">
+              <span>Inicio contrato</span>
+              <span id="vacLockPct">0% completado</span>
+              <span>1er Aniversario</span>
+            </div>
+            <div class="vac-lock-progress-track">
+              <div class="vac-lock-progress-fill" id="vacLockFill"></div>
+              <div class="vac-lock-progress-glow" id="vacLockGlow"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: info cards -->
+        <div class="vac-lock-aside">
+          <div class="vac-lock-info-card">
+            <div class="vla-ico"><i class="fas fa-calendar-star"></i></div>
+            <div>
+              <div class="vla-label">Fecha de habilitación</div>
+              <div class="vla-value" id="vacLockDate">—</div>
+            </div>
+          </div>
+          <div class="vac-lock-info-card vla-days">
+            <div class="vla-ico"><i class="fas fa-sun"></i></div>
+            <div>
+              <div class="vla-label">Días que recibirás</div>
+              <div class="vla-value" id="vacLockDaysTotal">15 días</div>
+            </div>
+          </div>
+          <div class="vac-lock-tip">
+            <i class="fas fa-circle-info"></i>
+            <span>Según la ley colombiana, tienes derecho a 15 días hábiles de vacaciones por año trabajado.</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1556,6 +2282,522 @@ function renderProfVacaciones() {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   VACACIONES — CONTROL ANUAL COMPLETO
+   Regla: El empleado tiene derecho a vacaciones DESPUÉS de cumplir
+   1 año de trabajo. Los días se renuevan cada aniversario.
+══════════════════════════════════════════════════════════════ */
+
+// Guarda el intervalo del countdown para no duplicar
+let _vacCountdownInterval = null;
+// Flag para mostrar la notificación de bienvenida solo una vez por sesión
+let _welcomeBackShown = false;
+
+/* ── Calcula el período vacacional activo ──────────────────────
+   Devuelve:
+   {
+     elegible: bool,           // ¿ya cumplió 1 año?
+     diasParaAniversario: int, // días que faltan para el aniversario (si no elegible)
+     fechaAniversario: string, // YYYY-MM-DD del próximo aniversario
+     periodoActual: { inicio, fin },  // rango del período vacacional actual
+     diasUsadosEstePeriodo: int,
+     diasDispEstePeriodo: int,
+     vacTotal: int,
+     añosCompletados: int,
+   }
+*/
+function calcVacacionesPeriodo() {
+  const VAC_TOTAL = currentEmpData?.vacDias || 15;
+  const ingreso   = currentEmpData?.ingreso;            // YYYY-MM-DD
+  const today     = getTodayColStr();
+  const todayDate = new Date(today + 'T12:00:00');
+
+  // Sin fecha de ingreso → no elegible aún
+  if (!ingreso) {
+    return { elegible: false, diasParaAniversario: null, fechaAniversario: null,
+             periodoActual: null, diasUsadosEstePeriodo: 0, diasDispEstePeriodo: 0,
+             vacTotal: VAC_TOTAL, añosCompletados: 0 };
+  }
+
+  const ingresoDate = new Date(ingreso + 'T12:00:00');
+
+  // Años completos transcurridos
+  let añosCompletados = todayDate.getFullYear() - ingresoDate.getFullYear();
+  const primerAniversario = new Date(ingresoDate);
+  primerAniversario.setFullYear(ingresoDate.getFullYear() + añosCompletados);
+  // Si aún no llegó el aniversario de este año, restar 1
+  if (primerAniversario > todayDate) añosCompletados--;
+
+  // Si no cumplió ni 1 año
+  if (añosCompletados < 1) {
+    const aniversario1 = new Date(ingresoDate);
+    aniversario1.setFullYear(ingresoDate.getFullYear() + 1);
+    const diasFaltanMs = aniversario1 - todayDate;
+    const diasFaltan   = Math.max(0, Math.ceil(diasFaltanMs / 86400000));
+    // ── HABILITACIÓN ANTICIPADA: 20 días antes del aniversario ──
+    const elegibleAnticipado = diasFaltan <= 20;
+    return {
+      elegible: elegibleAnticipado,
+      preUnlock: elegibleAnticipado,          // flag para UI especial
+      diasParaAniversario: diasFaltan,
+      fechaAniversario: aniversario1.toISOString().split('T')[0],
+      periodoActual: null,
+      diasUsadosEstePeriodo: 0,
+      diasDispEstePeriodo: 0,
+      vacTotal: VAC_TOTAL,
+      añosCompletados: 0,
+    };
+  }
+
+  // Período vacacional actual: desde el último aniversario hasta el próximo
+  const inicioActual = new Date(ingresoDate);
+  inicioActual.setFullYear(ingresoDate.getFullYear() + añosCompletados);
+  const finActual = new Date(ingresoDate);
+  finActual.setFullYear(ingresoDate.getFullYear() + añosCompletados + 1);
+  finActual.setDate(finActual.getDate() - 1); // día antes del próximo aniversario
+
+  const inicioStr = inicioActual.toISOString().split('T')[0];
+  const finStr    = finActual.toISOString().split('T')[0];
+
+  // Días USADOS en el período actual (solo vacaciones aprobadas en este rango)
+  const diasUsados = userVacaciones
+    .filter(v => v.estado === 'approved' && v.desde >= inicioStr && v.desde <= finStr)
+    .reduce((acc, v) => acc + (parseInt(v.dias) || 0), 0);
+
+  return {
+    elegible: true,
+    diasParaAniversario: 0,
+    fechaAniversario: finActual.toISOString().split('T')[0],
+    periodoActual: { inicio: inicioStr, fin: finStr },
+    diasUsadosEstePeriodo: diasUsados,
+    diasDispEstePeriodo: Math.max(0, VAC_TOTAL - diasUsados),
+    vacTotal: VAC_TOTAL,
+    añosCompletados,
+  };
+}
+
+function renderVacacionesKpi() {
+  const today     = getTodayColStr();
+  const vp        = calcVacacionesPeriodo();
+
+  // ── Elementos del KPI ──
+  const card    = document.getElementById('kpiVacCard');
+  const ico     = document.getElementById('kpiVacIco');
+  const label   = document.getElementById('kpiVacLabel');
+  const valor   = document.getElementById('kpiVacDias');
+  const sub     = document.getElementById('kpiVacSub');
+  const bar     = document.getElementById('kpiVacBar');
+  const barFill = document.getElementById('kpiVacBarFill');
+  const cdown   = document.getElementById('kpiVacCountdown');
+  if (!card || !valor) return;
+
+  // Limpiar intervalo previo
+  if (_vacCountdownInterval) { clearInterval(_vacCountdownInterval); _vacCountdownInterval = null; }
+
+  // ══════════ CASO 0: NO ELEGIBLE — CUENTA REGRESIVA HASTA ANIVERSARIO ══════════
+  if (!vp.elegible) {
+    card.style.background = 'linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%)';
+    card.style.border     = '1.5px solid rgba(154,123,58,.22)';
+    card.style.cursor     = 'pointer';   // SIEMPRE clickeable
+    card.style.color      = '#fff';
+    card.onclick          = () => nav('vacaciones', null);   // lleva al módulo
+    card.title            = 'Ver estado de mis vacaciones';
+    card.onmouseenter     = function(){ this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-navy)'; };
+    card.onmouseleave     = function(){ this.style.transform=''; this.style.boxShadow=''; };
+
+    if (ico)   { ico.className = 'kpi-ico'; ico.style.cssText='background:rgba(154,123,58,.15);border:1px solid rgba(154,123,58,.28);color:var(--gold-3)'; ico.innerHTML = '<i class="fas fa-lock"></i>'; }
+    if (label) { label.textContent = 'Vacaciones Bloqueadas'; label.style.cssText='color:rgba(255,255,255,.5);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase'; }
+
+    if (vp.diasParaAniversario !== null) {
+      if (valor) { valor.style.fontFamily = 'var(--font-sans)'; valor.style.fontSize = '1.1rem'; valor.style.color = '#fff'; }
+
+      // Countdown en tiempo real hasta el aniversario
+      const targetDate = new Date(vp.fechaAniversario + 'T00:00:00');
+      const updateCdown = () => {
+        const msLeft = Math.max(0, targetDate - new Date());
+        if (msLeft === 0) { renderVacacionesKpi(); return; }
+        const dd = Math.floor(msLeft / 86400000);
+        const hh = Math.floor((msLeft % 86400000) / 3600000);
+        const mm = Math.floor((msLeft % 3600000) / 60000);
+        const ss = Math.floor((msLeft % 60000) / 1000);
+        if (valor) valor.innerHTML = `<span style="display:flex;align-items:baseline;gap:3px;flex-wrap:wrap"><span style="font-family:var(--font-serif);font-size:1.55rem;font-weight:600;color:#fff">${dd}</span><span style="font-size:.6rem;color:rgba(255,255,255,.4);margin-right:4px">d</span><span style="font-family:var(--font-serif);font-size:1.2rem;color:rgba(255,255,255,.8)">${String(hh).padStart(2,'0')}</span><span style="font-size:.6rem;color:rgba(255,255,255,.4);margin-right:4px">h</span><span style="font-family:var(--font-serif);font-size:1.2rem;color:rgba(255,255,255,.8)">${String(mm).padStart(2,'0')}</span><span style="font-size:.6rem;color:rgba(255,255,255,.4);margin-right:4px">m</span><span style="font-family:var(--font-serif);font-size:1.2rem;color:var(--gold-3)">${String(ss).padStart(2,'0')}</span><span style="font-size:.6rem;color:rgba(255,255,255,.4)">s</span></span>`;
+        if (cdown) cdown.innerHTML = `<span style="color:var(--gold-3);font-size:.63rem"><i class="fas fa-calendar-star" style="margin-right:4px"></i>${formatDateEs(vp.fechaAniversario)}</span>`;
+      };
+      updateCdown();
+      _vacCountdownInterval = setInterval(updateCdown, 1000);
+
+      if (sub) sub.innerHTML = `<span style="color:rgba(255,255,255,.38);font-size:.63rem">Se requiere 1 año · Faltan <strong style="color:var(--gold-3)">${vp.diasParaAniversario} días</strong></span>`;
+      if (bar) bar.style.display = 'block';
+
+      // Barra de progreso del año
+      const ingresoDate = new Date((currentEmpData?.ingreso || today) + 'T12:00:00');
+      const aniversario = new Date(vp.fechaAniversario + 'T12:00:00');
+      const totalDias   = Math.ceil((aniversario - ingresoDate) / 86400000);
+      const transcurridos = Math.ceil((new Date() - ingresoDate) / 86400000);
+      const pctAnio = Math.min(100, Math.max(0, Math.round(transcurridos / totalDias * 100)));
+      if (barFill) { barFill.style.width = pctAnio + '%'; barFill.style.background = 'linear-gradient(90deg,var(--gold),var(--gold-3))'; }
+    } else {
+      if (valor) valor.textContent = '—';
+      if (sub)   sub.textContent = 'Fecha de ingreso no registrada. Contacta a RRHH.';
+      if (bar)   bar.style.display = 'none';
+    }
+
+    // Bloquear botón de solicitar vacaciones en la página de vacaciones
+    _updateVacBtnLock(false, vp);
+    return;
+  }
+
+  // Restaurar click del card
+  card.style.cursor = 'pointer';
+  card.onclick      = () => nav('vacaciones', null);
+  card.title        = 'Ver mis vacaciones';
+
+  // ══════════ CASO A: VACACIÓN ACTIVA — CUENTA REGRESIVA ══════════
+  const vacActiva = userVacaciones
+    .filter(v => v.estado === 'approved' && v.desde && v.hasta)
+    .find(v => today >= v.desde && today <= v.hasta);
+
+  if (vacActiva) {
+    const hasta     = new Date(vacActiva.hasta + 'T23:59:59');
+    const diasFalta = Math.ceil((hasta - new Date()) / 86400000);
+    const desde     = new Date(vacActiva.desde + 'T00:00:00');
+    const durTotal  = vacActiva.dias || 1;
+    const transcurridos = Math.max(0, Math.floor((new Date() - desde) / 86400000) + 1);
+    const pct = Math.min(100, Math.round((transcurridos / durTotal) * 100));
+
+    card.style.background = 'linear-gradient(135deg,rgba(168,41,41,.06) 0%,rgba(168,41,41,.02) 100%)';
+    card.style.border     = '1.5px solid rgba(168,41,41,.22)';
+
+    if (ico)   { ico.className = 'kpi-ico red'; ico.innerHTML = '<i class="fas fa-hourglass-half" style="animation:spin .9s linear infinite"></i>'; }
+    if (label)  label.textContent = 'En Vacaciones 🌴';
+    if (valor) { valor.style.fontFamily = 'var(--font-serif)'; valor.style.fontSize = '2rem'; valor.textContent = diasFalta; valor.style.color = diasFalta <= 2 ? 'var(--red-2)' : 'var(--gold)'; }
+    if (sub)   sub.innerHTML = `<span style="color:var(--red-2);font-weight:600">días restantes</span> · Regreso: <strong>${formatDateEs(vacActiva.hasta)}</strong>`;
+    if (bar)   { bar.style.display = 'block'; }
+    if (barFill){ barFill.style.width = pct + '%'; barFill.style.background = diasFalta <= 2 ? 'var(--red-2)' : 'var(--gold-2)'; }
+
+    const updateCdown = () => {
+      const ms = Math.max(0, hasta - new Date());
+      if (ms === 0) { renderVacacionesKpi(); return; }
+      const hh = Math.floor(ms / 3600000);
+      const mm = Math.floor((ms % 3600000) / 60000);
+      const ss = Math.floor((ms % 60000) / 1000);
+      const dd = Math.floor(hh / 24);
+      if (cdown) cdown.innerHTML = dd > 0
+        ? `⏳ <strong>${dd}d ${hh % 24}h ${mm}m</strong> para el regreso`
+        : `⏳ <strong>${hh}h ${String(mm).padStart(2,'0')}m ${String(ss).padStart(2,'0')}s</strong> para el regreso`;
+    };
+    updateCdown();
+    _vacCountdownInterval = setInterval(updateCdown, 1000);
+
+    if (diasFalta <= 2 && !_welcomeBackShown) {
+      pushNotifVac({ id: 'vac-casi-acaba-' + vacActiva.id, type: 'warn', ico: 'fa-hourglass-end',
+        title: `¡Quedan ${diasFalta} día${diasFalta === 1 ? '' : 's'} de vacaciones!`,
+        sub: `Tu período de vacaciones termina el ${formatDateEs(vacActiva.hasta)}`, time: 'Ahora' });
+    }
+    _updateVacBtnLock(true, vp);
+    return;
+  }
+
+  // ══════════ CASO B: REGRESO HOY/AYER ══════════
+  const yesterday = (() => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; })();
+  const vacTerminada = userVacaciones
+    .filter(v => v.estado === 'approved' && v.hasta)
+    .find(v => v.hasta === today || v.hasta === yesterday);
+
+  if (vacTerminada && !_welcomeBackShown) {
+    _welcomeBackShown = true;
+    showWelcomeBack(currentEmpData?.nombre || 'de vuelta');
+    pushNotifVac({ id: 'vac-bienvenida-' + vacTerminada.id, type: 'ok', ico: 'fa-party-horn',
+      title: `🎉 ¡Bienvenido(a) de vuelta, ${currentEmpData?.nombre}!`,
+      sub: 'La familia HERPA está feliz de tenerte de vuelta 💚', time: 'Hoy' });
+  }
+
+  // ══════════ CASO C: PRÓXIMA VACACIÓN APROBADA ══════════
+  const proxVac = userVacaciones
+    .filter(v => v.estado === 'approved' && v.desde && v.desde > today)
+    .sort((a, b) => a.desde.localeCompare(b.desde))[0];
+
+  if (proxVac) {
+    const diasParaIr = Math.ceil((new Date(proxVac.desde + 'T00:00:00') - new Date()) / 86400000);
+    const pct = Math.max(0, Math.min(100, Math.round((1 - diasParaIr / 30) * 100)));
+    card.style.background = ''; card.style.border = '';
+    if (ico)    { ico.className = 'kpi-ico teal'; ico.innerHTML = '<i class="fas fa-plane-departure"></i>'; }
+    if (label)   label.textContent = 'Próximas Vacaciones';
+    if (valor)  { valor.style.fontFamily = 'var(--font-serif)'; valor.style.fontSize = '2rem'; valor.textContent = diasParaIr; valor.style.color = 'var(--teal-2)'; }
+    if (sub)    sub.innerHTML = `días para iniciar · <strong>${formatDateEs(proxVac.desde)}</strong>`;
+    if (bar)    { bar.style.display = 'block'; }
+    if (barFill){ barFill.style.width = pct + '%'; barFill.style.background = 'var(--teal-2)'; }
+    if (cdown)   cdown.innerHTML = `✈️ ${proxVac.dias} días aprobados · hasta ${formatDateEs(proxVac.hasta)}`;
+    _updateVacBtnLock(true, vp);
+    return;
+  }
+
+  // ══════════ CASO D: NORMAL — DÍAS DISPONIBLES DEL PERÍODO ACTUAL ══════════
+  card.style.background = ''; card.style.border = '';
+  const { diasDispEstePeriodo: diasDisp, diasUsadosEstePeriodo: diasUsados,
+          vacTotal: VAC_TOTAL, periodoActual, añosCompletados } = vp;
+  const pct   = Math.round((diasDisp / VAC_TOTAL) * 100);
+  const color = diasDisp > 8 ? 'var(--navy-3)' : diasDisp > 4 ? 'var(--gold-2)' : 'var(--red-2)';
+
+  if (ico)   { ico.className = 'kpi-ico blue'; ico.innerHTML = '<i class="fas fa-calendar-days"></i>'; }
+  if (label)  label.textContent = 'Días Vacaciones Disp.';
+  if (valor) { valor.style.fontFamily = 'var(--font-serif)'; valor.style.fontSize = '2rem'; valor.textContent = diasDisp; valor.style.color = diasDisp <= 3 ? 'var(--red-2)' : ''; }
+  if (sub)   sub.innerHTML = diasUsados > 0
+    ? `<span style="color:var(--muted)">${diasUsados} usados de ${VAC_TOTAL} · Año ${añosCompletados}</span>`
+    : `<span style="color:var(--green-2)">Todos los días disponibles ✓ · Año ${añosCompletados}</span>`;
+  if (bar)    { bar.style.display = diasUsados > 0 ? 'block' : 'none'; }
+  if (barFill){ barFill.style.width = pct + '%'; barFill.style.background = color; }
+  if (cdown)  cdown.innerHTML = periodoActual
+    ? `📅 Período: ${formatDateEs(periodoActual.inicio)} → ${formatDateEs(periodoActual.fin)}`
+    : `${diasDisp} días disponibles`;
+
+  _updateVacBtnLock(true, vp);
+}
+
+/* Bloquea/desbloquea el botón de solicitar vacaciones en la página de vacaciones */
+let _vacLockCountdownInterval = null;
+
+function _updateVacBtnLock(elegible, vp) {
+  const btn        = document.getElementById('btnSolicitarVac');
+  const lockBanner = document.getElementById('vacLockBanner');
+
+  // Detener intervalo previo del banner
+  if (_vacLockCountdownInterval) { clearInterval(_vacLockCountdownInterval); _vacLockCountdownInterval = null; }
+
+  const preUnlock = vp?.preUnlock; // 20 días antes del aniversario
+
+  if (!elegible) {
+    if (btn) {
+      btn.disabled = true;
+      btn.title    = `Disponible el ${formatDateEs(vp?.fechaAniversario)}`;
+      btn.style.opacity = '.45';
+      btn.style.cursor  = 'not-allowed';
+    }
+    if (lockBanner) {
+      lockBanner.style.display = 'block';
+
+      // Mensaje principal
+      const lbMsg = document.getElementById('vacLockMsg');
+      if (lbMsg) {
+        const dias = vp?.diasParaAniversario;
+        lbMsg.innerHTML = dias !== null
+          ? `🔒 Las vacaciones se activan cuando cumplas <strong>1 año</strong> de trabajo. Faltan <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> — el <strong>${formatDateEs(vp?.fechaAniversario)}</strong>.`
+          : '🔒 Fecha de ingreso no registrada. Contacta a RRHH.';
+      }
+
+      // Fecha de habilitación
+      const vlDate = document.getElementById('vacLockDate');
+      if (vlDate) vlDate.textContent = formatDateEs(vp?.fechaAniversario) || '—';
+
+      // Días totales que recibirá
+      const vlDays = document.getElementById('vacLockDaysTotal');
+      if (vlDays) vlDays.textContent = (currentEmpData?.vacDias || 15) + ' días hábiles';
+
+      // Barra de progreso del año
+      const ingresoDate = new Date((currentEmpData?.ingreso || getTodayColStr()) + 'T12:00:00');
+      const aniversario = vp?.fechaAniversario ? new Date(vp.fechaAniversario + 'T12:00:00') : null;
+
+      if (aniversario) {
+        const totalMs     = aniversario - ingresoDate;
+        const transcMs    = new Date() - ingresoDate;
+        const pct         = Math.min(100, Math.max(0, Math.round(transcMs / totalMs * 100)));
+        const fill        = document.getElementById('vacLockFill');
+        const pctLbl      = document.getElementById('vacLockPct');
+        if (fill)   { fill.style.width = pct + '%'; }
+        if (pctLbl) pctLbl.textContent = pct + '% completado';
+
+        // Countdown en tiempo real
+        const updateBannerCdown = () => {
+          const msLeft = Math.max(0, aniversario - new Date());
+          if (msLeft === 0) { _updateVacBtnLock(false, vp); return; }
+          const dd = Math.floor(msLeft / 86400000);
+          const hh = Math.floor((msLeft % 86400000) / 3600000);
+          const mm = Math.floor((msLeft % 3600000) / 60000);
+          const ss = Math.floor((msLeft % 60000) / 1000);
+
+          const setBox = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) {
+              const num = el.querySelector('.vcb-num');
+              if (num) num.textContent = String(val).padStart(2, '0');
+            }
+          };
+          setBox('vcb-d', dd);
+          setBox('vcb-h', hh);
+          setBox('vcb-m', mm);
+          setBox('vcb-s', ss);
+
+          // Actualizar progreso dinámicamente
+          const pctNow = Math.min(100, Math.max(0, Math.round((new Date() - ingresoDate) / totalMs * 100)));
+          if (fill)   fill.style.width = pctNow + '%';
+          if (pctLbl) pctLbl.textContent = pctNow + '% completado';
+        };
+        updateBannerCdown();
+        _vacLockCountdownInterval = setInterval(updateBannerCdown, 1000);
+      }
+    }
+  } else {
+    if (btn) {
+      // Si es pre-unlock (20 días antes del aniversario), habilitamos el botón
+      // con un aviso especial pero permite solicitar
+      btn.disabled = false;
+      btn.title    = '';
+      btn.style.opacity = '';
+      btn.style.cursor  = '';
+    }
+    if (lockBanner) {
+      if (preUnlock && vp?.diasParaAniversario > 0) {
+        // Mostrar banner informativo (no bloqueante) de pre-habilitación
+        lockBanner.style.display = 'block';
+        lockBanner.style.background = 'linear-gradient(135deg,rgba(154,123,58,.12) 0%,rgba(154,123,58,.06) 100%)';
+        lockBanner.style.borderColor = 'rgba(154,123,58,.28)';
+        const lbMsg = document.getElementById('vacLockMsg');
+        if (lbMsg) lbMsg.innerHTML = `🔓 ¡Casi listo! Tu primer año se cumple en <strong>${vp.diasParaAniversario} día${vp.diasParaAniversario !== 1 ? 's' : ''}</strong> (${formatDateEs(vp.fechaAniversario)}). Ya puedes <strong>solicitar tus vacaciones con anticipación</strong> para que sean aprobadas a tiempo.`;
+      } else {
+        lockBanner.style.display = 'none';
+      }
+    }
+  }
+}
+
+// Formatea YYYY-MM-DD a "12 ene 2025"
+function formatDateEs(ymd) {
+  if (!ymd) return '—';
+  const d = new Date(ymd + 'T12:00:00');
+  return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Inserta notificación de vacaciones en el panel (si no existe ya)
+function pushNotifVac(n) {
+  const exists = notifList.find(x => x.id === n.id);
+  if (!exists) {
+    notifList.unshift(n);
+    const dot = document.getElementById('notifDot');
+    if (dot) dot.style.display = '';
+    renderNotifPanel();
+  }
+}
+
+// Modal de bienvenida al regresar de vacaciones
+function showWelcomeBack(nombre) {
+  // Si ya existe, no crear de nuevo
+  if (document.getElementById('welcomeBackModal')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'welcomeBackModal';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:rgba(12,21,32,.7);backdrop-filter:blur(10px);
+    animation:gaBgIn .4s ease;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      background:var(--surface);border-radius:var(--radius-xl);max-width:480px;width:100%;
+      box-shadow:0 32px 96px rgba(12,21,32,.5),0 4px 24px rgba(154,123,58,.2);
+      border:1px solid var(--gold-border);overflow:hidden;animation:modalIn .4s cubic-bezier(.34,1.4,.64,1);
+      position:relative;
+    ">
+      <!-- Header verde festivo -->
+      <div style="
+        background:linear-gradient(135deg,var(--green) 0%,var(--green-2) 60%,var(--teal) 100%);
+        padding:32px 28px 24px;text-align:center;position:relative;overflow:hidden;
+      ">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-3),transparent);opacity:.8"></div>
+        <!-- Confetti animado -->
+        <div id="wbConfetti" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+        <div style="font-size:3.2rem;margin-bottom:8px;position:relative;z-index:1">🎉</div>
+        <div style="font-family:var(--font-serif);font-size:1.8rem;font-weight:400;color:#fff;letter-spacing:.02em;position:relative;z-index:1">
+          ¡Bienvenido(a) de vuelta!
+        </div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.75);margin-top:6px;position:relative;z-index:1;font-style:italic">
+          Portal del Empleado · HERPA
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:28px;text-align:center">
+        <div style="
+          width:64px;height:64px;border-radius:50%;
+          background:var(--green-light);border:2px solid rgba(10,82,64,.2);
+          display:flex;align-items:center;justify-content:center;
+          margin:0 auto 16px;font-size:1.8rem;
+        ">💚</div>
+        <div style="font-family:var(--font-serif);font-size:1.4rem;color:var(--text);margin-bottom:8px">
+          Hola, <strong>${nombre}</strong>
+        </div>
+        <div style="font-size:.85rem;color:var(--muted);line-height:1.65;max-width:340px;margin:0 auto 20px">
+          La familia <strong style="color:var(--green-2)">HERPA</strong> está feliz de tenerte de vuelta.
+          Esperamos que hayas descansado muy bien. 🌴<br><br>
+          Tu equipo te extrañó y está listo para continuar contigo.
+        </div>
+
+        <!-- Stats mini -->
+        <div style="
+          display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;
+        ">
+          <div style="background:var(--green-light);border:1px solid rgba(10,82,64,.15);border-radius:var(--radius-md);padding:10px 18px;text-align:center">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--green-2)" id="wbDiasDescansados">—</div>
+            <div style="font-size:.66rem;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Días descansados</div>
+          </div>
+          <div style="background:var(--gold-light);border:1px solid var(--gold-border);border-radius:var(--radius-md);padding:10px 18px;text-align:center">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)" id="wbDiasQuedan">—</div>
+            <div style="font-size:.66rem;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Días disponibles</div>
+          </div>
+        </div>
+
+        <button onclick="document.getElementById('welcomeBackModal').remove()" style="
+          width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green-2));
+          color:#fff;border:none;border-radius:var(--radius-md);font-family:var(--font-sans);
+          font-size:.88rem;font-weight:700;cursor:pointer;letter-spacing:.02em;
+          box-shadow:0 4px 16px rgba(10,82,64,.3);transition:all .2s;
+        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          💪 ¡Empecemos!
+        </button>
+        <div style="font-size:.68rem;color:var(--muted-2);margin-top:10px">
+          Toca en cualquier parte o el botón para cerrar
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Cerrar al hacer clic en el fondo
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+
+  // Rellenar stats
+  const vt = userVacaciones.filter(v => v.estado === 'approved').find(v => {
+    const ayer = (() => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; })();
+    return v.hasta === getTodayColStr() || v.hasta === ayer;
+  });
+  if (vt) {
+    const wbD = document.getElementById('wbDiasDescansados');
+    const wbQ = document.getElementById('wbDiasQuedan');
+    if (wbD) wbD.textContent = vt.dias || '—';
+    const diasDisp = Math.max(0, (currentEmpData?.vacDias || 15) - userVacaciones.filter(v=>v.estado==='approved').reduce((a,v)=>a+(parseInt(v.dias)||0),0));
+    if (wbQ) wbQ.textContent = diasDisp;
+  }
+
+  // Confetti animado simple
+  const confettiEl = document.getElementById('wbConfetti');
+  if (confettiEl) {
+    const colors = ['#C9A84C','#14A67D','#fff','#3363A0','#f0c040'];
+    for (let i = 0; i < 28; i++) {
+      const s = document.createElement('div');
+      const size = 6 + Math.random() * 8;
+      s.style.cssText = `
+        position:absolute;width:${size}px;height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random() > .5 ? '50%' : '2px'};
+        left:${Math.random()*100}%;top:-12px;opacity:.85;
+        animation:confettiFall ${1.5 + Math.random()*2}s ${Math.random()*1.2}s ease-in forwards;
+        transform:rotate(${Math.random()*360}deg);
+      `;
+      confettiEl.appendChild(s);
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
    DASHBOARD
 ══════════════════════════════════════════════════════════════ */
 function renderDashboard() {
@@ -1568,7 +2810,9 @@ function renderDashboard() {
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   s('kpiAttMes', mAts.length);
   s('kpiSolicitudes', pend);
-  s('kpiVacDias', 15 - userVacaciones.filter(v => v.estado === 'approved').reduce((acc, v) => acc + (v.dias || 0), 0));
+
+  // ═══ KPI VACACIONES — LÓGICA COMPLETA CON CUENTA REGRESIVA ═══
+  renderVacacionesKpi();
 
   const sal = currentEmpData.salario || 0;
   if (sal > 0) {
@@ -1656,6 +2900,86 @@ function renderDashboard() {
   const ppend  = userPermisos.filter(p => p.estado === 'pending').length;
   if (vBadge) { vBadge.textContent = vpend; vBadge.style.display = vpend > 0 ? '' : 'none'; }
   if (pBadge) { pBadge.textContent = ppend; pBadge.style.display = ppend > 0 ? '' : 'none'; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODAL SOLICITUDES ACTIVAS
+══════════════════════════════════════════════════════════════ */
+function openSolicitudesModal() {
+  const body = document.getElementById('solicitudesModalBody');
+  if (!body) return;
+
+  const pendVac  = userVacaciones.filter(x => x.estado === 'pending');
+  const pendPerm = userPermisos.filter(x => x.estado === 'pending');
+  const total    = pendVac.length + pendPerm.length;
+
+  if (total === 0) {
+    body.innerHTML = `
+      <div class="empty" style="padding:32px 16px">
+        <i class="fas fa-check-circle" style="font-size:2rem;color:var(--green-2)"></i>
+        <p style="margin-top:10px;font-weight:600;color:var(--text)">Sin solicitudes pendientes</p>
+        <p style="font-size:.75rem;color:var(--muted);margin-top:4px">Todas tus solicitudes han sido procesadas</p>
+      </div>`;
+    openModal('modalSolicitudes');
+    return;
+  }
+
+  let html = '';
+
+  if (pendVac.length > 0) {
+    html += `<div style="margin-bottom:18px">
+      <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <i class="fas fa-umbrella-beach" style="color:var(--teal)"></i> Vacaciones (${pendVac.length})
+      </div>`;
+    pendVac.forEach(v => {
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:.82rem;color:var(--text)">${v.tipo || 'Vacaciones'}</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:3px">
+            <i class="fas fa-calendar-range" style="margin-right:4px"></i>${v.desde} → ${v.hasta}
+            <span style="margin-left:8px;color:var(--navy-3);font-weight:600">${v.dias} día${v.dias !== 1 ? 's' : ''}</span>
+          </div>
+          ${v.motivo ? `<div style="font-size:.7rem;color:var(--muted-2);margin-top:2px;font-style:italic">${v.motivo}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span class="badge b-pending">⏳ Pendiente</span>
+          <button onclick="closeModal('modalSolicitudes');nav('vacaciones',null)" style="padding:5px 10px;border-radius:var(--radius-sm);background:var(--teal-light);border:1px solid rgba(11,104,116,.2);color:var(--teal-2);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--teal-light)';this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+            Ver <i class="fas fa-arrow-right" style="font-size:.6rem"></i>
+          </button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (pendPerm.length > 0) {
+    html += `<div>
+      <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <i class="fas fa-file-pen" style="color:var(--gold)"></i> Permisos (${pendPerm.length})
+      </div>`;
+    pendPerm.forEach(p => {
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:.82rem;color:var(--text)">${p.tipo || 'Permiso'}</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:3px">
+            <i class="fas fa-calendar" style="margin-right:4px"></i>${p.fecha}
+            <span style="margin-left:8px;color:var(--gold);font-weight:600">${p.duracion}</span>
+          </div>
+          ${p.motivo ? `<div style="font-size:.7rem;color:var(--muted-2);margin-top:2px;font-style:italic">${p.motivo}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span class="badge b-pending">⏳ Pendiente</span>
+          <button onclick="closeModal('modalSolicitudes');nav('permisos',null)" style="padding:5px 10px;border-radius:var(--radius-sm);background:var(--gold-light);border:1px solid var(--gold-border);color:var(--gold);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .15s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+            Ver <i class="fas fa-arrow-right" style="font-size:.6rem"></i>
+          </button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+  openModal('modalSolicitudes');
 }
 
 /* ══════════════════════════════════════════════════════════════
