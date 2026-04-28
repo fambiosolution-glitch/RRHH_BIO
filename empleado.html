@@ -742,29 +742,88 @@ tr:hover td{background:rgba(15,30,53,.015)}
 <!-- ╔═══ MIS ASISTENCIAS ═══╗ -->
 <div id="page-mis-asistencias" class="page">
   <div class="page-hd">
-    <div><div class="page-title">Mis Asistencias</div><div class="page-sub">Historial completo de asistencias registradas</div></div>
-    <div class="page-actions">
-      <select class="form-ctrl" id="attMonthFilter" style="width:auto" onchange="renderMisAsistencias()">
-        <option value="all">Todos los períodos</option>
-      </select>
+    <div><div class="page-title">Mis Asistencias</div><div class="page-sub" id="attSubtitle">Selecciona un día en el calendario para ver tu registro</div></div>
+    <div class="page-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn-outline" id="attViewAllBtn" style="padding:7px 16px;font-size:.75rem;gap:6px;border-radius:99px" onclick="selectAllDays()">
+        <i class="fas fa-layer-group"></i> Vista General
+      </button>
     </div>
   </div>
 
-  <div class="g g-4" style="margin-bottom:16px">
-    <div class="kpi green"><div class="kpi-ico green"><i class="fas fa-check-circle"></i></div><div class="kpi-label">A Tiempo</div><div class="kpi-value" id="statsOnTime">0</div></div>
-    <div class="kpi gold"><div class="kpi-ico gold"><i class="fas fa-triangle-exclamation"></i></div><div class="kpi-label">Tardanzas</div><div class="kpi-value" id="statsLate">0</div></div>
-    <div class="kpi blue"><div class="kpi-ico blue"><i class="fas fa-calendar"></i></div><div class="kpi-label">Total Registros</div><div class="kpi-value" id="statsTotal">0</div></div>
-    <div class="kpi teal"><div class="kpi-ico teal"><i class="fas fa-percent"></i></div><div class="kpi-label">Puntualidad</div><div class="kpi-value" id="statsPct">—</div></div>
+  <!-- KPI CARDS (dinámicas) -->
+  <div class="g g-4" style="margin-bottom:20px" id="attKpiRow">
+    <div class="kpi green" id="kpiOnTime"><div class="kpi-ico green"><i class="fas fa-check-circle"></i></div><div class="kpi-label">A Tiempo</div><div class="kpi-value" id="statsOnTime">—</div><div class="kpi-sub" id="kpiOnTimeSub"></div></div>
+    <div class="kpi gold" id="kpiLate"><div class="kpi-ico gold"><i class="fas fa-triangle-exclamation"></i></div><div class="kpi-label">Tardanzas</div><div class="kpi-value" id="statsLate">—</div><div class="kpi-sub" id="kpiLateSub"></div></div>
+    <div class="kpi blue" id="kpiTotal"><div class="kpi-ico blue"><i class="fas fa-calendar"></i></div><div class="kpi-label">Total Registros</div><div class="kpi-value" id="statsTotal">—</div><div class="kpi-sub" id="kpiTotalSub"></div></div>
+    <div class="kpi teal" id="kpiPct"><div class="kpi-ico teal"><i class="fas fa-percent"></i></div><div class="kpi-label">Puntualidad</div><div class="kpi-value" id="statsPct">—</div><div class="kpi-sub" id="kpiPctSub"></div></div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><span class="card-title">Historial de Asistencias</span></div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Fecha</th><th>Día</th><th>Hora Entrada</th><th>Estado</th><th>Ubicación GPS</th></tr></thead>
-        <tbody id="allAttTable"></tbody>
-      </table>
+  <!-- LAYOUT: Calendario + Detalle del día -->
+  <div class="g" style="grid-template-columns:340px 1fr;gap:16px" id="attLayout">
+
+    <!-- CALENDARIO -->
+    <div class="card" id="calCard" style="padding:0;overflow:hidden;position:sticky;top:calc(var(--topbar-h) + 16px);height:fit-content">
+      <!-- Cal Header -->
+      <div id="calHeader" style="background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);padding:16px 18px 14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-3),transparent);opacity:.8"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <button id="calPrevBtn" onclick="calNavMonth(-1)" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);cursor:pointer;font-size:.8rem;transition:all .2s;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-serif);font-size:1.15rem;font-weight:400;color:#fff;letter-spacing:.03em" id="calMonthLabel">Abril 2025</div>
+            <div style="font-size:.58rem;color:rgba(255,255,255,.38);letter-spacing:.14em;text-transform:uppercase;margin-top:1px" id="calYearLabel">2025</div>
+          </div>
+          <button id="calNextBtn" onclick="calNavMonth(1)" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);cursor:pointer;font-size:.8rem;transition:all .2s;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <!-- Leyenda -->
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:5px;font-size:.6rem;color:rgba(255,255,255,.5)"><span style="width:8px;height:8px;border-radius:50%;background:var(--green-3);display:inline-block"></span>A tiempo</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:.6rem;color:rgba(255,255,255,.5)"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold-3);display:inline-block"></span>Tardanza</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:.6rem;color:rgba(255,255,255,.5)"><span style="width:8px;height:8px;border-radius:50%;background:var(--red-2);display:inline-block"></span>Sin registro</span>
+        </div>
+      </div>
+      <!-- Días semana -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:10px 12px 4px;gap:2px" id="calWeekDays">
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">L</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">M</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">X</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">J</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">V</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.06em">S</div>
+        <div style="text-align:center;font-size:.62rem;font-weight:700;color:rgba(168,41,41,.7);letter-spacing:.06em">D</div>
+      </div>
+      <!-- Grid días -->
+      <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);padding:4px 12px 14px;gap:3px"></div>
+      <!-- Botón hoy -->
+      <div style="padding:0 12px 14px;display:flex;gap:8px">
+        <button onclick="calGoToday()" style="flex:1;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface-2);font-size:.72rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--navy)';this.style.color='var(--navy)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          <i class="fas fa-calendar-day" style="margin-right:5px"></i>Hoy
+        </button>
+        <button onclick="selectAllDays()" style="flex:1;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--gold-border);background:var(--gold-light);font-size:.72rem;font-weight:600;color:var(--gold);cursor:pointer;transition:all .2s">
+          <i class="fas fa-layer-group" style="margin-right:5px"></i>Ver todo
+        </button>
+      </div>
     </div>
+
+    <!-- PANEL DERECHO: Detalle día / Vista general -->
+    <div id="attDetailPanel">
+      <!-- Estado inicial -->
+      <div class="card" id="attWelcomeState" style="padding:40px;text-align:center">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.6rem;color:var(--border-2)">
+          <i class="fas fa-calendar-days"></i>
+        </div>
+        <div style="font-family:var(--font-serif);font-size:1.3rem;color:var(--text);margin-bottom:6px">Selecciona un día</div>
+        <div style="font-size:.78rem;color:var(--muted);max-width:280px;margin:0 auto;line-height:1.6">Haz clic en cualquier día del calendario para ver tu registro de asistencia o selecciona <strong>Ver todo</strong> para el resumen general.</div>
+      </div>
+      <!-- Detalle día (oculto hasta selección) -->
+      <div id="attDayDetail" style="display:none"></div>
+      <!-- Vista general (oculta hasta selección) -->
+      <div id="attGeneralView" style="display:none"></div>
+    </div>
+
   </div>
 </div>
 
@@ -1233,9 +1292,9 @@ async function loadAttendances() {
     horaCorta: (a.check_in  || '').substr(0, 5),
     estado:    a.status === 'late' ? 'tarde' : 'a_tiempo',
     ubicacion: a.notes || '',
-    lat:       a.latitude,
-    lng:       a.longitude,
-    dow:       a.date ? DOW[new Date(a.date + 'T00:00:00').getDay()] : '—',
+    lat:       a.latitude ?? a.lat ?? null,
+    lng:       a.longitude ?? a.lng ?? null,
+    dow:       a.date ? DOW[new Date(a.date + 'T12:00:00').getDay()] : '—',
   }));
 }
 
@@ -1986,42 +2045,472 @@ async function registrarAsistencia() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MIS ASISTENCIAS
+   MIS ASISTENCIAS — MÓDULO CALENDARIO INTERACTIVO v2.0
 ══════════════════════════════════════════════════════════════ */
-function renderMisAsistencias() {
-  const filter = document.getElementById('attMonthFilter')?.value || 'all';
 
-  // Poblar selector de meses
-  const monthSel = document.getElementById('attMonthFilter');
-  if (monthSel && monthSel.options.length === 1) {
-    const months = [...new Set(userAttendances.map(a => a.fecha ? a.fecha.substr(0, 7) : '').filter(Boolean))];
-    months.forEach(m => {
-      const opt = document.createElement('option'); opt.value = m;
-      const dt  = new Date(m + '-01');
-      opt.textContent = dt.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
-      monthSel.appendChild(opt);
-    });
+/* ── Estado del calendario ── */
+let calState = {
+  year:  new Date().getFullYear(),
+  month: new Date().getMonth(),   // 0-11
+  selectedDate: null,             // 'YYYY-MM-DD' | 'all'
+};
+
+const CAL_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAL_DIAS  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+/* ── Inicializa / actualiza el módulo completo ── */
+function renderMisAsistencias() {
+  calRenderMonth();
+  // Si hay fecha seleccionada, refresca el panel
+  if (calState.selectedDate === 'all') {
+    renderAttGeneralView();
+  } else if (calState.selectedDate) {
+    renderAttDayDetail(calState.selectedDate);
+  }
+  // Siempre actualiza los KPI (resumen total)
+  updateAttKpis(calState.selectedDate);
+}
+
+/* ── Fecha de inicio de conteo: día SIGUIENTE a created_at del empleado ── */
+function getCountStartDate() {
+  if (!currentEmpData?.createdAt) return null;
+  const d = new Date(currentEmpData.createdAt);
+  d.setDate(d.getDate() + 1);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+/* ── Genera lista de días laborables desde inicio hasta hoy ── */
+function getWorkingDaysSinceStart() {
+  const start = getCountStartDate();
+  if (!start) return [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = [];
+  const cur  = new Date(start);
+  while (cur <= today) {
+    const dow = cur.getDay(); // 0=dom
+    if (dow !== 0) {          // excluye domingos
+      days.push(toYMD(cur));
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+}
+
+function toYMD(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── Mapa de asistencias por fecha ── */
+function getAttMap() {
+  const m = {};
+  userAttendances.forEach(a => { if (a.fecha) m[a.fecha] = a; });
+  return m;
+}
+
+/* ── Navegar meses ── */
+function calNavMonth(delta) {
+  calState.month += delta;
+  if (calState.month < 0)  { calState.month = 11; calState.year--; }
+  if (calState.month > 11) { calState.month = 0;  calState.year++; }
+  calRenderMonth();
+}
+
+function calGoToday() {
+  const now = new Date();
+  calState.year  = now.getFullYear();
+  calState.month = now.getMonth();
+  calRenderMonth();
+  const todayStr = toYMD(now);
+  calSelectDate(todayStr);
+}
+
+/* ── Renderizar cuadrícula del mes ── */
+function calRenderMonth() {
+  const ml = document.getElementById('calMonthLabel');
+  const yl = document.getElementById('calYearLabel');
+  if (ml) ml.textContent = CAL_MESES[calState.month];
+  if (yl) yl.textContent = calState.year;
+
+  const grid  = document.getElementById('calGrid');
+  if (!grid) return;
+
+  const start     = getCountStartDate();
+  const today     = new Date(); today.setHours(0,0,0,0);
+  const attMap    = getAttMap();
+  const firstDay  = new Date(calState.year, calState.month, 1);
+  const lastDay   = new Date(calState.year, calState.month + 1, 0);
+
+  // Día de inicio de semana: lunes=0
+  let startDow = firstDay.getDay() - 1;
+  if (startDow < 0) startDow = 6;
+
+  let html = '';
+
+  // Celdas vacías antes del día 1
+  for (let i = 0; i < startDow; i++) {
+    html += `<div style="aspect-ratio:1"></div>`;
   }
 
-  let recs = filter === 'all' ? userAttendances : userAttendances.filter(a => a.fecha && a.fecha.startsWith(filter));
+  // Días del mes
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const cur    = new Date(calState.year, calState.month, d);
+    cur.setHours(0,0,0,0);
+    const dateStr = toYMD(cur);
+    const isSun  = cur.getDay() === 0;
+    const isFut  = cur > today;
+    const isPast = cur < today;
+    const isToday= dateStr === toYMD(today);
+    const isSel  = calState.selectedDate === dateStr;
+    const beforeStart = start && cur < start;
 
-  const onT  = recs.filter(a => a.estado === 'a_tiempo').length;
-  const late = recs.filter(a => a.estado === 'tarde').length;
-  const tot  = recs.length;
-  const pct  = tot > 0 ? Math.round(onT / tot * 100) + '%' : '—';
+    // Determinar estado visual
+    let bg = 'transparent', border = 'transparent', color = 'var(--text-3)', dot = '', title = '';
+    let cursor = 'pointer';
 
-  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  s('statsOnTime', onT); s('statsLate', late); s('statsTotal', tot); s('statsPct', pct);
+    if (beforeStart || isFut) {
+      color  = 'var(--border-2)';
+      cursor = 'default';
+    } else if (isSun) {
+      color  = 'rgba(168,41,41,.4)';
+      cursor = 'default';
+    } else {
+      const rec = attMap[dateStr];
+      if (rec) {
+        const isLateRec = rec.estado === 'tarde';
+        dot = `<div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:${isLateRec ? 'var(--gold-3)' : 'var(--green-3)'}"></div>`;
+        bg  = isLateRec ? 'rgba(154,123,58,.08)' : 'rgba(10,82,64,.07)';
+        title = isLateRec ? 'Tardanza' : 'A tiempo';
+      } else if (isPast) {
+        dot = `<div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--red-2);opacity:.7"></div>`;
+        bg  = 'rgba(168,41,41,.04)';
+        title = 'Sin registro';
+      }
+    }
 
-  const tbody = document.getElementById('allAttTable');
-  if (!tbody) return;
-  tbody.innerHTML = recs.length ? recs.map(a => {
-    const cls = a.estado === 'tarde' ? 'b-pending' : 'b-active';
-    const lbl = a.estado === 'tarde' ? '⚠️ Tardanza' : '✓ A tiempo';
-    const geo = (a.lat && a.lng) ? `<span style="color:var(--green-2);font-size:.72rem"><i class="fas fa-location-dot"></i> OK</span>` : '<span style="color:var(--muted-2);font-size:.72rem">—</span>';
-    return `<tr><td style="font-size:.78rem">${a.fecha || '—'}</td><td style="font-size:.74rem;color:var(--muted)">${a.dow || '—'}</td><td style="font-weight:600;font-size:.8rem">${a.horaCorta || a.hora || '—'}</td><td><span class="badge ${cls}">${lbl}</span></td><td>${geo}</td></tr>`;
-  }).join('') : '<tr><td colspan="5"><div class="empty" style="padding:20px"><i class="fas fa-clock"></i><p>Sin registros de asistencia</p></div></td></tr>';
+    if (isToday) {
+      border = 'var(--navy-3)';
+      color  = 'var(--navy-1)';
+    }
+    if (isSel) {
+      bg     = 'var(--navy-1)';
+      border = 'var(--navy-1)';
+      color  = '#fff';
+    }
+
+    const clickable = !isSun && !isFut && !beforeStart;
+    const onclick   = clickable ? `onclick="calSelectDate('${dateStr}')"` : '';
+
+    html += `<div ${onclick} title="${title}"
+      style="aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
+             font-size:.75rem;font-weight:${isToday||isSel?'700':'500'};
+             color:${color};background:${bg};
+             border:1.5px solid ${border};
+             cursor:${cursor};transition:all .15s;position:relative;user-select:none"
+      onmouseover="if(${clickable}) { this.style.background='${isSel ? 'var(--navy-1)' : 'var(--surface-2)'}'; }"
+      onmouseout="if(${clickable}) { this.style.background='${bg}'; }">
+      ${d}${dot}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
 }
+
+/* ── Seleccionar fecha específica ── */
+function calSelectDate(dateStr) {
+  calState.selectedDate = dateStr;
+  calRenderMonth(); // Refresca highlight
+
+  // Ocultar estados
+  document.getElementById('attWelcomeState').style.display  = 'none';
+  document.getElementById('attGeneralView').style.display   = 'none';
+  document.getElementById('attDayDetail').style.display     = '';
+
+  renderAttDayDetail(dateStr);
+  updateAttKpis(dateStr);
+}
+
+/* ── Seleccionar vista "todos los días" ── */
+function selectAllDays() {
+  calState.selectedDate = 'all';
+  calRenderMonth();
+
+  document.getElementById('attWelcomeState').style.display  = 'none';
+  document.getElementById('attDayDetail').style.display     = 'none';
+  document.getElementById('attGeneralView').style.display   = '';
+
+  renderAttGeneralView();
+  updateAttKpis('all');
+}
+
+/* ── Detalle de un día específico ── */
+function renderAttDayDetail(dateStr) {
+  const panel  = document.getElementById('attDayDetail');
+  if (!panel) return;
+
+  const attMap  = getAttMap();
+  const rec     = attMap[dateStr];
+  const [y,m,d] = dateStr.split('-');
+  const dt      = new Date(+y, +m-1, +d);
+  const isSun   = dt.getDay() === 0;
+  const isToday = dateStr === toYMD(new Date());
+  const isFut   = dt > new Date();
+  const start   = getCountStartDate();
+  const before  = start && dt < start;
+
+  const dayName  = CAL_DIAS[dt.getDay() === 0 ? 6 : dt.getDay()-1];
+  const fechaFmt = `${d} de ${CAL_MESES[+m-1]} de ${y}`;
+
+  let content = '';
+
+  if (isFut) {
+    content = `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:2.5rem;margin-bottom:14px">🗓️</div>
+      <div style="font-family:var(--font-serif);font-size:1.1rem;color:var(--text);margin-bottom:6px">Día futuro</div>
+      <div style="font-size:.78rem;color:var(--muted)">Este día aún no ha ocurrido.</div>
+    </div>`;
+  } else if (before) {
+    content = `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:2.5rem;margin-bottom:14px">📋</div>
+      <div style="font-family:var(--font-serif);font-size:1.1rem;color:var(--text);margin-bottom:6px">Antes de tu incorporación</div>
+      <div style="font-size:.78rem;color:var(--muted)">Este día es previo a la fecha de creación de tu perfil.</div>
+    </div>`;
+  } else if (isSun) {
+    content = `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:2.5rem;margin-bottom:14px">☀️</div>
+      <div style="font-family:var(--font-serif);font-size:1.1rem;color:var(--text);margin-bottom:6px">Día de descanso</div>
+      <div style="font-size:.78rem;color:var(--muted)">Los domingos no se registra asistencia.</div>
+    </div>`;
+  } else if (rec) {
+    const isLateRec = rec.estado === 'tarde';
+    const color  = isLateRec ? 'var(--gold)' : 'var(--green-2)';
+    const bgCol  = isLateRec ? 'var(--gold-light)' : 'var(--green-light)';
+    const bdCol  = isLateRec ? 'var(--gold-border)' : 'rgba(10,82,64,.18)';
+    const ico    = isLateRec ? 'fa-triangle-exclamation' : 'fa-circle-check';
+    const lbl    = isLateRec ? 'Tardanza registrada' : 'Entrada a tiempo';
+    const hasGps = rec.lat != null && rec.lng != null;
+
+    content = `
+      <!-- Estado principal -->
+      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:var(--radius-md);padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;animation:attFadeIn .35s ease">
+        <div style="width:52px;height:52px;border-radius:50%;background:${color};opacity:.12;position:absolute"></div>
+        <div style="width:52px;height:52px;border-radius:50%;border:2.5px solid ${color};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;color:${color};position:relative">
+          <i class="fas ${ico}"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--text)">${lbl}</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:3px">${fechaFmt} · ${dayName}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-family:var(--font-serif);font-size:1.6rem;color:${color}">${rec.horaCorta || rec.hora || '—'}</div>
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">hora entrada</div>
+        </div>
+      </div>
+      <!-- Detalle -->
+      <div class="g g-2" style="animation:attFadeIn .4s ease">
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px">
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Hora de entrada</div>
+          <div style="font-family:var(--font-serif);font-size:1.4rem;color:var(--text)">${rec.horaCorta || rec.hora || '—'}</div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px">
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Estado</div>
+          <div style="font-size:.9rem;font-weight:700;color:${color}">${isLateRec ? '⚠️ Con tardanza' : '✅ Puntual'}</div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px">
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Hora esperada</div>
+          <div style="font-size:.88rem;font-weight:600;color:var(--text-2)">${CONFIG?.HORA_ENTRADA || '08:00'}</div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px">
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">GPS</div>
+          <div style="font-size:.82rem;font-weight:600;color:${hasGps ? 'var(--green-2)' : 'var(--muted)'}">
+            ${hasGps ? '<i class="fas fa-location-dot"></i> Verificado' : '— Sin datos'}
+          </div>
+        </div>
+      </div>
+      ${rec.ubicacion ? `<div style="margin-top:12px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.68rem;color:var(--muted);line-height:1.5;animation:attFadeIn .5s ease">
+        <i class="fas fa-map-pin" style="margin-right:5px;color:var(--muted-2)"></i>${rec.ubicacion}
+      </div>` : ''}`;
+  } else {
+    // Sin registro
+    content = `<div style="text-align:center;padding:40px 20px;animation:attFadeIn .3s ease">
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(168,41,41,.08);border:2px solid rgba(168,41,41,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.8rem;color:var(--red-2)">
+        <i class="fas fa-calendar-xmark"></i>
+      </div>
+      <div style="font-family:var(--font-serif);font-size:1.2rem;color:var(--text);margin-bottom:8px">No registraste asistencia este día</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;max-width:280px;margin:0 auto">${fechaFmt} · ${dayName}</div>
+      <div style="margin-top:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(168,41,41,.07);border:1px solid rgba(168,41,41,.18);border-radius:99px;padding:6px 16px;font-size:.72rem;font-weight:600;color:var(--red-2)">
+        <i class="fas fa-circle-xmark"></i> Ausencia sin registro
+      </div>
+    </div>`;
+  }
+
+  panel.innerHTML = `<div class="card" style="min-height:200px;animation:attFadeIn .25s ease">
+    <div class="card-hd">
+      <span class="card-title">
+        <i class="fas fa-calendar-day" style="color:var(--gold);margin-right:6px"></i>
+        ${isToday ? 'Hoy · ' : ''}${fechaFmt}
+      </span>
+      ${rec ? `<span class="badge ${rec.estado === 'tarde' ? 'b-pending' : 'b-active'}">${rec.estado === 'tarde' ? '⚠ Tardanza' : '✓ A tiempo'}</span>` : (isSun || isFut || before ? '' : '<span class="badge b-danger">Sin registro</span>')}
+    </div>
+    ${content}
+  </div>`;
+}
+
+/* ── Vista general — todos los días laborables ── */
+function renderAttGeneralView() {
+  const panel = document.getElementById('attGeneralView');
+  if (!panel) return;
+
+  const workDays = getWorkingDaysSinceStart();
+  const attMap   = getAttMap();
+  const total    = workDays.length;
+  const registered = workDays.filter(d => attMap[d]).length;
+  const onTime     = workDays.filter(d => attMap[d]?.estado === 'a_tiempo').length;
+  const late       = workDays.filter(d => attMap[d]?.estado === 'tarde').length;
+  const absent     = workDays.filter(d => !attMap[d]).length;
+  const pct        = total > 0 ? Math.round(onTime / total * 100) : 0;
+  const pctReg     = total > 0 ? Math.round(registered / total * 100) : 0;
+
+  // Últimas 10 asistencias
+  const recent = [...userAttendances].sort((a,b) => b.fecha?.localeCompare(a.fecha)).slice(0, 10);
+
+  panel.innerHTML = `
+    <!-- Resumen gráfico -->
+    <div class="card" style="margin-bottom:14px;animation:attFadeIn .3s ease">
+      <div class="card-hd">
+        <span class="card-title"><i class="fas fa-chart-pie" style="color:var(--navy-3);margin-right:6px"></i>Resumen General</span>
+        <span style="font-size:.68rem;color:var(--muted)">Desde incorporación</span>
+      </div>
+      <!-- Barra de puntualidad -->
+      <div style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <span style="font-size:.75rem;font-weight:700;color:var(--text)">Puntualidad general</span>
+          <span style="font-family:var(--font-serif);font-size:1.5rem;color:${pct>=80?'var(--green-2)':pct>=60?'var(--gold)':'var(--red-2)'}">${pct}%</span>
+        </div>
+        <div style="height:10px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden">
+          <div style="height:100%;border-radius:99px;background:${pct>=80?'linear-gradient(90deg,var(--green),var(--green-3))':pct>=60?'linear-gradient(90deg,var(--gold),var(--gold-3))':'linear-gradient(90deg,var(--red),var(--red-2))'};width:${pct}%;transition:width .8s cubic-bezier(.4,0,.2,1)"></div>
+        </div>
+      </div>
+      <!-- Stats grid -->
+      <div class="g g-4" style="gap:10px">
+        <div style="text-align:center;padding:14px 8px;background:var(--green-light);border:1px solid rgba(10,82,64,.15);border-radius:var(--radius-md)">
+          <div style="font-family:var(--font-serif);font-size:1.6rem;color:var(--green-2)">${onTime}</div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--green-2);margin-top:2px">A tiempo</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--gold-light);border:1px solid var(--gold-border);border-radius:var(--radius-md)">
+          <div style="font-family:var(--font-serif);font-size:1.6rem;color:var(--gold)">${late}</div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);margin-top:2px">Tardanzas</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--red-light);border:1px solid rgba(168,41,41,.15);border-radius:var(--radius-md)">
+          <div style="font-family:var(--font-serif);font-size:1.6rem;color:var(--red-2)">${absent}</div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--red-2);margin-top:2px">Ausencias</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md)">
+          <div style="font-family:var(--font-serif);font-size:1.6rem;color:var(--text)">${total}</div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:2px">Días hábiles</div>
+        </div>
+      </div>
+      <!-- Barra asistencia efectiva -->
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:.72rem;color:var(--muted)">Asistencia efectiva</span>
+          <span style="font-size:.72rem;font-weight:700;color:var(--text)">${registered}/${total} días (${pctReg}%)</span>
+        </div>
+        <div style="height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;display:flex;gap:2px">
+          ${workDays.slice(-40).map(d => {
+            const r = attMap[d];
+            const col = r ? (r.estado==='tarde' ? 'var(--gold-3)' : 'var(--green-3)') : 'rgba(168,41,41,.35)';
+            return `<div style="flex:1;border-radius:99px;background:${col};cursor:pointer" title="${d}" onclick="calSelectDate('${d}')"></div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:.6rem;color:var(--muted-2);margin-top:4px">Últimos ${Math.min(40,workDays.length)} días laborables</div>
+      </div>
+    </div>
+    <!-- Historial reciente -->
+    <div class="card" style="animation:attFadeIn .4s ease">
+      <div class="card-hd"><span class="card-title">Asistencias Recientes</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Día</th><th>Entrada</th><th>Estado</th><th>GPS</th></tr></thead>
+          <tbody>${recent.length ? recent.map(a => {
+            const cls = a.estado==='tarde' ? 'b-pending' : 'b-active';
+            const lbl = a.estado==='tarde' ? '⚠ Tarde' : '✓ Puntual';
+            const [fy,fm,fd] = (a.fecha||'').split('-');
+            const dt2  = a.fecha ? new Date(+fy,+fm-1,+fd) : null;
+            const dow  = dt2 ? CAL_DIAS[dt2.getDay()===0?6:dt2.getDay()-1]?.substr(0,3) : '—';
+            const gps  = (a.lat!=null&&a.lng!=null) ? '<span style="color:var(--green-2);font-size:.7rem"><i class="fas fa-location-dot"></i></span>' : '<span style="color:var(--muted-2)">—</span>';
+            return `<tr onclick="calSelectDate('${a.fecha}')" style="cursor:pointer">
+              <td style="font-size:.78rem;font-weight:500">${fd}/${fm}/${fy}</td>
+              <td style="font-size:.72rem;color:var(--muted)">${dow}</td>
+              <td style="font-weight:600">${a.horaCorta||a.hora||'—'}</td>
+              <td><span class="badge ${cls}">${lbl}</span></td>
+              <td>${gps}</td>
+            </tr>`;
+          }).join('') : `<tr><td colspan="5"><div class="empty" style="padding:16px"><i class="fas fa-clock"></i><p>Sin registros aún</p></div></td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── Actualizar KPIs según selección ── */
+function updateAttKpis(mode) {
+  const workDays = getWorkingDaysSinceStart();
+  const attMap   = getAttMap();
+  let onT, late, tot, pct, sub;
+
+  if (!mode || mode === 'all') {
+    // Resumen completo
+    tot  = workDays.length;
+    onT  = workDays.filter(d => attMap[d]?.estado === 'a_tiempo').length;
+    late = workDays.filter(d => attMap[d]?.estado === 'tarde').length;
+    pct  = tot > 0 ? Math.round(onT / tot * 100) + '%' : '—';
+    sub  = 'desde tu incorporación';
+  } else {
+    // Día específico
+    const rec = attMap[mode];
+    if (rec) {
+      onT  = rec.estado === 'a_tiempo' ? 1 : 0;
+      late = rec.estado === 'tarde' ? 1 : 0;
+      tot  = 1;
+      pct  = rec.estado === 'a_tiempo' ? '100%' : '0%';
+      sub  = 'este día';
+    } else {
+      onT = late = tot = 0;
+      pct = '0%';
+      sub = 'sin registro';
+    }
+  }
+
+  const s = (id, v) => { const el = document.getElementById(id); if (el) { animateCounter(el, v); } };
+  const t = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  s('statsOnTime', onT); s('statsLate', late); s('statsTotal', tot);
+  const pctEl = document.getElementById('statsPct');
+  if (pctEl) { pctEl.style.transition = 'all .4s'; pctEl.textContent = pct; }
+  t('kpiOnTimeSub', sub); t('kpiLateSub', sub); t('kpiTotalSub', sub); t('kpiPctSub', sub);
+}
+
+/* ── Contador animado ── */
+function animateCounter(el, target) {
+  if (typeof target !== 'number') { el.textContent = target; return; }
+  const start = parseInt(el.textContent) || 0;
+  const diff  = target - start;
+  const dur   = 600;
+  const fps   = 60;
+  const steps = Math.max(1, Math.round(dur / (1000/fps)));
+  let step = 0;
+  const tick = () => {
+    step++;
+    const ease = 1 - Math.pow(1 - step/steps, 3);
+    el.textContent = Math.round(start + diff * ease);
+    if (step < steps) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ── Compat: funciones antiguas que otros módulos pueden llamar ── */
+function populateAttFilters() {}
+function syncAttFilters() { renderMisAsistencias(); }
+function clearAttFilters() { calState.selectedDate = null; renderMisAsistencias(); }
 
 /* ══════════════════════════════════════════════════════════════
    VACACIONES
