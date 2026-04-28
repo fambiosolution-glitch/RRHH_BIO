@@ -734,8 +734,8 @@ tr:hover td{background:rgba(15,30,53,.015)}
 
   <!-- Usuario -->
   <div class="sb-user" style="margin:10px 12px 8px">
-    <div class="sb-ava" id="sbAva"><span id="sbAvaIni">?</span></div>
-    <div style="flex:1;overflow:hidden">
+    <div class="sb-ava" id="sbAva" onclick="openAvatarLightbox()" title="Ver foto" style="cursor:zoom-in;transition:transform .2s,opacity .2s" onmouseenter="this.style.transform='scale(1.08)';this.style.opacity='.85'" onmouseleave="this.style.transform='';this.style.opacity=''"><span id="sbAvaIni">?</span></div>
+    <div style="flex:1;overflow:hidden;cursor:pointer" onclick="openAvatarLightbox()">
       <div class="sb-user-n" id="sbName">Empleado</div>
       <div class="sb-user-r" id="sbRole">Portal Empleado</div>
     </div>
@@ -1205,7 +1205,7 @@ tr:hover td{background:rgba(15,30,53,.015)}
     <div style="display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap">
       <!-- Avatar grande -->
       <div style="position:relative;flex-shrink:0">
-        <div id="profAva" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--navy-3),var(--gold));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.9rem;font-weight:400;color:#fff;border:3px solid rgba(154,123,58,.4);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)">?</div>
+        <div id="profAva" onclick="openAvatarLightbox()" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--navy-3),var(--gold));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.9rem;font-weight:400;color:#fff;border:3px solid rgba(154,123,58,.4);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3);cursor:zoom-in;transition:transform .2s,box-shadow .2s" onmouseenter="this.style.transform='scale(1.07)';this.style.boxShadow='0 6px 28px rgba(0,0,0,.45)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.3)'">?</div>
         <div style="position:absolute;bottom:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--green-3);border:2px solid var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.3)" id="profStatusDot"></div>
       </div>
       <!-- Info principal -->
@@ -1544,6 +1544,7 @@ tr:hover td{background:rgba(15,30,53,.015)}
             <div>
               <div class="vla-label">Fecha de habilitación</div>
               <div class="vla-value" id="vacLockDate">—</div>
+              <div style="font-size:.58rem;color:rgba(255,255,255,.32);margin-top:3px">20 días antes del aniversario</div>
             </div>
           </div>
           <div class="vac-lock-info-card vla-days">
@@ -1559,6 +1560,52 @@ tr:hover td{background:rgba(15,30,53,.015)}
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ALERTA ANIVERSARIO (pre-unlock habilitado) ══════════ -->
+  <div id="vacAnniversaryAlert" style="display:none;margin-bottom:16px">
+    <div style="
+      background: linear-gradient(135deg, rgba(154,123,58,.13) 0%, rgba(154,123,58,.06) 100%);
+      border: 1.5px solid rgba(154,123,58,.35);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    ">
+      <!-- Shimmer line top -->
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-3),transparent);opacity:.8"></div>
+      <!-- Icon -->
+      <div style="
+        width:44px;height:44px;border-radius:var(--radius-md);flex-shrink:0;
+        background:rgba(154,123,58,.18);border:1.5px solid rgba(154,123,58,.35);
+        display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;
+      ">🎂</div>
+      <!-- Text -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:3px;display:flex;align-items:center;gap:6px">
+          <i class="fas fa-star" style="font-size:.72rem"></i>
+          ¡Tu aniversario se acerca!
+        </div>
+        <div id="vacAnniversaryMsg" style="font-size:.8rem;color:var(--text-2);line-height:1.5">
+          El día <strong id="vacAnniversaryDate" style="color:var(--gold)">—</strong> cumples <strong>1 año</strong> con la compañía. ¡Ya puedes solicitar tus vacaciones!
+        </div>
+      </div>
+      <!-- CTA -->
+      <button onclick="openModal('modalVacaciones')" style="
+        flex-shrink:0;padding:9px 16px;background:var(--gold);color:#fff;border:none;
+        border-radius:var(--radius-md);font-family:var(--font-sans);font-size:.76rem;
+        font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;
+        box-shadow:0 4px 14px rgba(154,123,58,.35);transition:all var(--t);
+        white-space:nowrap;
+      " onmouseenter="this.style.background='var(--gold-2)';this.style.transform='translateY(-1px)'"
+         onmouseleave="this.style.background='var(--gold)';this.style.transform=''">
+        <i class="fas fa-umbrella-beach"></i> Solicitar vacaciones
+      </button>
     </div>
   </div>
 
@@ -1579,7 +1626,7 @@ tr:hover td{background:rgba(15,30,53,.015)}
   <div class="page-hd">
     <div><div class="page-title">Mis Permisos</div><div class="page-sub">Solicita permisos laborales · Adjunta soporte · Gestiona tus solicitudes</div></div>
     <div class="page-actions">
-      <button class="btn btn-primary" onclick="openModal('modalPermiso')"><i class="fas fa-plus"></i> Nuevo Permiso</button>
+      <button class="btn btn-primary" onclick="openModalPermiso()"><i class="fas fa-plus"></i> Nuevo Permiso</button>
     </div>
   </div>
 
@@ -1675,21 +1722,15 @@ tr:hover td{background:rgba(15,30,53,.015)}
 <div id="page-documentos-emp" class="page">
   <div class="page-hd"><div><div class="page-title">Mis Documentos</div><div class="page-sub">Documentos laborales, colillas y archivos compartidos por la empresa</div></div></div>
 
-  <div class="g g-4" style="margin-bottom:16px">
+  <div class="g g-3" style="margin-bottom:16px">
     <div class="kpi blue"><div class="kpi-ico blue"><i class="fas fa-globe"></i></div><div class="kpi-label">Empresa</div><div class="kpi-value" id="docKpiPublic">—</div></div>
-    <div class="kpi green"><div class="kpi-ico green"><i class="fas fa-user-lock"></i></div><div class="kpi-label">Personales</div><div class="kpi-value" id="docKpiPrivate">—</div></div>
     <div class="kpi gold"><div class="kpi-ico gold"><i class="fas fa-file-lines"></i></div><div class="kpi-label">Total</div><div class="kpi-value" id="docKpiTotal">—</div></div>
     <div class="kpi teal"><div class="kpi-ico teal"><i class="fas fa-clock-rotate-left"></i></div><div class="kpi-label">Último</div><div class="kpi-value" style="font-size:.85rem" id="docKpiLast">—</div></div>
   </div>
 
-  <div class="card" style="margin-bottom:16px">
+  <div class="card">
     <div class="card-hd"><span class="card-title"><i class="fas fa-building" style="color:var(--navy-3);margin-right:6px"></i>Documentos de la Empresa</span><span class="badge b-navy" id="badgePublic">0</span></div>
     <div id="docsPublicList"><div class="empty"><i class="fas fa-globe"></i><p>No hay documentos de empresa disponibles</p></div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-hd"><span class="card-title"><i class="fas fa-user-lock" style="color:var(--green-2);margin-right:6px"></i>Mis Documentos Personales</span><span class="badge b-active" id="badgePrivate">0</span></div>
-    <div id="docsPrivateList"><div class="empty"><i class="fas fa-file-lines"></i><p>No tienes documentos personales cargados aún</p></div></div>
   </div>
 </div>
 
@@ -1732,68 +1773,460 @@ tr:hover td{background:rgba(15,30,53,.015)}
   </div>
 </div>
 
-<!-- Modal: Solicitar Permiso (con soporte) -->
+<!-- ══════════════════════════════════════════════════════
+     Modal: Solicitar Permiso — Premium Redesign
+══════════════════════════════════════════════════════ -->
+<style>
+/* ── Modal Permiso Premium ─────────────────────────────── */
+#modalPermiso .modal{
+  max-width:620px;display:flex;flex-direction:column;max-height:92vh;padding:0;overflow:hidden;
+}
+/* Header navy gradient */
+.perm-hd{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#1c3460 100%);
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.perm-hd::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2.5px;
+  background:linear-gradient(90deg,transparent,var(--gold-3),var(--gold-2),transparent);
+}
+.perm-hd-orb1{position:absolute;right:-50px;top:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(154,123,58,.12),transparent 70%);pointer-events:none}
+.perm-hd-orb2{position:absolute;left:-30px;bottom:-30px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(39,77,130,.14),transparent 70%);pointer-events:none}
+.perm-hd-inner{padding:22px 24px 32px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.perm-hd-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:rgba(154,123,58,.18);border:1.5px solid rgba(154,123,58,.38);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:var(--gold-3);flex-shrink:0;
+  box-shadow:0 4px 16px rgba(154,123,58,.2);
+}
+.perm-hd-text{flex:1}
+.perm-hd-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:400;color:#fff;letter-spacing:.02em;line-height:1.2}
+.perm-hd-sub{font-size:.71rem;color:rgba(255,255,255,.45);margin-top:4px}
+.perm-hd-badge{
+  display:inline-flex;align-items:center;gap:4px;margin-top:7px;
+  background:rgba(154,123,58,.18);border:1px solid rgba(154,123,58,.32);
+  border-radius:99px;padding:2px 10px;font-size:.58rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold-3);
+}
+.perm-hd-close{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  width:32px;height:32px;border-radius:9px;cursor:pointer;
+  color:rgba(255,255,255,.55);font-size:.82rem;
+  display:flex;align-items:center;justify-content:center;transition:all var(--t);flex-shrink:0;
+}
+.perm-hd-close:hover{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.28)}
+/* White curve */
+.perm-curve{height:22px;background:var(--surface);border-radius:22px 22px 0 0;margin-top:-22px;position:relative;z-index:2;flex-shrink:0}
+/* Scrollable body */
+.perm-body{background:var(--surface);padding:6px 24px 20px;overflow-y:auto;flex:1;min-height:0}
+.perm-body::-webkit-scrollbar{width:4px}
+.perm-body::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:99px}
+
+/* Section headers */
+.perm-sec{display:flex;align-items:center;gap:8px;padding:14px 0 10px;border-bottom:1.5px solid var(--border);margin-bottom:14px}
+.perm-sec-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0}
+.perm-sec-ico.navy{background:rgba(39,77,130,.09);color:var(--navy-3)}
+.perm-sec-ico.gold{background:var(--gold-light);color:var(--gold-2)}
+.perm-sec-ico.teal{background:var(--teal-light);color:var(--teal-2)}
+.perm-sec-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-2)}
+.perm-sec-opt{margin-left:auto;font-size:.63rem;color:var(--muted-2);font-weight:500}
+
+/* Tipo chips grid */
+.perm-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+@media(max-width:480px){.perm-chips{grid-template-columns:repeat(2,1fr)}}
+.perm-chip{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:12px 8px;border-radius:var(--radius-md);border:1.5px solid var(--border);
+  background:var(--surface-2);cursor:pointer;transition:all var(--t-spring);
+  text-align:center;user-select:none;
+}
+.perm-chip:hover{border-color:var(--navy-3);background:rgba(39,77,130,.05);transform:translateY(-1px);box-shadow:var(--shadow-xs)}
+.perm-chip.selected{border-color:var(--navy-2);background:rgba(39,77,130,.07);box-shadow:0 0 0 3px rgba(39,77,130,.1)}
+.perm-chip-ico{
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:.92rem;transition:all var(--t);
+}
+.perm-chip:hover .perm-chip-ico,.perm-chip.selected .perm-chip-ico{transform:scale(1.08)}
+.perm-chip-lbl{font-size:.68rem;font-weight:700;color:var(--text-2);line-height:1.2;transition:color var(--t)}
+.perm-chip.selected .perm-chip-lbl{color:var(--navy-1)}
+
+/* Chip color variants */
+.perm-chip.medico    .perm-chip-ico{background:rgba(168,41,41,.08);color:var(--red-2)}
+.perm-chip.personal  .perm-chip-ico{background:rgba(39,77,130,.09);color:var(--navy-3)}
+.perm-chip.academico .perm-chip-ico{background:rgba(11,104,116,.09);color:var(--teal-2)}
+.perm-chip.legal     .perm-chip-ico{background:rgba(154,123,58,.1);color:var(--gold)}
+.perm-chip.calamidad .perm-chip-ico{background:rgba(10,82,64,.09);color:var(--green-2)}
+.perm-chip.otro      .perm-chip-ico{background:rgba(100,113,134,.09);color:var(--muted)}
+.perm-chip.medico.selected{border-color:var(--red-2);background:rgba(168,41,41,.05);box-shadow:0 0 0 3px rgba(168,41,41,.08)}
+.perm-chip.personal.selected{border-color:var(--navy-3);background:rgba(39,77,130,.07);box-shadow:0 0 0 3px rgba(39,77,130,.1)}
+.perm-chip.academico.selected{border-color:var(--teal-2);background:rgba(11,104,116,.06);box-shadow:0 0 0 3px rgba(11,104,116,.08)}
+.perm-chip.legal.selected{border-color:var(--gold);background:var(--gold-light);box-shadow:0 0 0 3px rgba(154,123,58,.1)}
+.perm-chip.calamidad.selected{border-color:var(--green-2);background:var(--green-light);box-shadow:0 0 0 3px rgba(10,82,64,.08)}
+.perm-chip.otro.selected{border-color:var(--muted);background:rgba(100,113,134,.06);box-shadow:0 0 0 3px rgba(100,113,134,.08)}
+
+/* Duración pills */
+.perm-dur-wrap{display:flex;gap:7px;flex-wrap:wrap}
+.perm-dur-pill{
+  flex:1;min-width:calc(50% - 4px);display:flex;align-items:center;gap:8px;
+  padding:9px 12px;border-radius:var(--radius-md);border:1.5px solid var(--border);
+  background:var(--surface-2);cursor:pointer;transition:all var(--t);user-select:none;
+}
+@media(max-width:400px){.perm-dur-pill{min-width:100%;flex:unset;width:100%}}
+.perm-dur-pill:hover{border-color:var(--gold);background:var(--gold-light)}
+.perm-dur-pill.selected{border-color:var(--gold-2);background:var(--gold-light);box-shadow:0 0 0 3px rgba(154,123,58,.1)}
+.perm-dur-dot{width:8px;height:8px;border-radius:50%;background:var(--border-2);flex-shrink:0;transition:background var(--t)}
+.perm-dur-pill.selected .perm-dur-dot{background:var(--gold-2)}
+.perm-dur-lbl{font-size:.75rem;font-weight:600;color:var(--text-2);transition:color var(--t)}
+.perm-dur-pill.selected .perm-dur-lbl{color:var(--gold)}
+.perm-dur-hint{font-size:.62rem;color:var(--muted-2);margin-top:1px}
+
+/* Fecha fin conditional */
+#permFechaFinWrap{
+  overflow:hidden;max-height:0;opacity:0;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease, margin .3s ease;
+  margin-top:0;
+}
+#permFechaFinWrap.visible{max-height:90px;opacity:1;margin-top:0}
+
+/* File upload zone premium */
+.perm-file-zone{
+  border:2px dashed var(--border-2);border-radius:var(--radius-lg);
+  padding:18px 16px;text-align:center;transition:all .22s;cursor:pointer;
+  background:var(--surface-2);position:relative;overflow:hidden;
+}
+.perm-file-zone::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(154,123,58,.04),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.perm-file-zone:hover,.perm-file-zone.drag-over{
+  border-color:var(--gold-2);background:var(--gold-light);
+}
+.perm-file-zone:hover::before,.perm-file-zone.drag-over::before{opacity:1}
+.perm-file-zone.has-file{border-color:var(--green-2);border-style:solid;background:var(--green-light)}
+.perm-file-ico{
+  width:44px;height:44px;border-radius:12px;background:var(--surface);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:var(--muted-2);margin:0 auto 10px;transition:all .2s;
+}
+.perm-file-zone:hover .perm-file-ico{border-color:var(--gold);color:var(--gold);transform:scale(1.07)}
+.perm-file-zone.has-file .perm-file-ico{border-color:var(--green-2);color:var(--green-2)}
+.perm-file-txt{font-size:.77rem;font-weight:600;color:var(--muted);transition:color .2s}
+.perm-file-zone:hover .perm-file-txt{color:var(--gold)}
+.perm-file-zone.has-file .perm-file-txt{color:var(--green-2)}
+.perm-file-sub{font-size:.66rem;color:var(--muted-2);margin-top:3px}
+/* File info pill */
+.perm-file-pill{
+  display:flex;align-items:center;gap:9px;margin-top:10px;
+  padding:9px 13px;background:var(--green-light);
+  border:1px solid rgba(10,82,64,.2);border-radius:var(--radius-md);
+  font-size:.75rem;color:var(--green-2);animation:pageIn .2s ease;
+}
+.perm-file-pill-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.perm-file-remove{background:none;border:none;color:var(--red-2);cursor:pointer;font-size:.8rem;padding:2px 4px;border-radius:4px;transition:background .15s;flex-shrink:0}
+.perm-file-remove:hover{background:var(--red-light)}
+
+/* Character counter */
+.perm-motivo-wrap{position:relative}
+.perm-char-count{position:absolute;bottom:8px;right:10px;font-size:.62rem;color:var(--muted-2);pointer-events:none;transition:color .2s}
+.perm-char-count.warn{color:var(--gold)}
+.perm-char-count.limit{color:var(--red-2)}
+
+/* Footer */
+.perm-footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-shrink:0;flex-wrap:wrap;
+}
+.perm-footer-hint{font-size:.68rem;color:var(--muted-2);display:flex;align-items:center;gap:5px}
+.perm-footer-btns{display:flex;gap:8px;flex-shrink:0}
+
+/* Progress steps */
+.perm-steps{display:flex;align-items:center;gap:0;padding:10px 24px 0;flex-shrink:0;background:var(--surface);position:relative;z-index:2}
+.perm-step{display:flex;align-items:center;gap:6px;flex:1}
+.perm-step-dot{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:800;flex-shrink:0;transition:all .3s;
+  border:2px solid var(--border-2);background:var(--surface-2);color:var(--muted-2);
+}
+.perm-step.done .perm-step-dot{background:var(--green-2);border-color:var(--green-2);color:#fff}
+.perm-step.active .perm-step-dot{background:var(--navy-1);border-color:var(--navy-1);color:#fff;box-shadow:0 0 0 3px rgba(15,30,53,.12)}
+.perm-step-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted-2);transition:color .3s;white-space:nowrap}
+.perm-step.done .perm-step-lbl,.perm-step.active .perm-step-lbl{color:var(--text-2)}
+.perm-step-line{flex:1;height:1.5px;background:var(--border);margin:0 6px;transition:background .3s;max-width:40px}
+.perm-step.done + .perm-step .perm-step-line,.perm-step.done .perm-step-line{background:var(--green-2)}
+@media(max-width:440px){.perm-step-lbl{display:none}.perm-steps{padding:8px 16px 0}}
+</style>
+
 <div class="modal-ov" id="modalPermiso">
-  <div class="modal wide">
-    <div class="modal-hd">
-      <div><div class="modal-title">Solicitar Permiso</div><div class="modal-sub">Completa el formulario y adjunta soporte si aplica</div></div>
-      <button class="modal-close" onclick="closeModal('modalPermiso')"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <div id="permModalAlert" class="alert-box" style="display:none"></div>
-      <div class="form-g">
-        <label class="form-lbl">Tipo de Permiso *</label>
-        <select class="form-ctrl" id="permTipo">
-          <option value="">— Selecciona un tipo —</option>
-          <option>Médico</option>
-          <option>Personal</option>
-          <option>Académico</option>
-          <option>Legal / Judicial</option>
-          <option>Calamidad doméstica</option>
-          <option>Otro</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-g"><label class="form-lbl">Fecha *</label><input type="date" class="form-ctrl" id="permFecha"></div>
-        <div class="form-g">
-          <label class="form-lbl">Duración</label>
-          <select class="form-ctrl" id="permDuracion">
-            <option>Medio día (mañana)</option>
-            <option>Medio día (tarde)</option>
-            <option>Día completo</option>
-            <option>Varios días</option>
-          </select>
+  <div class="modal" style="max-width:620px;display:flex;flex-direction:column;max-height:92vh;padding:0;overflow:hidden">
+
+    <!-- ── Header Navy ── -->
+    <div class="perm-hd">
+      <div class="perm-hd-orb1"></div>
+      <div class="perm-hd-orb2"></div>
+      <div class="perm-hd-inner">
+        <div class="perm-hd-icon"><i class="fas fa-file-pen"></i></div>
+        <div class="perm-hd-text">
+          <div class="perm-hd-title">Solicitar Permiso</div>
+          <div class="perm-hd-sub">Completa el formulario · El administrador revisará tu solicitud</div>
+          <div class="perm-hd-badge"><i class="fas fa-shield-check" style="font-size:.5rem"></i> Legislación colombiana 2026</div>
         </div>
-      </div>
-      <div class="form-g">
-        <label class="form-lbl">Hasta (si aplica varios días)</label>
-        <input type="date" class="form-ctrl" id="permFechaFin">
-      </div>
-      <div class="form-g">
-        <label class="form-lbl">Motivo Detallado *</label>
-        <textarea class="form-ctrl" id="permMotivo" rows="3" placeholder="Explica con detalle el motivo del permiso..."></textarea>
-      </div>
-      <!-- Soporte adjunto -->
-      <div class="form-g">
-        <label class="form-lbl"><i class="fas fa-paperclip" style="margin-right:5px"></i>Documento de Soporte (opcional)</label>
-        <div class="file-zone" id="permFileZone" onclick="document.getElementById('permFileInput').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handlePermFileDrop(event)">
-          <i class="fas fa-cloud-arrow-up" id="permFileIco"></i>
-          <div style="font-size:.78rem;font-weight:600;color:var(--muted)" id="permFileTxt">Arrastra un archivo o haz clic para seleccionar</div>
-          <div style="font-size:.68rem;color:var(--muted-2);margin-top:4px">PDF, JPG, PNG · Máx. 5MB</div>
-        </div>
-        <input type="file" id="permFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="onPermFileSelect(this)">
-        <div id="permFileInfo" style="display:none;margin-top:8px;padding:8px 12px;background:var(--green-light);border:1px solid rgba(10,82,64,.18);border-radius:var(--radius-sm);font-size:.75rem;color:var(--green-2);display:flex;align-items:center;gap:8px">
-          <i class="fas fa-file-check"></i><span id="permFileName">—</span>
-          <button onclick="clearPermFile()" style="margin-left:auto;background:none;border:none;color:var(--red-2);cursor:pointer;font-size:.8rem"><i class="fas fa-times"></i></button>
-        </div>
+        <button class="perm-hd-close" onclick="closeModal('modalPermiso')"><i class="fas fa-times"></i></button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalPermiso')">Cancelar</button>
-      <button class="btn btn-primary" id="permSaveBtn" onclick="savePermiso()"><i class="fas fa-paper-plane"></i> Enviar Solicitud</button>
+
+    <!-- ── Progress Steps ── -->
+    <div class="perm-steps" id="permSteps">
+      <div class="perm-step active" id="pstep1">
+        <div class="perm-step-dot">1</div>
+        <div class="perm-step-lbl">Tipo</div>
+        <div class="perm-step-line"></div>
+      </div>
+      <div class="perm-step" id="pstep2">
+        <div class="perm-step-dot">2</div>
+        <div class="perm-step-lbl">Fechas</div>
+        <div class="perm-step-line"></div>
+      </div>
+      <div class="perm-step" id="pstep3">
+        <div class="perm-step-dot">3</div>
+        <div class="perm-step-lbl">Motivo</div>
+        <div class="perm-step-line"></div>
+      </div>
+      <div class="perm-step" id="pstep4">
+        <div class="perm-step-dot">4</div>
+        <div class="perm-step-lbl">Soporte</div>
+      </div>
     </div>
+
+    <!-- ── White Curve ── -->
+    <div class="perm-curve"></div>
+
+    <!-- ── Scrollable Body ── -->
+    <div class="perm-body">
+      <!-- Alert -->
+      <div id="permModalAlert" class="alert-box" style="display:none;margin-bottom:14px"></div>
+
+      <!-- § 1 · Tipo de permiso -->
+      <div class="perm-sec">
+        <div class="perm-sec-ico navy"><i class="fas fa-tag"></i></div>
+        <span class="perm-sec-lbl">Tipo de Permiso</span>
+        <span class="perm-sec-opt">Requerido *</span>
+      </div>
+      <div class="perm-chips" style="margin-bottom:16px">
+        <div class="perm-chip medico"    onclick="selectPermTipo(this,'Médico')"            tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-stethoscope"></i></div>
+          <div class="perm-chip-lbl">Médico</div>
+        </div>
+        <div class="perm-chip personal"  onclick="selectPermTipo(this,'Personal')"           tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-user"></i></div>
+          <div class="perm-chip-lbl">Personal</div>
+        </div>
+        <div class="perm-chip academico" onclick="selectPermTipo(this,'Académico')"          tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-graduation-cap"></i></div>
+          <div class="perm-chip-lbl">Académico</div>
+        </div>
+        <div class="perm-chip legal"     onclick="selectPermTipo(this,'Legal / Judicial')"   tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-scale-balanced"></i></div>
+          <div class="perm-chip-lbl">Legal / Judicial</div>
+        </div>
+        <div class="perm-chip calamidad" onclick="selectPermTipo(this,'Calamidad doméstica')" tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-house-crack"></i></div>
+          <div class="perm-chip-lbl">Calamidad doméstica</div>
+        </div>
+        <div class="perm-chip otro"      onclick="selectPermTipo(this,'Otro')"                tabindex="0">
+          <div class="perm-chip-ico"><i class="fas fa-ellipsis"></i></div>
+          <div class="perm-chip-lbl">Otro</div>
+        </div>
+      </div>
+      <!-- Hidden select para compatibilidad con savePermiso() -->
+      <select id="permTipo" style="display:none">
+        <option value="">— Selecciona un tipo —</option>
+        <option>Médico</option><option>Personal</option><option>Académico</option>
+        <option>Legal / Judicial</option><option>Calamidad doméstica</option><option>Otro</option>
+      </select>
+
+      <!-- § 2 · Fechas y duración -->
+      <div class="perm-sec">
+        <div class="perm-sec-ico teal"><i class="fas fa-calendar-days"></i></div>
+        <span class="perm-sec-lbl">Fechas y Duración</span>
+        <span class="perm-sec-opt">Requerido *</span>
+      </div>
+
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-g" style="margin-bottom:0">
+          <label class="form-lbl">Fecha de inicio *</label>
+          <input type="date" class="form-ctrl" id="permFecha" oninput="updatePermSteps()">
+        </div>
+        <div id="permFechaFinWrap" class="form-g" style="margin-bottom:0">
+          <label class="form-lbl">Fecha fin</label>
+          <input type="date" class="form-ctrl" id="permFechaFin">
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <label class="form-lbl" style="margin-bottom:9px">Duración</label>
+        <div class="perm-dur-wrap">
+          <div class="perm-dur-pill selected" onclick="selectPermDur(this,'Medio día (mañana)')">
+            <div class="perm-dur-dot"></div>
+            <div><div class="perm-dur-lbl">☀️ Medio día mañana</div><div class="perm-dur-hint">Hasta el mediodía</div></div>
+          </div>
+          <div class="perm-dur-pill" onclick="selectPermDur(this,'Medio día (tarde)')">
+            <div class="perm-dur-dot"></div>
+            <div><div class="perm-dur-lbl">🌤 Medio día tarde</div><div class="perm-dur-hint">Desde el mediodía</div></div>
+          </div>
+          <div class="perm-dur-pill" onclick="selectPermDur(this,'Día completo')">
+            <div class="perm-dur-dot"></div>
+            <div><div class="perm-dur-lbl">📅 Día completo</div><div class="perm-dur-hint">Jornada entera</div></div>
+          </div>
+          <div class="perm-dur-pill" onclick="selectPermDur(this,'Varios días')">
+            <div class="perm-dur-dot"></div>
+            <div><div class="perm-dur-lbl">📆 Varios días</div><div class="perm-dur-hint">Requiere fecha fin</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Hidden select para compatibilidad -->
+      <select id="permDuracion" style="display:none">
+        <option selected>Medio día (mañana)</option>
+        <option>Medio día (tarde)</option>
+        <option>Día completo</option>
+        <option>Varios días</option>
+      </select>
+
+      <!-- § 3 · Motivo -->
+      <div class="perm-sec">
+        <div class="perm-sec-ico gold"><i class="fas fa-pen-line"></i></div>
+        <span class="perm-sec-lbl">Motivo Detallado</span>
+        <span class="perm-sec-opt">Requerido *</span>
+      </div>
+      <div class="form-g perm-motivo-wrap" style="margin-bottom:16px;position:relative">
+        <textarea class="form-ctrl" id="permMotivo" rows="4"
+          placeholder="Describe con detalle el motivo de tu permiso. Entre más información brindes, más rápido podrá ser aprobado..."
+          maxlength="500"
+          oninput="updatePermChars();updatePermSteps()"
+          style="padding-bottom:24px;resize:vertical;min-height:100px"></textarea>
+        <div class="perm-char-count" id="permCharCount">0 / 500</div>
+      </div>
+
+      <!-- § 4 · Soporte -->
+      <div class="perm-sec">
+        <div class="perm-sec-ico navy"><i class="fas fa-paperclip"></i></div>
+        <span class="perm-sec-lbl">Documento de Soporte</span>
+        <span class="perm-sec-opt">Opcional</span>
+      </div>
+      <div class="perm-file-zone" id="permFileZone"
+           onclick="document.getElementById('permFileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handlePermFileDrop(event)">
+        <div class="perm-file-ico"><i class="fas fa-cloud-arrow-up" id="permFileIco"></i></div>
+        <div class="perm-file-txt" id="permFileTxt">Arrastra un archivo o haz clic para seleccionar</div>
+        <div class="perm-file-sub">PDF, JPG, PNG · Máx. 5 MB</div>
+      </div>
+      <input type="file" id="permFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="onPermFileSelect(this)">
+      <div id="permFileInfo" style="display:none">
+        <div class="perm-file-pill">
+          <i class="fas fa-file-check" style="flex-shrink:0"></i>
+          <span class="perm-file-pill-name" id="permFileName">—</span>
+          <button class="perm-file-remove" onclick="clearPermFile()"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+    </div><!-- /perm-body -->
+
+    <!-- ── Footer ── -->
+    <div class="perm-footer">
+      <div class="perm-footer-hint">
+        <i class="fas fa-lock" style="color:var(--muted-2);font-size:.68rem"></i>
+        Tu solicitud es confidencial
+      </div>
+      <div class="perm-footer-btns">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modalPermiso')">Cancelar</button>
+        <button class="btn btn-primary" id="permSaveBtn" onclick="savePermiso()">
+          <i class="fas fa-paper-plane"></i> Enviar Solicitud
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<script>
+/* ── Helpers interactivos del modal de permiso ───────────────── */
+function selectPermTipo(el, valor) {
+  document.querySelectorAll('.perm-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const sel = document.getElementById('permTipo');
+  if (sel) { for (let o of sel.options) { if (o.value === valor || o.text === valor) { o.selected = true; break; } } }
+  updatePermSteps();
+}
+
+function selectPermDur(el, valor) {
+  document.querySelectorAll('.perm-dur-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  const sel = document.getElementById('permDuracion');
+  if (sel) { for (let o of sel.options) { if (o.text === valor) { o.selected = true; break; } } }
+  // Mostrar/ocultar fecha fin
+  const wrap = document.getElementById('permFechaFinWrap');
+  if (wrap) wrap.classList.toggle('visible', valor === 'Varios días');
+}
+
+function updatePermChars() {
+  const ta  = document.getElementById('permMotivo');
+  const cnt = document.getElementById('permCharCount');
+  if (!ta || !cnt) return;
+  const n = ta.value.length;
+  cnt.textContent = n + ' / 500';
+  cnt.className   = 'perm-char-count' + (n >= 480 ? ' limit' : n >= 350 ? ' warn' : '');
+}
+
+function updatePermSteps() {
+  const tipo   = (document.getElementById('permTipo')?.value || '').trim();
+  const fecha  = (document.getElementById('permFecha')?.value || '').trim();
+  const motivo = (document.getElementById('permMotivo')?.value || '').trim();
+  const steps  = ['pstep1','pstep2','pstep3','pstep4'];
+  const done   = [tipo !== '', fecha !== '', motivo.length >= 10, false];
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('done','active');
+    if (done[i]) el.classList.add('done');
+    else if (!done.slice(0,i).some(d=>!d)) el.classList.add('active');
+  });
+  // Si todos los obligatorios están listos, marcar step4 como active
+  if (done[0] && done[1] && done[2]) {
+    document.getElementById('pstep4')?.classList.add('active');
+    document.getElementById('pstep3')?.classList.remove('active');
+  }
+}
+
+// Inicializar al abrir el modal
+document.getElementById('modalPermiso')?.addEventListener('click', function(e) {
+  if (e.target === this) closeModal('modalPermiso');
+});
+// Limpiar estado al abrir
+function openModalPermiso() {
+  // Reset chips
+  document.querySelectorAll('.perm-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.perm-dur-pill').forEach((p,i) => { p.classList.toggle('selected', i===0); });
+  const sel = document.getElementById('permDuracion');
+  if (sel) sel.selectedIndex = 0;
+  const tipoSel = document.getElementById('permTipo');
+  if (tipoSel) tipoSel.value = '';
+  document.getElementById('permFecha') && (document.getElementById('permFecha').value = '');
+  document.getElementById('permFechaFin') && (document.getElementById('permFechaFin').value = '');
+  document.getElementById('permMotivo') && (document.getElementById('permMotivo').value = '');
+  document.getElementById('permFechaFinWrap')?.classList.remove('visible');
+  updatePermChars();
+  updatePermSteps();
+  clearPermFile();
+  const alrt = document.getElementById('permModalAlert');
+  if (alrt) { alrt.style.display='none'; alrt.textContent=''; }
+  openModal('modalPermiso');
+}
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1894,7 +2327,7 @@ async function init() {
     setupUI();
     renderDashboard();
     renderPerfil();
-    renderNomina();
+    await renderNomina();
     renderCompensacion();
     renderDocumentos();
     renderVacaciones();
@@ -2054,9 +2487,17 @@ async function loadSubsidios() {
 
 async function loadDocuments() {
   if (!employeeRowId || !companyId) return;
+  // Documentos públicos de empresa (scope=public) + documentos privados de ESTE empleado (scope=private)
+  // Se excluyen únicamente los adjuntos de permisos subidos por el empleado (path /permisos/)
+  // que van al storage pero NO son parte del expediente digital
   const { data } = await sb.from('documents').select('*').eq('company_id', companyId)
-    .or(`scope.eq.public,and(scope.eq.private,employee_id.eq.${employeeRowId})`).eq('visible_to_employee', true).order('created_at', { ascending: false });
-  allDocuments = data || [];
+    .or(`scope.eq.public,and(scope.eq.private,employee_id.eq.${employeeRowId})`)
+    .eq('visible_to_employee', true)
+    .order('created_at', { ascending: false });
+  allDocuments = (data || []).filter(d => {
+    const p = (d.storage_path || '').toLowerCase();
+    return !p.includes('/permisos/');
+  });
   renderDocumentos();
 }
 
@@ -2169,11 +2610,12 @@ function renderPerfil() {
   s('profAttVal', tot); s('profTardVal', late);
   s('pAttOntime', onT); s('pAttLate', late); s('pAttTotal', tot); s('pAttPct', tot > 0 ? pct + '%' : '—');
 
-  // Docs count badge
-  const pub  = allDocuments.filter(d => d.scope === 'public');
+  // Docs count badge — solo expediente personal (privados + públicos asignados a este empleado)
   const priv = allDocuments.filter(d => d.scope === 'private');
+  const pubEmp = allDocuments.filter(d => d.scope === 'public' && d.employee_id);
+  const expedienteCount = priv.length + pubEmp.length;
   const docsEl = document.getElementById('profDocsBadge');
-  if (docsEl) docsEl.innerHTML = `<i class="fas fa-folder" style="font-size:.55rem"></i> ${allDocuments.length} docs`;
+  if (docsEl) docsEl.innerHTML = `<i class="fas fa-folder" style="font-size:.55rem"></i> ${expedienteCount} docs`;
   s('profVacVal', userVacaciones.length);
 
   // Tab General — Contacto
@@ -2236,15 +2678,20 @@ function renderProfAsistencia() {
 
 function renderProfDocumentos() {
   const el  = document.getElementById('profDocsList');
-  const pub = allDocuments.filter(d => d.scope === 'public');
+  // El tab "Documentos" del perfil muestra SOLO el expediente personal del empleado:
+  // - Privados asignados a este empleado por el admin
+  // - Públicos también se muestran (pueden ser reglamento, etc. asignados al empleado)
+  // Los docs públicos de empresa SIN employee_id se muestran en "Mis Documentos", no aquí
   const prv = allDocuments.filter(d => d.scope === 'private');
+  const pub = allDocuments.filter(d => d.scope === 'public' && d.employee_id);
+  const expediente = [...prv, ...pub];
   const s   = (id, v) => { const x = document.getElementById(id); if (x) x.textContent = v; };
   s('profDocsPublicCount', pub.length + ' públicos');
   s('profDocsPrivCount',   prv.length + ' privados');
-  if (!allDocuments.length) { el.innerHTML = '<div class="empty"><i class="fas fa-file-lines"></i><p>Sin documentos asignados</p></div>'; return; }
+  if (!expediente.length) { el.innerHTML = '<div class="empty"><i class="fas fa-file-lines"></i><p>Sin documentos en el expediente</p></div>'; return; }
   const icoMap  = { pdf:'fa-file-pdf', doc:'fa-file-word', docx:'fa-file-word', xls:'fa-file-excel', xlsx:'fa-file-excel', jpg:'fa-file-image', jpeg:'fa-file-image', png:'fa-file-image' };
   const clrMap  = { pdf:'var(--red-2)', doc:'var(--navy-3)', docx:'var(--navy-3)', xls:'var(--green-2)', xlsx:'var(--green-2)', jpg:'var(--teal-2)', jpeg:'var(--teal-2)', png:'var(--teal-2)' };
-  el.innerHTML = allDocuments.map(d => {
+  el.innerHTML = expediente.map(d => {
     const ext   = (d.file_name || '').split('.').pop()?.toLowerCase();
     const ico   = icoMap[ext]  || 'fa-file';
     const color = clrMap[ext]  || 'var(--muted)';
@@ -2572,6 +3019,9 @@ function _updateVacBtnLock(elegible, vp) {
       btn.style.opacity = '.45';
       btn.style.cursor  = 'not-allowed';
     }
+    // Ocultar alerta de aniversario (aún no habilitado)
+    const annAlertLock = document.getElementById('vacAnniversaryAlert');
+    if (annAlertLock) annAlertLock.style.display = 'none';
     if (lockBanner) {
       lockBanner.style.display = 'block';
 
@@ -2584,9 +3034,17 @@ function _updateVacBtnLock(elegible, vp) {
           : '🔒 Fecha de ingreso no registrada. Contacta a RRHH.';
       }
 
-      // Fecha de habilitación
+      // Fecha de habilitación (20 días antes del aniversario)
       const vlDate = document.getElementById('vacLockDate');
-      if (vlDate) vlDate.textContent = formatDateEs(vp?.fechaAniversario) || '—';
+      if (vlDate) {
+        if (vp?.fechaAniversario) {
+          const habDate = new Date(vp.fechaAniversario + 'T12:00:00');
+          habDate.setDate(habDate.getDate() - 20);
+          vlDate.textContent = formatDateEs(habDate.toISOString().split('T')[0]);
+        } else {
+          vlDate.textContent = '—';
+        }
+      }
 
       // Días totales que recibirá
       const vlDays = document.getElementById('vacLockDaysTotal');
@@ -2654,6 +3112,28 @@ function _updateVacBtnLock(elegible, vp) {
         if (lbMsg) lbMsg.innerHTML = `🔓 ¡Casi listo! Tu primer año se cumple en <strong>${vp.diasParaAniversario} día${vp.diasParaAniversario !== 1 ? 's' : ''}</strong> (${formatDateEs(vp.fechaAniversario)}). Ya puedes <strong>solicitar tus vacaciones con anticipación</strong> para que sean aprobadas a tiempo.`;
       } else {
         lockBanner.style.display = 'none';
+      }
+
+      // ── Alerta de aniversario (cuando ya está habilitado) ──
+      const annAlert = document.getElementById('vacAnniversaryAlert');
+      if (annAlert) {
+        // Mostrar si: preUnlock (habilitado 20 días antes) o recién cumplió el año (elegible normal)
+        const showAnn = vp?.fechaAniversario && (preUnlock || vp?.elegible);
+        if (showAnn) {
+          annAlert.style.display = 'block';
+          const annDate = document.getElementById('vacAnniversaryDate');
+          if (annDate) annDate.textContent = formatDateEs(vp.fechaAniversario);
+          const annMsg = document.getElementById('vacAnniversaryMsg');
+          if (annMsg) {
+            if (preUnlock && vp.diasParaAniversario > 0) {
+              annMsg.innerHTML = `El <strong style="color:var(--gold)">${formatDateEs(vp.fechaAniversario)}</strong> cumples <strong>1 año</strong> con la compañía. ¡Ya puedes solicitar tus vacaciones con anticipación!`;
+            } else {
+              annMsg.innerHTML = `El <strong style="color:var(--gold)">${formatDateEs(vp.fechaAniversario)}</strong> cumples <strong>1 año</strong> con la compañía. ¡Solicita tus vacaciones ahora!`;
+            }
+          }
+        } else {
+          annAlert.style.display = 'none';
+        }
       }
     }
   }
@@ -3934,7 +4414,7 @@ function onPermFileSelect(input) {
     if (zone) zone.classList.add('has-file');
     if (ico)  ico.className = 'fas fa-file-check';
     if (nm)   nm.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
-    if (info) info.style.display = 'flex';
+    if (info) info.style.display = 'block';
     showToast('Archivo adjunto seleccionado ✓', 'success');
   };
   reader.readAsDataURL(file);
@@ -3993,12 +4473,27 @@ async function savePermiso() {
 
   const record = {
     employee_id: employeeRowId, company_id: companyId,
-    permission_type: tipo, request_date: fecha, end_date: fechaFin || null,
+    permission_type: tipo, request_date: fecha,
     duration: duracion, reason: motivo, status: 'pending',
-    support_url: soporteUrl, created_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
   };
+  // Campos opcionales — se añaden solo si la tabla los tiene
+  if (fechaFin) record.fecha_fin = fechaFin;
+  if (soporteUrl) record.support_url = soporteUrl;
 
-  const { error } = await sb.from('permission_requests').insert(record);
+  let { error } = await sb.from('permission_requests').insert(record);
+
+  // Si falla por columnas opcionales, reintentar con campos mínimos
+  if (error && (error.message?.includes('fecha_fin') || error.message?.includes('support_url') || error.message?.includes('end_date'))) {
+    const minRecord = {
+      employee_id: employeeRowId, company_id: companyId,
+      permission_type: tipo, request_date: fecha,
+      duration: duracion, reason: motivo, status: 'pending',
+      created_at: new Date().toISOString(),
+    };
+    const res2 = await sb.from('permission_requests').insert(minRecord);
+    error = res2.error;
+  }
   btn.disabled = false; btn.innerHTML = oldBtnTxt;
 
   if (error) { showErr('Error: ' + error.message); return; }
@@ -4018,35 +4513,210 @@ async function savePermiso() {
 /* ══════════════════════════════════════════════════════════════
    NÓMINA
 ══════════════════════════════════════════════════════════════ */
-function renderNomina() {
-  const NOM = { SMMLV: 1423500, AUX_TRANS: 200000, PENSION: 0.16, SALUD: 0.125, ARL: 0.00522, CAJA: 0.04, SENA: 0.02, ICBF: 0.03 };
-  const sal     = currentEmpData.salario || 0;
-  const salud   = sal * 0.04;
-  const pension = sal * 0.04;
-  const fondo   = sal > 4 * NOM.SMMLV ? sal * 0.01 : 0;
-  const neto    = sal - salud - pension - fondo;
+async function renderNomina() {
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+  const s   = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const row = (lbl, val, color = 'var(--text)') =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.8rem">
+      <span style="color:var(--muted)">${lbl}</span>
+      <span style="font-weight:700;color:${color}">${val}</span>
+    </div>`;
 
-  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  s('nomNetoBig', fmt(neto)); s('nomBruto', fmt(sal)); s('nomDeducc', '-' + fmt(salud + pension + fondo));
-  s('nomPeriodLbl', `Período: ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })} · ${currentEmpData.empresa || ''}`);
+  /* ══ 1. Cargar snapshots del empleado desde Supabase ══
+     Estructura real del app.html:
+       payroll_snapshots          → cierre general (year, month, quincena, processed_at)
+       payroll_snapshot_employees → detalle por empleado (snapshot_id, employee_id,
+                                    salario_base, aux_trans, deducciones, neto, salario)
+  */
+  let empRows    = [];   // filas de payroll_snapshot_employees con snapshot adjunto
+  let cierreActual = null;
 
-  const auxT = sal <= (2 * NOM.SMMLV) ? NOM.AUX_TRANS : 0;
-  const row  = (lbl, val, color = 'var(--text)') => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.8rem"><span style="color:var(--muted)">${lbl}</span><span style="font-weight:700;color:${color}">${val}</span></div>`;
+  if (employeeRowId && companyId) {
+    try {
+      // Traer todos los snapshots de la empresa ordenados por fecha desc
+      const { data: snaps } = await sb
+        .from('payroll_snapshots')
+        .select('id, year, month, quincena, processed_at')
+        .eq('company_id', companyId)
+        .order('processed_at', { ascending: false })
+        .limit(24);
 
+      if (snaps && snaps.length) {
+        const snapIds = snaps.map(s => s.id);
+
+        // Traer las filas de este empleado que pertenezcan a esos snapshots
+        const { data: detalles } = await sb
+          .from('payroll_snapshot_employees')
+          .select('*')
+          .eq('employee_id', employeeRowId)
+          .in('snapshot_id', snapIds);
+
+        if (detalles && detalles.length) {
+          // Asociar cada detalle con su snapshot para tener year/month/quincena
+          empRows = detalles.map(d => ({
+            ...d,
+            _snap: snaps.find(sn => sn.id === d.snapshot_id) || null,
+          })).sort((a, b) => {
+            // Ordenar por fecha del snapshot descendente
+            const da = a._snap?.processed_at || '';
+            const db = b._snap?.processed_at || '';
+            return db.localeCompare(da);
+          });
+          cierreActual = empRows[0];
+        }
+      }
+    } catch (err) {
+      console.warn('renderNomina Supabase error:', err);
+    }
+  }
+
+  /* ══ 2. Extraer valores del cierre más reciente o estimar ══ */
+  const NOM_SMMLV    = 1750905;
+  const NOM_AUX_TRANS = 200000;
+  let sal, auxT, deducciones, neto, devengado, periodoLabel, procesadaLabel;
+
+  if (cierreActual) {
+    // Columnas reales de payroll_snapshot_employees
+    sal         = parseFloat(cierreActual.salario_base || cierreActual.salario || 0);
+    auxT        = parseFloat(cierreActual.aux_trans    || 0);
+    deducciones = parseFloat(cierreActual.deducciones  || 0);
+    neto        = parseFloat(cierreActual.neto         || 0);
+    devengado   = sal + auxT;
+
+    const snap = cierreActual._snap;
+    if (snap) {
+      const mesNombre = MESES[(snap.month || 1) - 1] || '';
+      const qLabel    = snap.quincena === 'mensual' ? 'Mensual' : (snap.quincena === '1' ? '1ª Quincena' : '2ª Quincena');
+      periodoLabel    = `Período: ${mesNombre} ${snap.year} · ${qLabel} · ${currentEmpData.empresa || ''}`;
+      const pd        = new Date(snap.processed_at);
+      procesadaLabel  = `Procesada el ${pd.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })}`;
+    } else {
+      periodoLabel   = `Período procesado · ${currentEmpData.empresa || ''}`;
+      procesadaLabel = '';
+    }
+  } else {
+    // Fallback estimado desde salario del perfil
+    sal         = currentEmpData.salario || 0;
+    const salud = Math.round(sal * 0.04);
+    const pens  = Math.round(sal * 0.04);
+    deducciones = salud + pens;
+    auxT        = sal <= 2 * NOM_SMMLV ? NOM_AUX_TRANS : 0;
+    devengado   = sal + auxT;
+    neto        = devengado - deducciones;
+    periodoLabel   = `Período estimado: ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })} · ${currentEmpData.empresa || ''}`;
+    procesadaLabel = '';
+  }
+
+  /* ══ 3. Hero ══ */
+  s('nomNetoBig',   fmt(neto));
+  s('nomBruto',     fmt(sal));
+  s('nomDeducc',    '-' + fmt(deducciones));
+  s('nomPeriodLbl', periodoLabel + (procesadaLabel ? ' · ' + procesadaLabel : ''));
+
+  /* ══ 4. Conceptos de pago ══ */
   const concEl = document.getElementById('nomConceptos');
-  if (concEl) concEl.innerHTML =
-    row('Salario base', fmt(sal)) +
-    (auxT > 0 ? row('Auxilio de transporte', fmt(auxT), 'var(--green-2)') : '') +
-    row('Horas extras', '—') + row('Bonificaciones', '—') +
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800"><span>Total Devengado</span><span style="color:var(--green-2)">${fmt(sal + auxT)}</span></div>`;
+  if (concEl) {
+    // Desgloses individuales — se calculan porque payroll_snapshot_employees
+    // solo guarda totales; aplicamos las mismas tasas del app.html
+    const saludVal   = cierreActual ? Math.round(sal * 0.04) : Math.round(sal * 0.04);
+    const pensionVal = cierreActual ? Math.round(sal * 0.04) : Math.round(sal * 0.04);
+    const fondoVal   = deducciones - saludVal - pensionVal > 0 ? deducciones - saludVal - pensionVal : 0;
 
+    concEl.innerHTML =
+      row('Salario base', fmt(sal)) +
+      (auxT > 0 ? row('Auxilio de transporte', fmt(auxT), 'var(--green-2)') : row('Auxilio de transporte', '—')) +
+      row('Horas extras', '—') +
+      row('Bonificaciones', '—') +
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800">
+        <span>Total Devengado</span><span style="color:var(--green-2)">${fmt(devengado)}</span>
+      </div>`;
+  }
+
+  /* ══ 5. Descuentos de ley ══ */
   const descEl = document.getElementById('nomDescuentos');
-  if (descEl) descEl.innerHTML =
-    row('Salud empleado (4%)', '-' + fmt(salud), 'var(--red-2)') +
-    row('Pensión empleado (4%)', '-' + fmt(pension), 'var(--red-2)') +
-    (fondo > 0 ? row('Fondo solidaridad (1%)', '-' + fmt(fondo), 'var(--red-2)') : row('Fondo solidaridad', '—', 'var(--muted)')) +
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800"><span>Total Deducciones</span><span style="color:var(--red-2)">-${fmt(salud + pension + fondo)}</span></div>`;
+  if (descEl) {
+    const saludVal   = Math.round(sal * 0.04);
+    const pensionVal = Math.round(sal * 0.04);
+    const restoDeducc = deducciones - saludVal - pensionVal;
+    const fondoVal   = restoDeducc > 0 ? restoDeducc : 0;
+
+    descEl.innerHTML =
+      row('Salud empleado (4%)',   '-' + fmt(saludVal),   'var(--red-2)') +
+      row('Pensión empleado (4%)', '-' + fmt(pensionVal), 'var(--red-2)') +
+      (fondoVal > 0
+        ? row('Retención / Fondo solidaridad', '-' + fmt(fondoVal), 'var(--red-2)')
+        : row('Fondo solidaridad', '—', 'var(--muted)')) +
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:.82rem;font-weight:800">
+        <span>Total Deducciones</span><span style="color:var(--red-2)">-${fmt(deducciones)}</span>
+      </div>`;
+  }
+
+  /* ══ 6. Historial de nóminas ══ */
+  const histEl = document.getElementById('nomHistorial');
+  if (histEl) {
+    if (empRows.length) {
+      histEl.innerHTML = empRows.map((r, i) => {
+        const snap    = r._snap;
+        const mesNom  = snap ? (MESES[(snap.month || 1) - 1] + ' ' + snap.year) : 'Período';
+        const qLbl    = snap?.quincena === 'mensual' ? 'Mensual' : (snap?.quincena === '1' ? '1ª Quincena' : '2ª Quincena');
+        const netoR   = parseFloat(r.neto || 0);
+        const salR    = parseFloat(r.salario_base || r.salario || 0);
+        const auxR    = parseFloat(r.aux_trans || 0);
+        const dedR    = parseFloat(r.deducciones || 0);
+        const isActual= i === 0;
+        const pd      = snap?.processed_at ? new Date(snap.processed_at).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:var(--radius-md);background:${isActual ? 'rgba(10,82,64,.12)' : 'var(--surface-2)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-file-invoice-dollar" style="color:${isActual ? 'var(--green-2)' : 'var(--muted)'};font-size:.9rem"></i>
+            </div>
+            <div>
+              <div style="font-size:.83rem;font-weight:700;text-transform:capitalize">${mesNom} <span style="font-weight:400;color:var(--muted);font-size:.72rem">· ${qLbl}</span></div>
+              <div style="font-size:.7rem;color:var(--muted-2);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap">
+                <span>Salario: <strong style="color:var(--text-3)">${fmt(salR)}</strong></span>
+                ${auxR > 0 ? `<span>Aux.: <strong style="color:var(--green-2)">${fmt(auxR)}</strong></span>` : ''}
+                <span>Deducc.: <strong style="color:var(--red-2)">-${fmt(dedR)}</strong></span>
+              </div>
+              ${pd ? `<div style="font-size:.64rem;color:var(--muted-2);margin-top:2px"><i class="fas fa-clock" style="font-size:.58rem"></i> Procesada ${pd}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <div style="text-align:right">
+              <div style="font-size:.9rem;font-weight:800;color:var(--green-2)">${fmt(netoR)}</div>
+              <div style="font-size:.65rem;color:var(--muted)">neto recibido</div>
+            </div>
+            ${isActual
+              ? '<span class="badge b-active" style="white-space:nowrap"><i class="fas fa-circle-check" style="font-size:.55rem"></i> Actual</span>'
+              : '<span class="badge b-navy" style="white-space:nowrap">Procesada</span>'}
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      histEl.innerHTML = `<div class="empty"><i class="fas fa-money-bill-wave"></i><p>Historial disponible cuando se procesen nóminas</p></div>`;
+    }
+  }
+
+  /* ══ 7. Alerta estimado / oficial ══ */
+  const alertId   = 'nomAlertEstimado';
+  let   alertExist = document.getElementById(alertId);
+  const pageNom    = document.getElementById('page-nomina-personal');
+
+  if (!cierreActual) {
+    if (!alertExist && pageNom) {
+      const alertEl = document.createElement('div');
+      alertEl.id        = alertId;
+      alertEl.className = 'alert-box warn';
+      alertEl.style.marginBottom = '16px';
+      alertEl.innerHTML = `<i class="fas fa-triangle-exclamation"></i>
+        <span>Los valores mostrados son una <strong>estimación</strong> basada en tu salario registrado.
+        Cuando el administrador procese la nómina, verás los valores oficiales.</span>`;
+      pageNom.querySelector('.nom-hero')?.insertAdjacentElement('afterend', alertEl);
+    }
+  } else {
+    alertExist?.remove();
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -4414,6 +5084,7 @@ function nav(page, el) {
   if (page === 'mis-asistencias') renderMisAsistencias();
   if (page === 'perfil') renderPerfil();
   if (page === 'compensacion') renderCompensacion();
+  if (page === 'nomina-personal') renderNomina();
 }
 
 /* ══ SIDEBAR ══ */
@@ -4445,5 +5116,69 @@ async function logout() {
 ══════════════════════════════════════════════════════════════ */
 init();
 </script>
+
+<!-- ╔═══ AVATAR LIGHTBOX ═══╗ -->
+<div id="avatarLightbox" onclick="closeAvatarLightbox()" style="
+  display:none;position:fixed;inset:0;z-index:9500;
+  background:rgba(8,15,26,.85);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+  animation:gaBgIn .25s ease;
+  cursor:zoom-out;
+">
+  <button onclick="event.stopPropagation();closeAvatarLightbox()" style="
+    position:absolute;top:18px;right:18px;
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);
+    color:#fff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background .2s;
+  " onmouseenter="this.style.background='rgba(255,255,255,.2)'" onmouseleave="this.style.background='rgba(255,255,255,.1)'">
+    <i class="fas fa-xmark"></i>
+  </button>
+  <div onclick="event.stopPropagation()" style="
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    animation:modalIn .28s cubic-bezier(.34,1.4,.64,1);
+  ">
+    <div id="avatarLightboxImg" style="
+      width:220px;height:220px;border-radius:50%;
+      background:linear-gradient(135deg,var(--navy-3),var(--gold));
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-serif);font-size:5rem;font-weight:400;color:#fff;
+      overflow:hidden;
+      border:4px solid rgba(154,123,58,.5);
+      box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 8px rgba(154,123,58,.08);
+    "></div>
+    <div id="avatarLightboxName" style="font-family:var(--font-serif);font-size:1.4rem;color:#fff;letter-spacing:.02em;text-align:center;opacity:.9"></div>
+    <div id="avatarLightboxRole" style="font-size:.78rem;color:rgba(255,255,255,.45);text-align:center;margin-top:-8px"></div>
+  </div>
+</div>
+
+<script>
+function openAvatarLightbox() {
+  const lb      = document.getElementById('avatarLightbox');
+  const imgWrap = document.getElementById('avatarLightboxImg');
+  const nameEl  = document.getElementById('avatarLightboxName');
+  const roleEl  = document.getElementById('avatarLightboxRole');
+  const avatarUrl = currentEmpData?.avatar_url;
+  const fullName  = ((currentEmpData?.nombre || '') + ' ' + (currentEmpData?.apellido || '')).trim() || 'Empleado';
+  const ini       = ((currentEmpData?.nombre || '?')[0] + (currentEmpData?.apellido || '')[0]).toUpperCase();
+  if (avatarUrl) {
+    imgWrap.innerHTML = '<img src="' + avatarUrl + '" alt="' + fullName + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  } else {
+    imgWrap.textContent = ini;
+  }
+  if (nameEl) nameEl.textContent = fullName;
+  if (roleEl) roleEl.textContent = (currentEmpData?.cargo || '') + (currentEmpData?.dept ? ' · ' + currentEmpData.dept : '');
+  lb.style.display = 'flex';
+  document.addEventListener('keydown', _lbEscListener);
+}
+function closeAvatarLightbox() {
+  document.getElementById('avatarLightbox').style.display = 'none';
+  document.removeEventListener('keydown', _lbEscListener);
+}
+function _lbEscListener(e) {
+  if (e.key === 'Escape') closeAvatarLightbox();
+}
+</script>
+
 </body>
 </html>
