@@ -8072,7 +8072,7 @@ function openEmpModal(id) {
     calcPayPreview();
     bloquearAcceso(false);
     // Clear any leftover _new_ documents from previous sessions
-    try { localStorage.removeItem(getDocEmpKey('_new_')); } catch(e) {}
+    _docEmpCache = [];
   }
   // Reset to first tab
   empSwitchTab(document.getElementById('empStep0'), 'etPersonal', 0);
@@ -8262,7 +8262,7 @@ async function saveEmp() {
 
   closeModal('empModal');
   // Migrate temp docs to actual employee id if this was a new employee
-  if (!editingEmpId && result && result.id) { migrateNewDocEmp(result.id); }
+  if (!editingEmpId && result && result.id) { await migrateNewDocEmp(result.id); }
   await loadEmployees();
   renderEmpleados();
   // Forzar reconstrucción del selector de años al guardar un empleado
@@ -8373,7 +8373,7 @@ async function deleteEmp(id) {
   showToast('Empleado eliminado', 'warn');
 }
 
-function viewEmp(id) {
+async function viewEmp(id) {
   const e = employees.find(emp => emp.id === id || emp._supaId === id);
   if (!e) return;
 
@@ -8398,7 +8398,19 @@ function viewEmp(id) {
   const lates   = empAtts.filter(a => a.status === 'late').length;
   const ontime  = empAtts.filter(a => a.status !== 'late').length;
   const empVacs = vacaciones.filter(v => v.empId === e._supaId);
-  const empDocs = (function() { try { return JSON.parse(localStorage.getItem('empDocs_'+e._supaId)||'[]'); } catch(x) { return []; } })();
+
+  // Cargar documentos del empleado desde Supabase
+  let empDocs = [];
+  if (e._supaId && currentCompanyId) {
+    const { data: docsData } = await sb.from('documents').select('*')
+      .eq('company_id', currentCompanyId).eq('employee_id', e._supaId).eq('scope', 'private')
+      .order('created_at', { ascending: false });
+    empDocs = (docsData || []).map(d => ({
+      _supaId: d.id, name: d.display_name || d.file_name,
+      tipo: d.category || 'Otro', visible: d.visible_to_employee,
+      date: d.created_at,
+    }));
+  }
   const publicDocs  = empDocs.filter(d => d.visible !== false);
   const privateDocs = empDocs.filter(d => d.visible === false);
   const allDocs = empDocs;
@@ -14135,22 +14147,47 @@ function validateEmpDoc(input) {
   return true;
 }
 
-/* ═══ DOCUMENTOS DEL EMPLEADO (localStorage) ═══ */
+/* ═══ DOCUMENTOS DEL EMPLEADO (Supabase) ═══ */
 var _docEmpCurrentId = null;
-
-function getDocEmpKey(empId) { return 'empDocs_' + empId; }
-
-function loadDocEmpDocs(empId) {
-  try { return JSON.parse(localStorage.getItem(getDocEmpKey(empId)) || '[]'); } catch(e) { return []; }
-}
-
-function saveDocEmpDocs(empId, docs) {
-  try { localStorage.setItem(getDocEmpKey(empId), JSON.stringify(docs)); } catch(e) { showToast('Error al guardar documento localmente', 'error'); }
-}
+var _docEmpCache = []; // cache en memoria de los docs del empleado actual
 
 function initDocEmpTab() {
-  // determine current employee id
   _docEmpCurrentId = editingEmpId || '_new_';
+  _docEmpCache = [];
+  if (_docEmpCurrentId && _docEmpCurrentId !== '_new_') {
+    loadDocEmpFromSupabase(_docEmpCurrentId);
+  } else {
+    renderDocEmpList();
+  }
+}
+
+async function loadDocEmpFromSupabase(empId) {
+  if (!empId || empId === '_new_') { renderDocEmpList(); return; }
+  const listEl = document.getElementById('docEmpList');
+  if (listEl) listEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.8rem"><i class="fas fa-spinner fa-spin"></i> Cargando documentos…</div>';
+  try {
+    const { data, error } = await sb.from('documents')
+      .select('*')
+      .eq('company_id', currentCompanyId)
+      .eq('employee_id', empId)
+      .eq('scope', 'private')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    _docEmpCache = (data || []).map(d => ({
+      _supaId: d.id,
+      name: d.file_name,
+      customName: d.display_name || d.file_name,
+      tipo: d.category || 'Otro',
+      fecha: new Date(d.created_at).toLocaleDateString('es-CO'),
+      size: d.file_size,
+      storage_path: d.storage_path,
+      visible: d.visible_to_employee,
+      ts: new Date(d.created_at).getTime(),
+    }));
+  } catch(e) {
+    console.warn('Error cargando docs del empleado:', e.message);
+    _docEmpCache = [];
+  }
   renderDocEmpList();
 }
 
@@ -14183,18 +14220,21 @@ function filterDocEmp(filter, btn) {
   renderDocEmpList();
 }
 
-function toggleDocEmpVisibility(idx) {
-  const id = _docEmpCurrentId;
-  const docs = loadDocEmpDocs(id);
-  if (!docs[idx]) return;
-  docs[idx].visible = !docs[idx].visible;
-  saveDocEmpDocs(id, docs);
+async function toggleDocEmpVisibility(idx) {
+  const doc = _docEmpCache[idx];
+  if (!doc) return;
+  const newVisible = !doc.visible;
+  if (doc._supaId) {
+    const { error } = await sb.from('documents').update({ visible_to_employee: newVisible }).eq('id', doc._supaId);
+    if (error) { showToast('Error al cambiar visibilidad: ' + error.message, 'error'); return; }
+  }
+  _docEmpCache[idx].visible = newVisible;
   renderDocEmpList();
+  showToast(newVisible ? '✓ Documento visible para el empleado' : '✓ Documento oculto del portal', newVisible ? 'success' : 'warn');
 }
 
 function renderDocEmpList() {
-  const id = _docEmpCurrentId;
-  const allDocs = loadDocEmpDocs(id);
+  const allDocs = _docEmpCache;
   const listEl = document.getElementById('docEmpList');
   const badge = document.getElementById('docEmpBadge');
   if (!listEl) return;
@@ -14273,7 +14313,7 @@ function renderDocEmpList() {
           ${isVisible ? 'Visible' : 'Oculto'}
         </div>
         <div class="xdz-card-acts">
-          ${doc.dataUrl ? `<button class="xdz-act-btn dl" title="Descargar" onclick="downloadDocEmp(${realIdx})"><i class="fas fa-download"></i></button>` : ''}
+          <button class="xdz-act-btn dl" title="Descargar" onclick="downloadDocEmp(${realIdx})"><i class="fas fa-download"></i></button>
           <button class="xdz-act-btn del" title="Eliminar" onclick="deleteDocEmp(${realIdx})"><i class="fas fa-trash"></i></button>
         </div>
       </div>
@@ -14294,66 +14334,170 @@ function handleDocEmpDrop(event) {
   Array.from(event.dataTransfer.files).forEach(f => addDocEmpFile(f));
 }
 
-function addDocEmpFile(file) {
+async function addDocEmpFile(file) {
   if (file.size > 10 * 1024 * 1024) { showToast('El archivo supera 10MB: ' + file.name, 'error'); return; }
   const tipo = document.getElementById('docEmpTipoSel')?.value || 'Otro';
   const customName = (document.getElementById('docEmpNombreCustom')?.value || '').trim();
   const visCheck = document.getElementById('docNewVisCheck');
   const visible = visCheck ? visCheck.checked : true;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const id = _docEmpCurrentId || '_new_';
-    const docs = loadDocEmpDocs(id);
-    docs.push({
+
+  const empId = _docEmpCurrentId;
+
+  // Si aún no hay empleado guardado, guardar temporalmente en memoria
+  if (!empId || empId === '_new_') {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      _docEmpCache.push({
+        _supaId: null,
+        name: file.name,
+        customName: customName || file.name,
+        tipo: tipo,
+        fecha: new Date().toLocaleDateString('es-CO'),
+        size: file.size,
+        dataUrl: ev.target.result,
+        visible: visible,
+        ts: Date.now(),
+        _pendingFile: file,
+      });
+      const cn = document.getElementById('docEmpNombreCustom');
+      if (cn) cn.value = '';
+      renderDocEmpList();
+      showToast('Documento en cola — se subirá al guardar el empleado ✓', 'success');
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  // Empleado ya existe → subir directo a Supabase
+  showToast('Subiendo documento…', 'success');
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${currentCompanyId}/private/${empId}/${Date.now()}_${safeName}`;
+
+    const { error: storageErr } = await sb.storage.from('documents').upload(path, file, { upsert: false });
+    if (storageErr) throw storageErr;
+
+    const record = {
+      company_id: currentCompanyId,
+      employee_id: empId,
+      scope: 'private',
+      display_name: customName || file.name,
+      file_name: file.name,
+      storage_path: path,
+      file_size: file.size,
+      mime_type: file.type || 'application/octet-stream',
+      category: tipo,
+      description: '',
+      visible_to_employee: visible,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data: inserted, error: dbErr } = await sb.from('documents').insert(record).select().single();
+    if (dbErr) throw dbErr;
+
+    _docEmpCache.unshift({
+      _supaId: inserted.id,
       name: file.name,
       customName: customName || file.name,
       tipo: tipo,
       fecha: new Date().toLocaleDateString('es-CO'),
       size: file.size,
-      dataUrl: e.target.result,
-      ts: Date.now(),
+      storage_path: path,
       visible: visible,
+      ts: Date.now(),
     });
-    saveDocEmpDocs(id, docs);
-    // Clear custom name after use
+
     const cn = document.getElementById('docEmpNombreCustom');
     if (cn) cn.value = '';
     renderDocEmpList();
-    showToast('Documento cargado ✓', 'success');
-  };
-  reader.readAsDataURL(file);
+    showToast('Documento subido correctamente ✓', 'success');
+  } catch(err) {
+    showToast('Error al subir documento: ' + err.message, 'error');
+  }
 }
 
-function deleteDocEmp(idx) {
+async function deleteDocEmp(idx) {
   if (!confirm('¿Eliminar este documento?')) return;
-  const id = _docEmpCurrentId;
-  const docs = loadDocEmpDocs(id);
-  docs.splice(idx, 1);
-  saveDocEmpDocs(id, docs);
+  const doc = _docEmpCache[idx];
+  if (!doc) return;
+  if (doc._supaId) {
+    // Eliminar de Storage
+    if (doc.storage_path) await sb.storage.from('documents').remove([doc.storage_path]);
+    // Eliminar de la tabla
+    const { error } = await sb.from('documents').delete().eq('id', doc._supaId);
+    if (error) { showToast('Error al eliminar: ' + error.message, 'error'); return; }
+  }
+  _docEmpCache.splice(idx, 1);
   renderDocEmpList();
   showToast('Documento eliminado', 'warn');
 }
 
-function downloadDocEmp(idx) {
-  const id = _docEmpCurrentId;
-  const docs = loadDocEmpDocs(id);
-  const doc = docs[idx];
-  if (!doc || !doc.dataUrl) return;
-  const a = document.createElement('a');
-  a.href = doc.dataUrl;
-  a.download = doc.name;
-  a.click();
+async function downloadDocEmp(idx) {
+  const doc = _docEmpCache[idx];
+  if (!doc) return;
+  // Si tiene dataUrl (doc temporal aún no guardado)
+  if (doc.dataUrl) {
+    const a = document.createElement('a');
+    a.href = doc.dataUrl;
+    a.download = doc.name;
+    a.click();
+    return;
+  }
+  // Si tiene storage_path → descargar desde Supabase
+  if (doc.storage_path) {
+    try {
+      const { data, error } = await sb.storage.from('documents').download(doc.storage_path);
+      if (error) throw error;
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url; a.download = doc.name;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast(`"${doc.name}" descargado`, 'success');
+    } catch(err) { showToast('Error al descargar: ' + err.message, 'error'); }
+  }
 }
 
-// After saving an employee, migrate docs from _new_ to actual employee id
-function migrateNewDocEmp(newEmpId) {
-  const tempKey = getDocEmpKey('_new_');
-  const docs = JSON.parse(localStorage.getItem(tempKey) || '[]');
-  if (docs.length && newEmpId) {
-    const existDocs = loadDocEmpDocs(newEmpId);
-    saveDocEmpDocs(newEmpId, [...existDocs, ...docs]);
-    localStorage.removeItem(tempKey);
+// Después de guardar un empleado nuevo, subir a Supabase los docs que estaban en cola
+async function migrateNewDocEmp(newEmpId) {
+  const pending = _docEmpCache.filter(d => !d._supaId && (d._pendingFile || d.dataUrl));
+  if (!pending.length || !newEmpId) return;
+  let uploaded = 0;
+  for (const doc of pending) {
+    try {
+      let fileBlob = doc._pendingFile;
+      // Si no hay File object, reconstruir desde dataUrl
+      if (!fileBlob && doc.dataUrl) {
+        const res = await fetch(doc.dataUrl);
+        fileBlob = await res.blob();
+      }
+      if (!fileBlob) continue;
+      const safeName = doc.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = `${currentCompanyId}/private/${newEmpId}/${Date.now()}_${safeName}`;
+      const { error: storageErr } = await sb.storage.from('documents').upload(path, fileBlob, { upsert: false });
+      if (storageErr) throw storageErr;
+      const record = {
+        company_id: currentCompanyId,
+        employee_id: newEmpId,
+        scope: 'private',
+        display_name: doc.customName || doc.name,
+        file_name: doc.name,
+        storage_path: path,
+        file_size: doc.size,
+        mime_type: fileBlob.type || 'application/octet-stream',
+        category: doc.tipo || 'Otro',
+        description: '',
+        visible_to_employee: doc.visible !== false,
+        created_at: new Date().toISOString(),
+      };
+      await sb.from('documents').insert(record);
+      uploaded++;
+    } catch(e) {
+      console.warn('Error migrando doc pendiente:', doc.name, e.message);
+    }
   }
+  _docEmpCache = [];
+  if (uploaded > 0) showToast(`${uploaded} documento${uploaded > 1 ? 's' : ''} del expediente guardado${uploaded > 1 ? 's' : ''} ✓`, 'success');
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -16712,5 +16856,4 @@ console.log('✅ INBIO NEXUS · Módulo Vacaciones Robusto v2 + Caja Compensaci�
 </script>
 </body>
 </html>
-
 
